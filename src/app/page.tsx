@@ -3,11 +3,22 @@
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import { MenuHeader } from './components/MenuHeader';
+import { RecommendationsSlider } from './components/RecommendationsSlider';
+import { ProductGrid } from './components/ProductGrid';
+import { SubMenu } from './components/SubMenu';
+import { CategoryDisplay } from './components/CategoryDisplay';
+import { CartProvider } from './contexts/cart-context';
+import { products } from './data/products';
+import { Footer } from './components/Footer';
 
 export default function Home() {
   const [isHoursOpen, setIsHoursOpen] = useState(false);
   const aboutRef = useRef(null);
   const isInView = useInView(aboutRef, { once: true });
+  const [selectedCategory, setSelectedCategory] = useState('Wszystkie');
+  const [sortOrder, setSortOrder] = useState('default');
 
   const weekHours = [
     { day: 'Poniedziałek', hours: '11:00-23:00' },
@@ -78,16 +89,18 @@ export default function Home() {
         </div>
 
         {/* Navbar */}
-        <nav className="relative z-10 flex justify-between items-center px-32 py-16">
-          <Image
-            src="/logo.png"
-            alt="Głodny Smok"
-            width={147}
-            height={66}
-          />
+        <nav className="relative z-10 flex flex-col md:flex-row justify-between items-center px-4 md:px-32 py-4 md:py-16">
+          <div className="flex justify-center md:justify-start w-full md:w-auto">
+            <Image
+              src="/logo.png"
+              alt="Głodny Smok"
+              width={147}
+              height={66}
+            />
+          </div>
           
-          <div className="flex items-center gap-12">
-            <div className="flex gap-12 text-white">
+          <div className="flex items-center gap-4 md:gap-12 mt-4 md:mt-0">
+            <div className="flex gap-4 md:gap-12 text-white">
               <a href="#about" className="hover:text-gray-300">O NAS</a>
               <a href="#" className="hover:text-gray-300">MENU</a>
               <a 
@@ -99,7 +112,7 @@ export default function Home() {
                 FACEBOOK
               </a>
             </div>
-            <button className="bg-[#E8341A] text-white px-8 py-3 rounded-lg hover:bg-[#E8341A]/90">
+            <button className="bg-[#E8341A] text-white px-4 md:px-8 py-2 md:py-3 rounded-lg hover:bg-[#E8341A]/90">
               ZAMÓW ONLINE
             </button>
           </div>
@@ -242,6 +255,32 @@ export default function Home() {
           ZOBACZ NASZE MENU
         </motion.button>
       </div>
+
+      {/* Nowa sekcja menu restauracji */}
+      <CartProvider>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <MenuHeader />
+          <RecommendationsSlider products={products.filter(p => p.isBestseller)} />
+          <CategoryDisplay category={selectedCategory} />
+          <SubMenu 
+            categories={[
+              'Wszystkie', 'Chrupiące specjały', 'Kubełki', 'Przekąski', 'Z kurczakiem', 'Z wołowiną', 'Wege', 'Z krewetkami', 'Ryż smażony', 'Zupy', 'Thai Curry', 'Makarony', 'Pad Thai', 'Kebab', 'Sałatki', 'Napoje'
+            ]}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+          />
+          <ProductGrid 
+            products={products}
+            selectedCategory={selectedCategory}
+            sortOrder={sortOrder}
+          />
+        </div>
+      </CartProvider>
+
+      {/* Dodanie stopki */}
+      <Footer />
     </main>
   );
 }
