@@ -64,9 +64,9 @@ export default function Home() {
 
   return (
     <main>
-      {/* Hero section z tłem */}
+      {/* Hero section z BG */}
       <div className="relative h-[75vh]">
-        {/* Tło */}
+        {/* BG */}
         <div className="absolute inset-0">
           <Image
             src="/slide-1.jpg"
@@ -77,7 +77,7 @@ export default function Home() {
               filter: 'contrast(125%) brightness(75%)'
             }}
           />
-          {/* Gradient nakładany na zdjęcie */}
+          {/* Gradient*/}
           <div 
             className="absolute inset-0" 
             style={{
@@ -129,7 +129,6 @@ export default function Home() {
             Zapraszamy do zamówień online!
           </motion.h1>
           
-          {/* Czerwona linia */}
           <div className="w-[1097px] h-[5px] bg-gradient-to-r my-4" />
 
           <motion.button 
@@ -142,7 +141,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Sekcja godzin otwarcia z białym tłem */}
+      {/* Godz. otwarcia */}
       <div className="relative">
         {/* Biała fala na górze */}
         <div className="absolute -top-20 left-0 right-0 h-32 bg-white" style={{
@@ -217,7 +216,6 @@ export default function Home() {
               <div className="w-[180px] h-[3px] mt-auto bg-gradient-to-r from-[#7D1E16]/50 via-[#E33729] to-[#B02A20]/50" />
             </div>
 
-            {/* Druga pionowa linia */}
             <div className="h-[120px] w-[1px] bg-black/50" />
 
             {/* Kontakt */}
@@ -246,7 +244,7 @@ export default function Home() {
           świeżość i jakość produktów
         </p>
 
-        {/* Przycisk */}
+        {/* button */}
         <motion.button 
           className="bg-[#E8341A] text-white px-8 py-3 rounded-lg mt-7 shadow-lg shadow-black/25"
           whileHover={{ scale: 1.05 }}
@@ -279,7 +277,7 @@ export default function Home() {
         </div>
       </CartProvider>
 
-      {/* Dodanie stopki */}
+      {/* STopka */}
       <Footer />
     </main>
   );
