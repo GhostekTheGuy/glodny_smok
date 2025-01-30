@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/jsrepo@1.29.1/schemas/project-config.json",
+  "repos": ["github/BarSwi/NomNomFrontSDK"],
+  "includeTests": false,
+  "watermark": true,
+  "formatter": "prettier",
+  "paths": {
+    "*": "./jsrepo-blocks"
+  }
+}
