@@ -1,50 +1,43 @@
-'use client'
+"use client"
 
-import React, { useMemo } from 'react'
-import { ProductCard } from './ProductCard'
+import { useMemo } from "react"
+import ProductCard from "./ProductCard"
 import { motion, AnimatePresence } from "framer-motion"
-
-interface Product {
-  id: number
-  name: string
-  description: string
-  price: number
-  image: string
-  category: string
-  isBestseller?: boolean
-}
+import type { Menu, Product } from "../data/products"
 
 interface ProductGridProps {
-  products: Product[]
+  menu: Menu
   selectedCategory: string
   sortOrder: string
 }
 
-export function ProductGrid({ products, selectedCategory, sortOrder }: ProductGridProps) {
+export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridProps) {
   const filteredAndSortedProducts = useMemo(() => {
-    let result = selectedCategory === 'Wszystkie'
-      ? products
-      : products.filter(product => product.category === selectedCategory)
+    let result: Product[] = []
+
+    if (selectedCategory === "Wszystkie") {
+      result = menu.categories.flatMap((category) => category.products)
+    } else {
+      const category = menu.categories.find((cat) => cat.name === selectedCategory)
+      result = category ? category.products : []
+    }
 
     switch (sortOrder) {
-      case 'name-asc':
+      case "name-asc":
         return result.sort((a, b) => a.name.localeCompare(b.name))
-      case 'name-desc':
+      case "name-desc":
         return result.sort((a, b) => b.name.localeCompare(a.name))
-      case 'price-asc':
+      case "price-asc":
         return result.sort((a, b) => a.price - b.price)
-      case 'price-desc':
+      case "price-desc":
         return result.sort((a, b) => b.price - a.price)
       default:
         return result
     }
-  }, [products, selectedCategory, sortOrder])
+  }, [menu, selectedCategory, sortOrder])
 
   return (
-    <motion.div 
-      layout
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-    >
+    <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <AnimatePresence>
         {filteredAndSortedProducts.map((product) => (
           <motion.div
@@ -55,11 +48,13 @@ export function ProductGrid({ products, selectedCategory, sortOrder }: ProductGr
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
           >
-            <ProductCard {...product} />
+            <ProductCard product={product} />
           </motion.div>
         ))}
       </AnimatePresence>
     </motion.div>
   )
 }
+
+export default ProductGrid
 

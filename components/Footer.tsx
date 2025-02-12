@@ -1,21 +1,11 @@
-import React from "react";
-import { NomNomSDK } from "../jsrepo-blocks/blocks";
+import Image from "next/image"
 
 export function Footer() {
-  const sdk = new NomNomSDK("https://nomnom-backend-dbsv.onrender.com/api");
-  sdk
-    .getCurrentMenus("6c90ed83-a3f4-4836-a22a-40099491b047")
-    .then((data) => {
-      console.log("SDK", data);
-    })
-    .catch((error) => {
-      console.error("Error fetching menus:", error);
-    });
   return (
     <footer className="bg-gray-100 py-12">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
         <div className="flex flex-col items-start">
-          <img src="/logo.png" alt="Logo" className="w-40 h-auto" />
+          <Image src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png" alt="Logo" width={160} height={80} className="w-40 h-auto" />
         </div>
         <div className="flex flex-col items-start">
           <h3 className="text-lg font-semibold text-black">Godziny zamówień</h3>
@@ -28,9 +18,7 @@ export function Footer() {
           </p>
         </div>
         <div className="flex flex-col items-start">
-          <h3 className="text-lg font-semibold text-black">
-            Nasza lokalizacja
-          </h3>
+          <h3 className="text-lg font-semibold text-black">Nasza lokalizacja</h3>
           <p className="text-black">
             Głodny Smok
             <br />
@@ -49,5 +37,6 @@ export function Footer() {
         <span>Designed by Hubert Kolejko</span>
       </div>
     </footer>
-  );
+  )
 }
+

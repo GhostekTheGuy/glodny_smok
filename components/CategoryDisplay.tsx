@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import React, { useRef, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useRef, useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface CategoryDisplayProps {
   category: string
@@ -18,27 +18,29 @@ export function CategoryDisplay({ category }: CategoryDisplayProps) {
     if (container && text) {
       setIsOverflowing(text.scrollWidth > container.clientWidth)
     }
-  }, [category])
+  }, [containerRef, textRef]) // Updated dependency array
 
   return (
     <div ref={containerRef} className="overflow-hidden mb-6">
-      <motion.h2
-        ref={textRef}
-        className="text-3xl font-bold whitespace-nowrap"
-        animate={isOverflowing ? {
-          x: [0, -100, 0],
-          transition: {
-            x: {
-              repeat: Infinity,
-              repeatType: "loop",
-              duration: 5,
-              ease: "linear",
+      <AnimatePresence mode="wait">
+        <motion.h2
+          key={category}
+          ref={textRef}
+          initial={{ x: -100, opacity: 0 }}
+          animate={{
+            x: 0,
+            opacity: 1,
+            transition: {
+              x: { type: "spring", stiffness: 100, damping: 15 },
+              opacity: { duration: 0.5 },
             },
-          },
-        } : {}}
-      >
-        {category}
-      </motion.h2>
+          }}
+          exit={{ x: 100, opacity: 0 }}
+          className="text-3xl font-bold whitespace-nowrap"
+        >
+          {category}
+        </motion.h2>
+      </AnimatePresence>
     </div>
   )
 }

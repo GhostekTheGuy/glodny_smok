@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { MenuHeader } from "./MenuHeader"
 import { ProductGrid } from "./ProductGrid"
-import { products } from "../data/products"
+import { menu } from "../data/products"
 import { CategoryDisplay } from "./CategoryDisplay"
 import { motion, useAnimation, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -21,24 +21,7 @@ export default function RestaurantMenu() {
   const { totalItems } = useCart()
   const router = useRouter()
 
-  const categories = [
-    "Wszystkie",
-    "Chrupiące specjały",
-    "Kubełki",
-    "Przekąski",
-    "Z kurczakiem",
-    "Z wołowiną",
-    "Wege",
-    "Z krewetkami",
-    "Ryż smażony",
-    "Zupy",
-    "Thai Curry",
-    "Makarony",
-    "Pad Thai",
-    "Kebab",
-    "Sałatki",
-    "Napoje",
-  ]
+  const categories = ["Wszystkie", ...menu.categories.map((category) => category.name)]
 
   useEffect(() => {
     const animateArrow = async () => {
@@ -109,7 +92,7 @@ export default function RestaurantMenu() {
           <AnimatePresence>
             {showScrollIndicator && (
               <motion.div
-                className="absolute left-0 right-0 flex items-center justify-center mt-2 space-x-2"
+                className="absolute left-0 right-0 flex items-center justify-center space-x-2"
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
@@ -148,7 +131,7 @@ export default function RestaurantMenu() {
           ))}
         </div>
 
-        <ProductGrid products={products} selectedCategory={selectedCategory} sortOrder={sortOrder} />
+        <ProductGrid menu={menu} selectedCategory={selectedCategory} sortOrder={sortOrder} />
 
         {/* Cart Button */}
         <AnimatePresence>
