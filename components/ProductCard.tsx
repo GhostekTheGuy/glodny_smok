@@ -27,28 +27,32 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const basePrice = product.variants.length > 0 ? product.variants[0].price : product.price
-    addToCart(
-      {
-        ...product,
-        price: basePrice,
-        selectedIngredients: {},
-        selectedCutlery: {},
-        selectedSize: product.variants.length > 0 ? product.variants[0].type : "",
-      },
-      [],
-    )
+    if (!product.oos) {
+      const basePrice = product.variants.length > 0 ? Math.min(...product.variants.map((v) => v.price)) : product.price
+      addToCart(
+        {
+          ...product,
+          price: basePrice,
+          selectedIngredients: {},
+          selectedCutlery: {},
+          selectedSize: product.variants.length > 0 ? product.variants[0].type : "",
+        },
+        [],
+      )
+    }
   }
 
   const displayPrice =
     product.variants.length > 0
-      ? `${Math.min(...product.variants.map((v) => v.price)).toFixed(2)} zł`
+      ? `od ${Math.min(...product.variants.map((v) => v.price)).toFixed(2)} zł`
       : `${product.price.toFixed(2)} zł`
 
   return (
     <motion.div
       layout
-      className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-full flex flex-col cursor-pointer relative"
+      className={`bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-full flex flex-col cursor-pointer relative ${
+        product.oos ? "opacity-75 bg-gray-100" : ""
+      }`}
       onClick={handleClick}
     >
       {product.note && (
@@ -57,6 +61,11 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="mr-2">🌟</span>
             {product.note}
           </div>
+        </div>
+      )}
+      {product.oos && (
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center">
+          <div className="bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg font-medium text-lg">Niedostępny</div>
         </div>
       )}
       <div className="flex flex-col h-full">
@@ -81,9 +90,12 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="text-lg font-bold text-gray-900">{displayPrice}</span>
             <button
               onClick={handleAddToCart}
-              className="bg-red-600 hover:bg-black text-white px-4 py-2 rounded-full text-sm transition-colors duration-300"
+              className={`bg-red-600 hover:bg-black text-white px-4 py-2 rounded-full text-sm transition-colors duration-300 ${
+                product.oos ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={product.oos}
             >
-              Dodaj do koszyka
+              {product.oos ? "Niedostępny" : "Dodaj do koszyka"}
             </button>
           </motion.div>
         </motion.div>

@@ -24,6 +24,7 @@ export interface CartItem {
   ingredientSelectionGroups: IngredientSelectionGroup[]
   cutlerySelection?: CutlerySelection
   variants: { itemId: string; type: string; price: number }[]
+  oos: boolean // Added oos property
 }
 
 interface CartContextType {
@@ -42,10 +43,12 @@ interface CartContextType {
     selectedSize: string,
     quantity: number,
   ) => void
-  editCartItem: (updatedItem: CartItem) => void
   totalItems: number
   totalPrice: number
   goToCart: () => void
+  editCartItem: (updatedItem: CartItem) => void
+  addOrUpdateCartItem: (updatedItem: CartItem) => void
+  updateCartItem: (updatedItem: CartItem) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -54,6 +57,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
 
   const addToCart = useCallback((product: CartItem) => {
+    if (product.oos) {
+      console.warn("Próba dodania niedostępnego produktu do koszyka:", product.name)
+      return
+    }
+
     setItems((currentItems) => {
       const existingItemIndex = currentItems.findIndex(
         (item) =>
@@ -119,6 +127,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [],
   )
 
+  const addOrUpdateCartItem = useCallback((updatedItem: CartItem) => {
+    setItems((currentItems) => {
+      const existingItemIndex = currentItems.findIndex(
+        (item) =>
+          item.id === updatedItem.id &&
+          item.selectedSize === updatedItem.selectedSize &&
+          JSON.stringify(item.selectedIngredients) === JSON.stringify(updatedItem.selectedIngredients) &&
+          JSON.stringify(item.selectedCutlery) === JSON.stringify(updatedItem.selectedCutlery),
+      )
+
+      if (existingItemIndex > -1) {
+        return currentItems.map((item, index) =>
+          index === existingItemIndex ? { ...updatedItem, quantity: updatedItem.quantity } : item,
+        )
+      }
+
+      return [...currentItems, updatedItem]
+    })
+  }, [])
+
   const editCartItem = useCallback((updatedItem: CartItem) => {
     setItems((currentItems) =>
       currentItems.map((item) =>
@@ -126,10 +154,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         item.selectedSize === updatedItem.selectedSize &&
         JSON.stringify(item.selectedIngredients) === JSON.stringify(updatedItem.selectedIngredients) &&
         JSON.stringify(item.selectedCutlery) === JSON.stringify(updatedItem.selectedCutlery)
-          ? { ...updatedItem }
+          ? updatedItem
           : item,
       ),
     )
+  }, [])
+
+  const updateCartItem = useCallback((updatedItem: CartItem) => {
+    setItems((currentItems) => {
+      const existingItemIndex = currentItems.findIndex((item) => item.id === updatedItem.id)
+      if (existingItemIndex > -1) {
+        return currentItems.map((item, index) => (index === existingItemIndex ? { ...updatedItem } : item))
+      }
+      return [...currentItems, updatedItem]
+    })
   }, [])
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -146,10 +184,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
-        editCartItem,
         totalItems,
         totalPrice,
         goToCart,
+        editCartItem,
+        addOrUpdateCartItem,
+        updateCartItem,
       }}
     >
       {children}

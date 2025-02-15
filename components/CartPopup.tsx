@@ -6,19 +6,21 @@ import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Minus, Plus, Trash2, X, Edit } from "lucide-react"
+import { Minus, Plus, Trash2, X, Pencil } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { EditProductModal } from "./EditProductModal"
 
-export function CartPopup({ children }: { children: React.ReactNode }) {
+export function CartPopup({
+  children,
+  onItemAdded,
+  isMenuPage = false,
+}: { children: React.ReactNode; onItemAdded?: () => void; isMenuPage?: boolean }) {
   const router = useRouter()
   const { items, removeFromCart, updateQuantity, totalItems, totalPrice, editCartItem } = useCart()
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false)
-  const [editingItem, setEditingItem] = useState<null | (typeof items)[0]>(null)
   const [orderFormData, setOrderFormData] = useState({
     name: "",
     email: "",
@@ -31,7 +33,10 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Force re-render when items change
     forceUpdate({})
-  }, [forceUpdate]) //Corrected dependency
+    if (onItemAdded) {
+      onItemAdded()
+    }
+  }, [onItemAdded])
 
   const handleOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,8 +56,12 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
     router.push("/order-success")
   }
 
+  const handleEditItem = (itemId: number) => {
+    router.push(`/edit-product/${itemId}`)
+  }
+
   return (
-    <Sheet>
+    <Sheet onOpenChange={(open) => !open && isMenuPage && router.push("/")}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:max-w-lg flex flex-col">
         <SheetHeader>
@@ -74,7 +83,11 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
                   />
                   <div className="flex-1 space-y-1">
                     <h4 className="font-medium">{item.name}</h4>
-                    {item.selectedSize && <p className="text-sm text-muted-foreground">Rozmiar: {item.selectedSize}</p>}
+                    {item.selectedSize && (
+                      <p className="text-sm text-muted-foreground">
+                        Wersja: {item.variants.find((v) => v.itemId === item.selectedSize)?.type || item.selectedSize}
+                      </p>
+                    )}
                     {Object.entries(item.selectedIngredients).map(([id, count]) => {
                       const ingredient = item.ingredientSelectionGroups
                         .flatMap((group) => group.ingredientSelections)
@@ -138,9 +151,6 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
                   <div className="text-right space-y-2">
                     <p className="font-medium">{(item.price * item.quantity).toFixed(2)} zł</p>
                     <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingItem(item)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -150,6 +160,9 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
                         }
                       >
                         <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditItem(item.id)}>
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -164,9 +177,20 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
               <span className="font-medium">Razem:</span>
               <span className="font-medium">{totalPrice.toFixed(2)} zł</span>
             </div>
-            <Button className="w-full" onClick={() => setIsOrderModalVisible(true)}>
-              Złóż zamówienie ({totalItems})
-            </Button>
+            <div className="flex flex-col space-y-2 w-full">
+              <Button
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+                onClick={() => setIsOrderModalVisible(true)}
+              >
+                Złóż zamówienie ({totalItems})
+              </Button>
+              <Button
+                className="w-full bg-black hover:bg-gray-800 text-white"
+                onClick={() => (isMenuPage ? router.push("/") : router.push("/menu"))}
+              >
+                {isMenuPage ? "Powrót do strony głównej" : "Powrót do Menu"}
+              </Button>
+            </div>
           </div>
         )}
         {/* Order Modal */}
@@ -252,16 +276,6 @@ export function CartPopup({ children }: { children: React.ReactNode }) {
               </form>
             </div>
           </div>
-        )}
-        {editingItem && (
-          <EditProductModal
-            item={editingItem}
-            onClose={() => setEditingItem(null)}
-            onSave={(updatedItem) => {
-              editCartItem(updatedItem)
-              setEditingItem(null)
-            }}
-          />
         )}
       </SheetContent>
     </Sheet>

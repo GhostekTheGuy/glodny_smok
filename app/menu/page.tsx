@@ -2,16 +2,18 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { MenuHeader } from "./MenuHeader"
-import { ProductGrid } from "./ProductGrid"
-import { menu } from "../data/products"
-import { CategoryDisplay } from "./CategoryDisplay"
+import { MenuHeader } from "@/components/MenuHeader"
+import { ProductGrid } from "@/components/ProductGrid"
+import { menu } from "@/data/products"
+import { CategoryDisplay } from "@/components/CategoryDisplay"
 import { motion, useAnimation, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { CartPopup } from "@/components/CartPopup"
+import Image from "next/image"
 
-export default function RestaurantMenu() {
+export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState("Wszystkie")
   const [sortOrder, setSortOrder] = useState("default")
   const [showScrollIndicator, setShowScrollIndicator] = useState(true)
@@ -58,13 +60,20 @@ export default function RestaurantMenu() {
     }
   }, [controls])
 
-  const handleCartClick = () => {
-    router.push("/cart")
-  }
-
   return (
     <div id="menu" ref={menuRef} className="relative bg-white pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <Image
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"
+            alt="Głodny Smok Logo"
+            width={200}
+            height={89}
+            className="h-auto w-auto"
+          />
+        </div>
+
         <MenuHeader />
         <CategoryDisplay category={selectedCategory} />
 
@@ -133,7 +142,7 @@ export default function RestaurantMenu() {
 
         <ProductGrid menu={menu} selectedCategory={selectedCategory} sortOrder={sortOrder} />
 
-        {/* Cart Button */}
+        {/* Cart Popup */}
         <AnimatePresence>
           {totalItems > 0 && (
             <motion.div
@@ -147,17 +156,16 @@ export default function RestaurantMenu() {
                 damping: 20,
               }}
             >
-              <Button
-                onClick={handleCartClick}
-                className="bg-red-600 hover:bg-black text-white flex items-center justify-center gap-2 rounded-full w-16 h-16 shadow-lg transition-colors duration-300"
-              >
-                <ShoppingCart className="w-6 h-6" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-white text-red-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
+              <CartPopup>
+                <Button className="bg-red-600 hover:bg-black text-white flex items-center justify-center gap-2 rounded-full w-16 h-16 shadow-lg transition-colors duration-300">
+                  <ShoppingCart className="w-6 h-6" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-white text-red-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                      {totalItems}
+                    </span>
+                  )}
+                </Button>
+              </CartPopup>
             </motion.div>
           )}
         </AnimatePresence>
