@@ -12,6 +12,7 @@ import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { CartPopup } from "@/components/CartPopup"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState("Wszystkie")
@@ -65,13 +66,15 @@ export default function MenuPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"
-            alt="Głodny Smok Logo"
-            width={200}
-            height={89}
-            className="h-auto w-auto"
-          />
+          <Link href="/" className="inline-block transition-transform duration-300 ease-in-out hover:scale-105">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"
+              alt="Głodny Smok Logo"
+              width={200}
+              height={89}
+              className="h-auto w-auto"
+            />
+          </Link>
         </div>
 
         <MenuHeader />

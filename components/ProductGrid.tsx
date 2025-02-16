@@ -47,6 +47,7 @@ export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridPr
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
+            className={product.oos ? "opacity-75" : ""}
           >
             <ProductCard product={product} />
           </motion.div>

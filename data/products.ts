@@ -1,111 +1,6 @@
-export interface Menu {
-  id: string
-  name: string
-  note: string
-  hours: MenuHours[]
-  categories: Category[]
-}
+import type { Menu, Product } from "./interfaces"
 
-interface MenuHours {
-  id: string
-  Mon: boolean
-  Tue: boolean
-  Wed: boolean
-  Thu: boolean
-  Fri: boolean
-  Sat: boolean
-  Sun: boolean
-  startTime: string
-  endTime: string
-}
-
-interface Category {
-  id: string
-  name: string
-  note: string
-  products: Product[]
-}
-
-export interface Product {
-  id: string
-  name: string
-  note: string
-  photoUrl: string
-  description: string
-  standalone: boolean
-  oos: boolean
-  price: number
-  temperature: "HOT" | "COLD" | "ROOM"
-  dietetaryAttributes: string[]
-  variants: Variant[]
-  cutlerySelection?: CutlerySelection
-  ingredientSelectionGroups: IngredientSelectionGroup[]
-  crossSaleGroups: CrossSaleGroup[]
-}
-
-interface Variant {
-  itemId: string
-  type: string
-  price: number
-}
-
-interface CutlerySelection {
-  options: CutleryOption[]
-}
-
-interface CutleryOption {
-  maxCount: number
-  maxFreeCount: number
-  details: CutleryDetails
-}
-
-interface CutleryDetails {
-  id: string
-  name: string
-  note: string
-  price: number
-}
-
-interface IngredientSelectionGroup {
-  ingredientSelections: IngredientSelection[]
-  maxCount: number
-  name: string
-  partable: boolean
-}
-
-interface IngredientSelection {
-  defaultCount: number
-  maxCount: number
-  details: IngredientDetails
-}
-
-interface IngredientDetails {
-  id: string
-  name: string
-  note: string
-  photo_url: string
-  uom: string
-  bundles: IngredientBundle[]
-}
-
-interface IngredientBundle {
-  note: string
-  price: number
-  value: number
-}
-
-interface CrossSaleGroup {
-  id: string
-  name: string
-  note: string | null
-  maxCount: number
-  items: CrossSaleItem[]
-}
-
-interface CrossSaleItem {
-  item: Product
-  price: number
-}
+// Previous imports and interfaces remain the same...
 
 export const menu: Menu = {
   id: "98b56c5e-3b91-4542-9e03-d7be95675f9e",
@@ -298,7 +193,8 @@ export const menu: Menu = {
           id: "6151e756-1e38-4dae-ba66-10c22ae69bd7",
           name: "Pad Thai",
           note: "",
-          photoUrl: "https://example.com/pad-thai.jpg",
+          photoUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pad_thai-JrVf1cffUoEIDe7uOvNGBsG0N4gtED.png",
           description: "Smażony makaron ryżowy z tofu, jajkiem, orzeszkami ziemnymi i kiełkami fasoli",
           standalone: true,
           oos: false,
@@ -407,7 +303,8 @@ export const menu: Menu = {
           id: "7151e756-1e38-4dae-ba66-10c22ae69bd8",
           name: "Zielone Curry",
           note: "",
-          photoUrl: "https://example.com/green-curry.jpg",
+          photoUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/zielone_curry-unLaFrub3kgr0cJgcnaql51tVfCATI.png",
           description: "Kremowe zielone curry z mleczkiem kokosowym, warzywami i ryżem jaśminowym",
           standalone: true,
           oos: false,
@@ -518,7 +415,8 @@ export const menu: Menu = {
           id: "8151e756-1e38-4dae-ba66-10c22ae69bd9",
           name: "Mango Sticky Rice",
           note: "",
-          photoUrl: "https://example.com/mango-sticky-rice.jpg",
+          photoUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/mango_sticky_rice-aWuMvgfV88dOOHXtQrZ2DLwb0h7yCq.png",
           description: "Słodki kleisty ryż z dojrzałym mango i sosem kokosowym",
           standalone: true,
           oos: false,

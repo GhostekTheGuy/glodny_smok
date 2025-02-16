@@ -15,11 +15,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
 
   const handleClick = () => {
-    // Start fade-out animation
     document.body.style.opacity = "0"
     document.body.style.transition = "opacity 0.5s"
-
-    // Navigate after animation
     setTimeout(() => {
       router.push(`/product/${product.id}`)
     }, 500)
@@ -64,8 +61,8 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       {product.oos && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center">
-          <div className="bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg font-medium text-lg">Niedostępny</div>
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-lg">Niedostępny</div>
         </div>
       )}
       <div className="flex flex-col h-full">
@@ -91,7 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <button
               onClick={handleAddToCart}
               className={`bg-red-600 hover:bg-black text-white px-4 py-2 rounded-full text-sm transition-colors duration-300 ${
-                product.oos ? "opacity-50 cursor-not-allowed" : ""
+                product.oos ? "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400" : ""
               }`}
               disabled={product.oos}
             >
