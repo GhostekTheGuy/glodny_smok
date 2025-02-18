@@ -51,11 +51,13 @@ export default function ProductPage() {
       setSelectedIngredients(initialIngredients)
 
       // Initialize customizable ingredients
-      const initialCustomizedIngredients: Record<string, boolean> = {}
-      product.customizableIngredients?.forEach((ingredient) => {
-        initialCustomizedIngredients[ingredient.id] = ingredient.default
-      })
-      setCustomizedIngredients(initialCustomizedIngredients)
+      if (product?.customizableIngredients) {
+        const initialCustomizedIngredients: Record<string, boolean> = {}
+        product.customizableIngredients.forEach((ingredient) => {
+          initialCustomizedIngredients[ingredient.id] = ingredient.default
+        })
+        setCustomizedIngredients(initialCustomizedIngredients)
+      }
 
       // Initialize selected cutlery with 0 counts
       if (product.cutlerySelection) {
@@ -200,7 +202,26 @@ export default function ProductPage() {
             <p className="text-2xl font-bold mb-6">{product.price.toFixed(2)} zł</p>
           )}
 
-          <Accordion type="single" collapsible className="w-full mb-6">
+          <Accordion type="single" collapsible className="w-full mb-6" defaultValue="customizable-ingredients">
+            {product.customizableIngredients && product.customizableIngredients.length > 0 && (
+              <AccordionItem value="customizable-ingredients">
+                <AccordionTrigger>Dostosuj składniki:</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    {product.customizableIngredients.map((ingredient) => (
+                      <div key={ingredient.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={ingredient.id}
+                          checked={customizedIngredients[ingredient.id]}
+                          onCheckedChange={(checked) => handleCustomIngredientChange(ingredient.id, checked as boolean)}
+                        />
+                        <Label htmlFor={ingredient.id}>{ingredient.name}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
             {product.ingredientSelectionGroups.map((group, index) => (
               <AccordionItem value={`item-${index}`} key={index}>
                 <AccordionTrigger>{group.name}</AccordionTrigger>
@@ -254,27 +275,6 @@ export default function ProductPage() {
                 </AccordionContent>
               </AccordionItem>
             ))}
-
-            {product.customizableIngredients && product.customizableIngredients.length > 0 && (
-              <AccordionItem value="customizable-ingredients">
-                <AccordionTrigger>Dostosuj składniki</AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4">
-                    {product.customizableIngredients.map((ingredient) => (
-                      <div key={ingredient.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={ingredient.id}
-                          checked={customizedIngredients[ingredient.id]}
-                          onCheckedChange={(checked) => handleCustomIngredientChange(ingredient.id, checked as boolean)}
-                        />
-                        <Label htmlFor={ingredient.id}>{ingredient.name}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
             {product.cutlerySelection && (
               <AccordionItem value="cutlery">
                 <AccordionTrigger>Sztućce</AccordionTrigger>
@@ -338,7 +338,7 @@ export default function ProductPage() {
                 product.oos
                   ? "bg-gray-400 cursor-not-allowed"
                   : buttonState === "neutral"
-                    ? "bg-black hover:bg-gray-800"
+                    ? "bg-red-600 hover:bg-red-700"
                     : "bg-green-500"
               }`}
             >
@@ -356,7 +356,7 @@ export default function ProductPage() {
 
             <CartPopup>
               <Button
-                className="w-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-2 text-base font-medium"
+                className="w-full bg-black hover:bg-gray-800 text-white flex items-center justify-center gap-2 text-base font-medium"
                 disabled={product.oos}
               >
                 <ShoppingCart className="w-5 h-5" />

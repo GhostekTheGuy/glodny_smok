@@ -41,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const displayPrice =
     product.variants.length > 0
-      ? `od ${Math.min(...product.variants.map((v) => v.price)).toFixed(2)} zł`
+      ? `${Math.min(...product.variants.map((v) => v.price)).toFixed(2)} zł`
       : `${product.price.toFixed(2)} zł`
 
   return (
@@ -84,7 +84,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <motion.p layout className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3">
             {product.description}
           </motion.p>
-          <motion.div layout className="flex items-center justify-between mt-auto">
+          <motion.div layout className="flex items-center justify-between gap-4 mt-auto">
             <span className="text-lg font-bold text-gray-900">{displayPrice}</span>
             <button
               onClick={handleAddToCart}

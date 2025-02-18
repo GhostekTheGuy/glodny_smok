@@ -22,18 +22,33 @@ export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridPr
       result = category ? category.products : []
     }
 
+    // First, sort products with notes to the beginning
+    result.sort((a, b) => {
+      if (a.note && !b.note) return -1
+      if (!a.note && b.note) return 1
+      return 0
+    })
+
+    // Then apply the user-selected sorting
     switch (sortOrder) {
       case "name-asc":
-        return result.sort((a, b) => a.name.localeCompare(b.name))
+        result.sort((a, b) => a.name.localeCompare(b.name))
+        break
       case "name-desc":
-        return result.sort((a, b) => b.name.localeCompare(a.name))
+        result.sort((a, b) => b.name.localeCompare(a.name))
+        break
       case "price-asc":
-        return result.sort((a, b) => a.price - b.price)
+        result.sort((a, b) => a.price - b.price)
+        break
       case "price-desc":
-        return result.sort((a, b) => b.price - a.price)
+        result.sort((a, b) => b.price - a.price)
+        break
       default:
-        return result
+        // If no specific sort order is selected, keep the notes-first sorting
+        break
     }
+
+    return result
   }, [menu, selectedCategory, sortOrder])
 
   // Calculate minimum grid height based on the number of products
