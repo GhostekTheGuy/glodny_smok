@@ -36,8 +36,15 @@ export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridPr
     }
   }, [menu, selectedCategory, sortOrder])
 
+  // Calculate minimum grid height based on the number of products
+  const minGridHeight = Math.max(Math.ceil(filteredAndSortedProducts.length / 4) * 440, 880)
+
   return (
-    <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <motion.div
+      layout
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      style={{ minHeight: minGridHeight }}
+    >
       <AnimatePresence>
         {filteredAndSortedProducts.map((product) => (
           <motion.div

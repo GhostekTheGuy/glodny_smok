@@ -2,10 +2,16 @@ import Image from "next/image"
 
 export function Footer() {
   return (
-    <footer className="bg-gray-100 py-12">
+    <footer className="bg-gray-100 py-12 mt-auto">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
         <div className="flex flex-col items-start">
-          <Image src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png" alt="Logo" width={160} height={80} className="w-40 h-auto" />
+          <Image
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"
+            alt="Logo"
+            width={160}
+            height={80}
+            className="w-40 h-auto"
+          />
         </div>
         <div className="flex flex-col items-start">
           <h3 className="text-lg font-semibold text-black">Godziny zamówień</h3>

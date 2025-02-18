@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import React, { useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { ProductCard } from './ProductCard'
+import { useRef, useEffect } from "react"
+import { motion } from "framer-motion"
+import { ProductCard } from "./ProductCard"
 
 interface Product {
   id: number
@@ -43,10 +43,7 @@ export function RecommendationsSlider({ products }: RecommendationsSliderProps) 
   return (
     <div className="mb-12 -mx-4 sm:-mx-6 lg:-mx-8">
       <h2 className="text-3xl font-bold mb-6 px-4 sm:px-6 lg:px-8">GŁODNY SMOK POLECA</h2>
-      <div 
-        ref={sliderRef}
-        className="flex space-x-4 overflow-x-hidden pb-4 px-4 sm:px-6 lg:px-8"
-      >
+      <div ref={sliderRef} className="flex space-x-4 overflow-x-hidden pb-4 px-4 sm:px-6 lg:px-8">
         {products.map((product) => (
           <motion.div
             key={product.id}

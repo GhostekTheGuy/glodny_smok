@@ -47,9 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <motion.div
       layout
-      className={`bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-full flex flex-col cursor-pointer relative ${
-        product.oos ? "opacity-75 bg-gray-100" : ""
-      }`}
+      className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-[420px] flex flex-col cursor-pointer relative"
       onClick={handleClick}
     >
       {product.note && (
@@ -66,13 +64,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       <div className="flex flex-col h-full">
-        <motion.div layout className="relative aspect-square w-full mb-4">
+        <motion.div layout className="relative w-full h-48 mb-4">
           <div className="absolute inset-0 border-2 border-dashed border-gray-200 rounded-lg">
             <Image
               src={product.photoUrl || "/placeholder.svg"}
               alt={product.name}
-              width={500}
-              height={500}
+              fill
               className="rounded-lg object-cover p-1"
               loading="lazy"
               placeholder="blur"
@@ -80,11 +77,11 @@ export function ProductCard({ product }: ProductCardProps) {
             />
           </div>
         </motion.div>
-        <motion.div layout className="flex flex-col flex-grow">
-          <motion.h3 layout className="font-bold text-gray-900 text-lg mb-2">
+        <motion.div layout className="flex flex-col flex-1">
+          <motion.h3 layout className="font-bold text-gray-900 text-lg mb-2 line-clamp-2">
             {product.name}
           </motion.h3>
-          <motion.p layout className="text-sm text-gray-500 mb-4 flex-grow">
+          <motion.p layout className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3">
             {product.description}
           </motion.p>
           <motion.div layout className="flex items-center justify-between mt-auto">
