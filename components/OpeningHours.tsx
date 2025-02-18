@@ -46,6 +46,7 @@ export function OpeningHours() {
                 width={224}
                 height={100}
                 className="h-auto w-full"
+                loading="lazy"
               />
             </div>
 

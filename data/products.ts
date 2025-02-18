@@ -474,6 +474,235 @@ export const menu: Menu = {
         },
       ],
     },
+    {
+      id: "burger-category",
+      name: "Burgery",
+      note: "Klasyczne burgery",
+      products: [
+        {
+          id: "burger-id",
+          name: "Burger Klasyczny",
+          note: "Burger z wołowiną",
+          photoUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/burger1-Rgv2foKPCUkoPT4VLCYMoavP6SWDwA.png",
+          description: "Klasyczny burger z sosem, sałatą, pomidorem, cebulą i ogórkiem.",
+          standalone: true,
+          oos: false,
+          price: 24.99,
+          temperature: "HOT",
+          dietetaryAttributes: [],
+          variants: [
+            {
+              itemId: "burger-classic",
+              type: "Klasyczny",
+              price: 24.99,
+            },
+            {
+              itemId: "burger-double",
+              type: "Podwójny",
+              price: 29.99,
+            },
+          ],
+          cutlerySelection: {
+            options: [
+              {
+                maxCount: 1,
+                maxFreeCount: 1,
+                details: {
+                  id: "burger-cutlery",
+                  name: "Zestaw sztućców",
+                  note: "Nóż i widelec",
+                  price: 0,
+                },
+              },
+            ],
+          },
+          ingredientSelectionGroups: [
+            {
+              ingredientSelections: [
+                {
+                  defaultCount: 0,
+                  maxCount: 2,
+                  details: {
+                    id: "extra-patty",
+                    name: "Dodatkowe mięso",
+                    note: "Dodatkowy kotlet wołowy",
+                    photo_url: "https://example.com/beef-patty.jpg",
+                    uom: "sztuka",
+                    bundles: [
+                      {
+                        note: "1 kotlet",
+                        price: 8.0,
+                        value: 1,
+                      },
+                    ],
+                  },
+                },
+                {
+                  defaultCount: 0,
+                  maxCount: 2,
+                  details: {
+                    id: "extra-cheese",
+                    name: "Dodatkowy ser",
+                    note: "Plastry sera cheddar",
+                    photo_url: "https://example.com/cheese.jpg",
+                    uom: "plaster",
+                    bundles: [
+                      {
+                        note: "1 plaster",
+                        price: 2.0,
+                        value: 1,
+                      },
+                    ],
+                  },
+                },
+                {
+                  defaultCount: 0,
+                  maxCount: 1,
+                  details: {
+                    id: "bacon",
+                    name: "Bekon",
+                    note: "Chrupiący bekon",
+                    photo_url: "https://example.com/bacon.jpg",
+                    uom: "porcja",
+                    bundles: [
+                      {
+                        note: "2 plastry",
+                        price: 4.0,
+                        value: 1,
+                      },
+                    ],
+                  },
+                },
+                {
+                  defaultCount: 0,
+                  maxCount: 1,
+                  details: {
+                    id: "jalapenos",
+                    name: "Jalapeños",
+                    note: "Marynowane papryczki jalapeños",
+                    photo_url: "https://example.com/jalapenos.jpg",
+                    uom: "porcja",
+                    bundles: [
+                      {
+                        note: "Porcja",
+                        price: 2.0,
+                        value: 1,
+                      },
+                    ],
+                  },
+                },
+              ],
+              maxCount: 6,
+              name: "Dodatki",
+              partable: true,
+            },
+            {
+              ingredientSelections: [
+                {
+                  defaultCount: 1,
+                  maxCount: 2,
+                  details: {
+                    id: "mayo",
+                    name: "Majonez",
+                    note: "Klasyczny majonez",
+                    photo_url: "https://example.com/mayo.jpg",
+                    uom: "porcja",
+                    bundles: [
+                      {
+                        note: "Standardowa porcja",
+                        price: 0,
+                        value: 1,
+                      },
+                      {
+                        note: "Podwójna porcja",
+                        price: 1.0,
+                        value: 2,
+                      },
+                    ],
+                  },
+                },
+                {
+                  defaultCount: 1,
+                  maxCount: 2,
+                  details: {
+                    id: "ketchup",
+                    name: "Ketchup",
+                    note: "Ketchup pomidorowy",
+                    photo_url: "https://example.com/ketchup.jpg",
+                    uom: "porcja",
+                    bundles: [
+                      {
+                        note: "Standardowa porcja",
+                        price: 0,
+                        value: 1,
+                      },
+                      {
+                        note: "Podwójna porcja",
+                        price: 1.0,
+                        value: 2,
+                      },
+                    ],
+                  },
+                },
+                {
+                  defaultCount: 0,
+                  maxCount: 2,
+                  details: {
+                    id: "mustard",
+                    name: "Musztarda",
+                    note: "Musztarda Dijon",
+                    photo_url: "https://example.com/mustard.jpg",
+                    uom: "porcja",
+                    bundles: [
+                      {
+                        note: "Standardowa porcja",
+                        price: 0,
+                        value: 1,
+                      },
+                      {
+                        note: "Podwójna porcja",
+                        price: 1.0,
+                        value: 2,
+                      },
+                    ],
+                  },
+                },
+                {
+                  defaultCount: 0,
+                  maxCount: 1,
+                  details: {
+                    id: "garlic-sauce",
+                    name: "Sos czosnkowy",
+                    note: "Domowy sos czosnkowy",
+                    photo_url: "https://example.com/garlic-sauce.jpg",
+                    uom: "porcja",
+                    bundles: [
+                      {
+                        note: "Porcja",
+                        price: 2.0,
+                        value: 1,
+                      },
+                    ],
+                  },
+                },
+              ],
+              maxCount: 7,
+              name: "Sosy",
+              partable: true,
+            },
+          ],
+          crossSaleGroups: [],
+          customizableIngredients: [
+            { id: "lettuce", name: "Sałata", default: true },
+            { id: "tomato", name: "Pomidor", default: true },
+            { id: "onion", name: "Cebula", default: true },
+            { id: "pickle", name: "Ogórek", default: true },
+            { id: "cheese", name: "Ser", default: true },
+          ],
+        },
+      ],
+    },
   ],
 }
 

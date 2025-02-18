@@ -80,6 +80,7 @@ export function CartPopup({
                     width={80}
                     height={80}
                     className="rounded-md object-cover"
+                    loading="lazy"
                   />
                   <div className="flex-1 space-y-1">
                     <h4 className="font-medium">{item.name}</h4>
@@ -101,6 +102,18 @@ export function CartPopup({
                       }
                       return null
                     })}
+                    {item.customizedIngredients &&
+                      Object.entries(item.customizedIngredients).map(([id, included]) => {
+                        const ingredient = item.customizableIngredients?.find((i) => i.id === id)
+                        if (ingredient) {
+                          return (
+                            <p key={id} className="text-sm text-muted-foreground">
+                              {ingredient.name}: {included ? "Tak" : "Nie"}
+                            </p>
+                          )
+                        }
+                        return null
+                      })}
                     {Object.entries(item.selectedCutlery).map(([id, count]) => {
                       const cutlery = item.cutlerySelection?.options.find((option) => option.details.id === id)
                       if (cutlery && count > 0) {

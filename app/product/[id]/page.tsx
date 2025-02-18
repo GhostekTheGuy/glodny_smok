@@ -13,6 +13,7 @@ import { ShoppingCart, Check, Plus, Minus } from "lucide-react"
 import { CartPopup } from "@/components/CartPopup"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import type { Product, Variant, CutleryOption, IngredientSelection } from "@/data/products"
 
 export default function ProductPage() {
@@ -22,6 +23,7 @@ export default function ProductPage() {
   const [selectedIngredients, setSelectedIngredients] = useState<Record<string, number>>({})
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedCutlery, setSelectedCutlery] = useState<Record<string, number>>({})
+  const [customizedIngredients, setCustomizedIngredients] = useState<Record<string, boolean>>({})
   const [isVisible, setIsVisible] = useState(false)
   const [buttonState, setButtonState] = useState<"neutral" | "success">("neutral")
 
@@ -34,12 +36,12 @@ export default function ProductPage() {
     document.body.style.transition = "opacity 0.5s"
     setIsVisible(true)
 
-    if (product && product.variants.length > 0) {
-      setSelectedSize(product.variants[0].itemId)
-    }
-
-    // Initialize selected ingredients with default counts
     if (product) {
+      if (product.variants.length > 0) {
+        setSelectedSize(product.variants[0].itemId)
+      }
+
+      // Initialize selected ingredients with default counts
       const initialIngredients: Record<string, number> = {}
       product.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
@@ -47,15 +49,22 @@ export default function ProductPage() {
         })
       })
       setSelectedIngredients(initialIngredients)
-    }
 
-    // Initialize selected cutlery with 0 counts
-    if (product && product.cutlerySelection) {
-      const initialCutlery: Record<string, number> = {}
-      product.cutlerySelection.options.forEach((option) => {
-        initialCutlery[option.details.id] = 0
+      // Initialize customizable ingredients
+      const initialCustomizedIngredients: Record<string, boolean> = {}
+      product.customizableIngredients?.forEach((ingredient) => {
+        initialCustomizedIngredients[ingredient.id] = ingredient.default
       })
-      setSelectedCutlery(initialCutlery)
+      setCustomizedIngredients(initialCustomizedIngredients)
+
+      // Initialize selected cutlery with 0 counts
+      if (product.cutlerySelection) {
+        const initialCutlery: Record<string, number> = {}
+        product.cutlerySelection.options.forEach((option) => {
+          initialCutlery[option.details.id] = 0
+        })
+        setSelectedCutlery(initialCutlery)
+      }
     }
   }, [product])
 
@@ -74,6 +83,13 @@ export default function ProductPage() {
     setSelectedCutlery((prev) => ({
       ...prev,
       [cutleryId]: count,
+    }))
+  }
+
+  const handleCustomIngredientChange = (ingredientId: string, isChecked: boolean) => {
+    setCustomizedIngredients((prev) => ({
+      ...prev,
+      [ingredientId]: isChecked,
     }))
   }
 
@@ -125,11 +141,13 @@ export default function ProductPage() {
         selectedIngredients,
         selectedCutlery,
         selectedSize: selectedVariant?.type || "",
+        customizedIngredients,
       },
       [],
     )
     setSelectedIngredients({})
     setSelectedCutlery({})
+    setCustomizedIngredients({})
     setButtonState("success")
 
     setTimeout(() => {
@@ -155,6 +173,9 @@ export default function ProductPage() {
             width={500}
             height={500}
             className="rounded-lg object-cover w-full"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="/placeholder-blur.jpg"
           />
         </div>
         <div>
@@ -233,6 +254,26 @@ export default function ProductPage() {
                 </AccordionContent>
               </AccordionItem>
             ))}
+
+            {product.customizableIngredients && product.customizableIngredients.length > 0 && (
+              <AccordionItem value="customizable-ingredients">
+                <AccordionTrigger>Dostosuj składniki</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    {product.customizableIngredients.map((ingredient) => (
+                      <div key={ingredient.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={ingredient.id}
+                          checked={customizedIngredients[ingredient.id]}
+                          onCheckedChange={(checked) => handleCustomIngredientChange(ingredient.id, checked as boolean)}
+                        />
+                        <Label htmlFor={ingredient.id}>{ingredient.name}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
             {product.cutlerySelection && (
               <AccordionItem value="cutlery">

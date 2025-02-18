@@ -71,8 +71,12 @@ export function ProductCard({ product }: ProductCardProps) {
             <Image
               src={product.photoUrl || "/placeholder.svg"}
               alt={product.name}
-              fill
+              width={500}
+              height={500}
               className="rounded-lg object-cover p-1"
+              loading="lazy"
+              placeholder="blur"
+              blurDataURL="/placeholder-blur.jpg"
             />
           </div>
         </motion.div>

@@ -19,6 +19,11 @@ export interface Product {
   }[]
   crossSaleGroups: any[]
   isBestseller?: boolean
+  customizableIngredients?: {
+    id: string
+    name: string
+    default: boolean
+  }[]
 }
 
 export interface Menu {
