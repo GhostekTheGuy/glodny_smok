@@ -34,7 +34,7 @@ export const menu: Menu = {
             "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/springrolls-StpiGd5fsedpfZrQzbdGtWmnPeUggw.png",
           description: "Chrupiące sajgonki z warzywami, podawane z sosem słodko-kwaśnym",
           standalone: true,
-          oos: false,
+          oos: true,
           price: 12.99,
           temperature: "HOT",
           dietetaryAttributes: ["VEGETARIAN"],
@@ -97,6 +97,11 @@ export const menu: Menu = {
             },
           ],
           crossSaleGroups: [],
+          ingredients: [
+            { id: "vegetables", name: "Warzywa", price: 2.0, default: 1, max: 2 },
+            { id: "noodles", name: "Makaron", price: 2.0, default: 1, max: 2 },
+            { id: "sauce", name: "Sos słodko-kwaśny", price: 1.0, default: 1, max: 3 },
+          ],
         },
         {
           id: "93b323fa-ae50-4679-b043-8e2b02680e12",
@@ -181,6 +186,12 @@ export const menu: Menu = {
             },
           ],
           crossSaleGroups: [],
+          ingredients: [
+            { id: "shrimp", name: "Krewetki", price: 6.0, default: 2, max: 4 },
+            { id: "mushrooms", name: "Grzyby", price: 3.0, default: 1, max: 3 },
+            { id: "chili", name: "Papryczki chili", price: 1.0, default: 1, max: 3 },
+            { id: "lemongrass", name: "Trawa cytrynowa", price: 1.0, default: 1, max: 2 },
+          ],
         },
       ],
     },
@@ -298,6 +309,14 @@ export const menu: Menu = {
             },
           ],
           crossSaleGroups: [],
+          ingredients: [
+            { id: "rice-noodles", name: "Makaron ryżowy", price: 3.0, default: 1, max: 2 },
+            { id: "tofu", name: "Tofu", price: 4.0, default: 1, max: 2 },
+            { id: "egg", name: "Jajko", price: 2.0, default: 1, max: 2 },
+            { id: "peanuts", name: "Orzeszki ziemne", price: 2.0, default: 1, max: 2 },
+            { id: "bean-sprouts", name: "Kiełki fasoli", price: 2.0, default: 1, max: 2 },
+            { id: "lime", name: "Limonka", price: 1.0, default: 1, max: 2 },
+          ],
         },
         {
           id: "7151e756-1e38-4dae-ba66-10c22ae69bd8",
@@ -403,6 +422,13 @@ export const menu: Menu = {
             },
           ],
           crossSaleGroups: [],
+          ingredients: [
+            { id: "coconut-milk", name: "Mleczko kokosowe", price: 3.0, default: 1, max: 2 },
+            { id: "curry-paste", name: "Pasta curry", price: 2.0, default: 1, max: 2 },
+            { id: "vegetables-mix", name: "Mix warzyw", price: 4.0, default: 1, max: 2 },
+            { id: "rice", name: "Ryż jaśminowy", price: 3.0, default: 1, max: 2 },
+            { id: "thai-basil", name: "Bazylia tajska", price: 2.0, default: 1, max: 2 },
+          ],
         },
       ],
     },
@@ -471,6 +497,12 @@ export const menu: Menu = {
             },
           ],
           crossSaleGroups: [],
+          ingredients: [
+            { id: "sticky-rice", name: "Kleisty ryż", price: 3.0, default: 1, max: 2 },
+            { id: "mango", name: "Świeże mango", price: 4.0, default: 1, max: 2 },
+            { id: "coconut-sauce", name: "Sos kokosowy", price: 2.0, default: 1, max: 3 },
+            { id: "sesame", name: "Sezam", price: 1.0, default: 1, max: 2 },
+          ],
         },
       ],
     },
@@ -517,189 +549,17 @@ export const menu: Menu = {
               },
             ],
           },
-          ingredientSelectionGroups: [
-            {
-              ingredientSelections: [
-                {
-                  defaultCount: 0,
-                  maxCount: 2,
-                  details: {
-                    id: "extra-patty",
-                    name: "Dodatkowe mięso",
-                    note: "Dodatkowy kotlet wołowy",
-                    photo_url: "https://example.com/beef-patty.jpg",
-                    uom: "sztuka",
-                    bundles: [
-                      {
-                        note: "1 kotlet",
-                        price: 8.0,
-                        value: 1,
-                      },
-                    ],
-                  },
-                },
-                {
-                  defaultCount: 0,
-                  maxCount: 2,
-                  details: {
-                    id: "extra-cheese",
-                    name: "Dodatkowy ser",
-                    note: "Plastry sera cheddar",
-                    photo_url: "https://example.com/cheese.jpg",
-                    uom: "plaster",
-                    bundles: [
-                      {
-                        note: "1 plaster",
-                        price: 2.0,
-                        value: 1,
-                      },
-                    ],
-                  },
-                },
-                {
-                  defaultCount: 0,
-                  maxCount: 1,
-                  details: {
-                    id: "bacon",
-                    name: "Bekon",
-                    note: "Chrupiący bekon",
-                    photo_url: "https://example.com/bacon.jpg",
-                    uom: "porcja",
-                    bundles: [
-                      {
-                        note: "2 plastry",
-                        price: 4.0,
-                        value: 1,
-                      },
-                    ],
-                  },
-                },
-                {
-                  defaultCount: 0,
-                  maxCount: 1,
-                  details: {
-                    id: "jalapenos",
-                    name: "Jalapeños",
-                    note: "Marynowane papryczki jalapeños",
-                    photo_url: "https://example.com/jalapenos.jpg",
-                    uom: "porcja",
-                    bundles: [
-                      {
-                        note: "Porcja",
-                        price: 2.0,
-                        value: 1,
-                      },
-                    ],
-                  },
-                },
-              ],
-              maxCount: 6,
-              name: "Dodatki",
-              partable: true,
-            },
-            {
-              ingredientSelections: [
-                {
-                  defaultCount: 1,
-                  maxCount: 2,
-                  details: {
-                    id: "mayo",
-                    name: "Majonez",
-                    note: "Klasyczny majonez",
-                    photo_url: "https://example.com/mayo.jpg",
-                    uom: "porcja",
-                    bundles: [
-                      {
-                        note: "Standardowa porcja",
-                        price: 0,
-                        value: 1,
-                      },
-                      {
-                        note: "Podwójna porcja",
-                        price: 1.0,
-                        value: 2,
-                      },
-                    ],
-                  },
-                },
-                {
-                  defaultCount: 1,
-                  maxCount: 2,
-                  details: {
-                    id: "ketchup",
-                    name: "Ketchup",
-                    note: "Ketchup pomidorowy",
-                    photo_url: "https://example.com/ketchup.jpg",
-                    uom: "porcja",
-                    bundles: [
-                      {
-                        note: "Standardowa porcja",
-                        price: 0,
-                        value: 1,
-                      },
-                      {
-                        note: "Podwójna porcja",
-                        price: 1.0,
-                        value: 2,
-                      },
-                    ],
-                  },
-                },
-                {
-                  defaultCount: 0,
-                  maxCount: 2,
-                  details: {
-                    id: "mustard",
-                    name: "Musztarda",
-                    note: "Musztarda Dijon",
-                    photo_url: "https://example.com/mustard.jpg",
-                    uom: "porcja",
-                    bundles: [
-                      {
-                        note: "Standardowa porcja",
-                        price: 0,
-                        value: 1,
-                      },
-                      {
-                        note: "Podwójna porcja",
-                        price: 1.0,
-                        value: 2,
-                      },
-                    ],
-                  },
-                },
-                {
-                  defaultCount: 0,
-                  maxCount: 1,
-                  details: {
-                    id: "garlic-sauce",
-                    name: "Sos czosnkowy",
-                    note: "Domowy sos czosnkowy",
-                    photo_url: "https://example.com/garlic-sauce.jpg",
-                    uom: "porcja",
-                    bundles: [
-                      {
-                        note: "Porcja",
-                        price: 2.0,
-                        value: 1,
-                      },
-                    ],
-                  },
-                },
-              ],
-              maxCount: 7,
-              name: "Sosy",
-              partable: true,
-            },
+          ingredients: [
+            { id: "beef-patty", name: "Kotlet wołowy", price: 8.0, default: 1, max: 2 },
+            { id: "cheese", name: "Ser", price: 2.0, default: 1, max: 3 },
+            { id: "lettuce", name: "Sałata", price: 1.0, default: 1, max: 2 },
+            { id: "tomato", name: "Pomidor", price: 1.0, default: 1, max: 2 },
+            { id: "onion", name: "Cebula", price: 1.0, default: 1, max: 2 },
+            { id: "pickle", name: "Ogórek kiszony", price: 1.0, default: 2, max: 4 },
+            { id: "bacon", name: "Bekon", price: 4.0, default: 0, max: 2 },
+            { id: "jalapenos", name: "Jalapeños", price: 2.0, default: 0, max: 2 },
           ],
           crossSaleGroups: [],
-          customizableIngredients: [
-            { id: "lettuce", name: "Sałata", default: true },
-            { id: "tomato", name: "Pomidor", default: true },
-            { id: "onion", name: "Cebula", default: true },
-            { id: "pickle", name: "Ogórek", default: true },
-            { id: "cheese", name: "Ser", default: true },
-          ],
         },
       ],
     },

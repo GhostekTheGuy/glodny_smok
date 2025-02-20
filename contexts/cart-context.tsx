@@ -12,6 +12,11 @@ interface CutlerySelection {
   [key: string]: number
 }
 
+interface Ingredient {
+  name: string
+  price: number
+}
+
 export interface CartItem {
   id: number
   name: string
@@ -21,11 +26,10 @@ export interface CartItem {
   selectedCutlery: Record<string, number>
   selectedSize: string
   photoUrl: string
-  ingredientSelectionGroups: IngredientSelectionGroup[]
+  ingredients: Ingredient[]
   cutlerySelection?: CutlerySelection
   variants: { itemId: string; type: string; price: number }[]
-  oos: boolean // Added oos property
-  customizedIngredients?: Record<string, boolean>
+  oos: boolean
 }
 
 interface CartContextType {
@@ -69,8 +73,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           item.id === product.id &&
           item.selectedSize === product.selectedSize &&
           JSON.stringify(item.selectedIngredients) === JSON.stringify(product.selectedIngredients) &&
-          JSON.stringify(item.selectedCutlery) === JSON.stringify(product.selectedCutlery) &&
-          JSON.stringify(item.customizedIngredients) === JSON.stringify(product.customizedIngredients),
+          JSON.stringify(item.selectedCutlery) === JSON.stringify(product.selectedCutlery),
       )
 
       if (existingItemIndex > -1) {

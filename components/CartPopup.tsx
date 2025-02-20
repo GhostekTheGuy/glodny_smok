@@ -6,7 +6,7 @@ import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Minus, Plus, Trash2, X, Pencil } from "lucide-react"
+import { Trash2, X, Pencil } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -89,26 +89,14 @@ export function CartPopup({
                         Wersja: {item.variants.find((v) => v.itemId === item.selectedSize)?.type || item.selectedSize}
                       </p>
                     )}
-                    {Object.entries(item.selectedIngredients).map(([id, count]) => {
-                      const ingredient = item.ingredientSelectionGroups
-                        .flatMap((group) => group.ingredientSelections)
-                        .find((selection) => selection.details.id === id)
-                      if (ingredient && count > 0) {
-                        return (
-                          <p key={id} className="text-sm text-muted-foreground">
-                            {ingredient.details.name}: {count}
-                          </p>
-                        )
-                      }
-                      return null
-                    })}
-                    {item.customizedIngredients &&
-                      Object.entries(item.customizedIngredients).map(([id, included]) => {
-                        const ingredient = item.customizableIngredients?.find((i) => i.id === id)
-                        if (ingredient) {
+                    {item.ingredients &&
+                      item.ingredients.map((ingredient) => {
+                        const count = item.selectedIngredients[ingredient.id] || 0
+                        if (count > 0) {
                           return (
-                            <p key={id} className="text-sm text-muted-foreground">
-                              {ingredient.name}: {included ? "Tak" : "Nie"}
+                            <p key={ingredient.id} className="text-sm text-muted-foreground">
+                              {ingredient.name}: {count}{" "}
+                              {count > ingredient.default ? `(+${count - ingredient.default})` : ""}
                             </p>
                           )
                         }
@@ -125,41 +113,6 @@ export function CartPopup({
                       }
                       return null
                     })}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() =>
-                          updateQuantity(
-                            item.id,
-                            item.selectedIngredients,
-                            item.selectedCutlery,
-                            item.selectedSize,
-                            item.quantity - 1,
-                          )
-                        }
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() =>
-                          updateQuantity(
-                            item.id,
-                            item.selectedIngredients,
-                            item.selectedCutlery,
-                            item.selectedSize,
-                            item.quantity + 1,
-                          )
-                        }
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
                   </div>
                   <div className="text-right space-y-2">
                     <p className="font-medium">{(item.price * item.quantity).toFixed(2)} zł</p>

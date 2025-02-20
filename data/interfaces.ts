@@ -1,3 +1,11 @@
+export interface Ingredient {
+  id: string
+  name: string
+  price: number
+  default: number
+  max: number
+}
+
 export interface Product {
   id: string
   name: string
@@ -11,19 +19,9 @@ export interface Product {
   dietetaryAttributes: string[]
   variants: { itemId: string; type: string; price: number }[]
   cutlerySelection?: { options: { maxCount: number; maxFreeCount: number; details: any }[] }
-  ingredientSelectionGroups?: {
-    ingredientSelections: { defaultCount: number; maxCount: number; details: any }[]
-    maxCount: number
-    name: string
-    partable: boolean
-  }[]
+  ingredients: Ingredient[]
   crossSaleGroups: any[]
   isBestseller?: boolean
-  customizableIngredients?: {
-    id: string
-    name: string
-    default: boolean
-  }[]
 }
 
 export interface Menu {

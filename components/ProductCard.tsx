@@ -59,7 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       {product.oos && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
           <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-lg">Niedostępny</div>
         </div>
       )}
