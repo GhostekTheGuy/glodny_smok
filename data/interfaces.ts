@@ -6,6 +6,11 @@ export interface Ingredient {
   max: number
 }
 
+export interface IngredientGroup {
+  name: string
+  ingredients: Ingredient[]
+}
+
 export interface Product {
   id: string
   name: string
@@ -19,9 +24,29 @@ export interface Product {
   dietetaryAttributes: string[]
   variants: { itemId: string; type: string; price: number }[]
   cutlerySelection?: { options: { maxCount: number; maxFreeCount: number; details: any }[] }
-  ingredients: Ingredient[]
+  ingredientGroups: IngredientGroup[]
+  ingredientSelectionGroups: {
+    name: string
+    ingredientSelections: {
+      defaultCount: number
+      maxCount: number
+      details: {
+        id: string
+        name: string
+        note: string
+        photo_url: string
+        uom: string
+        bundles: {
+          note: string
+          price: number
+          value: number
+        }[]
+      }
+    }[]
+    maxCount: number
+    partable: boolean
+  }[]
   crossSaleGroups: any[]
-  isBestseller?: boolean
 }
 
 export interface Menu {
