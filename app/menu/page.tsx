@@ -25,7 +25,8 @@ export default function MenuPage() {
   const { totalItems } = useCart()
   const router = useRouter()
 
-  const categories = ["Wszystkie", ...menu.categories.map((category) => category.name)]
+  // Ensure menu.categories exists before mapping
+  const categories = ["Wszystkie", ...(menu.categories?.map((category) => category.name) || [])]
 
   useEffect(() => {
     const animateArrow = async () => {

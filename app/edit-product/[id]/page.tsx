@@ -14,18 +14,14 @@ import { CartPopup } from "@/components/CartPopup"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Variant, CutleryOption } from "@/data/interfaces"
+import type { Product, Variant, CutleryOption } from "@/types/interfaces"
 
 function AnimatedPrice({ price }: { price: number }) {
   const count = useMotionValue(0)
   const rounded = useTransform(count, (latest) => latest.toFixed(2))
 
   useEffect(() => {
-    const animation = animate(count, price, {
-      duration: 0.3,
-      ease: "easeOut",
-    })
-
+    const animation = animate(count, price, { duration: 0.3, ease: "easeOut" })
     return animation.stop
   }, [price, count])
 
@@ -36,67 +32,65 @@ export default function EditProductPage() {
   const params = useParams()
   const router = useRouter()
   const { items, updateCartItem } = useCart()
+  const [product, setProduct] = useState<Product | null>(null)
   const [selectedIngredients, setSelectedIngredients] = useState<Record<string, number>>({})
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedCutlery, setSelectedCutlery] = useState<Record<string, number>>({})
   const [isVisible, setIsVisible] = useState(false)
   const [buttonState, setButtonState] = useState<"neutral" | "success">("neutral")
 
-  const cartItemId = Array.isArray(params.id) ? params.id[0] : params.id
-  const cartItem = items.find((item) => item.id.toString() === cartItemId)
-  let product = cartItem
+  useEffect(() => {
+    const productId = Array.isArray(params.id) ? params.id[0] : params.id
+    const cartItem = items.find((item) => item.id.toString() === productId)
+    const foundProduct = cartItem || menu.products.find((p) => p.id === productId)
 
-  if (!product) {
-    product = menu.categories.flatMap((category) => category.products).find((p) => p.id === cartItemId)
-  }
+    if (foundProduct) {
+      setProduct(foundProduct)
+      setSelectedIngredients(foundProduct.selectedIngredients || {})
+      setSelectedSize(
+        foundProduct.selectedSize ||
+          (foundProduct.variants && foundProduct.variants.length > 0 ? foundProduct.variants[0].itemId : ""),
+      )
+      setSelectedCutlery(foundProduct.selectedCutlery || {})
+    } else {
+      router.push("/menu")
+    }
+  }, [params.id, router, items])
 
   useEffect(() => {
     document.body.style.opacity = "1"
     document.body.style.transition = "opacity 0.5s"
     setIsVisible(true)
-
-    if (product) {
-      setSelectedIngredients(product.selectedIngredients || {})
-      setSelectedSize(product.selectedSize || (product.variants.length > 0 ? product.variants[0].itemId : ""))
-      setSelectedCutlery(product.selectedCutlery || {})
-    }
-  }, [product])
+  }, [])
 
   if (!product) {
     return <div className="container mx-auto px-4 py-8">Product not found</div>
   }
 
   const handleIngredientChange = (ingredientId: string, count: number) => {
-    setSelectedIngredients((prev) => ({
-      ...prev,
-      [ingredientId]: count,
-    }))
+    setSelectedIngredients((prev) => ({ ...prev, [ingredientId]: count }))
   }
 
   const handleCutleryChange = (cutleryId: string, count: number) => {
-    setSelectedCutlery((prev) => ({
-      ...prev,
-      [cutleryId]: count,
-    }))
+    setSelectedCutlery((prev) => ({ ...prev, [cutleryId]: count }))
   }
 
   const calculateTotalPrice = () => {
     let total = product.price
 
-    if (selectedSize) {
-      const selectedVariant = product.variants?.find((v) => v.itemId === selectedSize)
-      if (selectedVariant) {
+    if (selectedSize && product.variants) {
+      const selectedVariant = product.variants.find((v) => v.itemId === selectedSize)
+      if (selectedVariant && typeof selectedVariant.price === "number") {
         total = selectedVariant.price
       }
     }
 
-    // Calculate price from ingredient groups
-    if (product.ingredientGroups) {
-      product.ingredientGroups.forEach((group) => {
-        group.ingredients.forEach((ingredient) => {
-          const count = selectedIngredients[ingredient.id] || 0
-          if (count > ingredient.default) {
-            total += ingredient.price * (count - ingredient.default)
+    if (product.ingredientSelectionGroups) {
+      product.ingredientSelectionGroups.forEach((group) => {
+        group.ingredientSelections.forEach((selection) => {
+          const count = selectedIngredients[selection.details.id] || 0
+          if (count > selection.defaultCount) {
+            total += selection.details.bundles[0].price * (count - selection.defaultCount)
           }
         })
       })
@@ -115,10 +109,10 @@ export default function EditProductPage() {
     return total
   }
 
-  const handleUpdateCart = async () => {
+  const handleUpdateCart = () => {
     if (buttonState !== "neutral" || product.oos) return
 
-    const selectedVariant = product.variants.find((v) => v.itemId === selectedSize)
+    const selectedVariant = product.variants?.find((v) => v.itemId === selectedSize)
     const price = calculateTotalPrice()
 
     updateCartItem({
@@ -130,10 +124,7 @@ export default function EditProductPage() {
     })
 
     setButtonState("success")
-
-    setTimeout(() => {
-      setButtonState("neutral")
-    }, 2000)
+    setTimeout(() => setButtonState("neutral"), 2000)
   }
 
   return (
@@ -144,7 +135,7 @@ export default function EditProductPage() {
       transition={{ duration: 0.5 }}
     >
       <div className="px-4 md:px-0">
-        <Breadcrumbs productName={product.name} />
+        <Breadcrumbs />
       </div>
       <div className="grid md:grid-cols-2 gap-8">
         <div className="relative h-[calc(100vh-16rem)] md:h-[calc(100vh-12rem)]">
@@ -168,7 +159,6 @@ export default function EditProductPage() {
         <div className="relative flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-12rem)] px-4 md:px-0">
           <ScrollArea className="flex-grow">
             <div className="space-y-6 pr-4 rounded-lg">
-              {/* Product Variants Section */}
               {product.variants && product.variants.length > 0 ? (
                 <div className="bg-gray-50/50 p-4 rounded-lg border border-gray-100">
                   <h3 className="text-lg font-semibold mb-4">Wybierz wersję:</h3>
@@ -180,7 +170,7 @@ export default function EditProductPage() {
                       >
                         <RadioGroupItem value={variant.itemId} id={variant.itemId} />
                         <Label htmlFor={variant.itemId} className="flex-1">
-                          {variant.type} - {variant.price.toFixed(2)} zł
+                          {variant.type} - {typeof variant.price === "number" ? variant.price.toFixed(2) : "N/A"} zł
                         </Label>
                       </div>
                     ))}
@@ -192,94 +182,24 @@ export default function EditProductPage() {
                 </p>
               )}
 
-              {/* Main Accordion for Sections */}
               <Accordion type="multiple" className="space-y-4">
-                {/* Ingredients Section */}
-                {product.ingredientGroups && product.ingredientGroups.length > 0 && (
+                {product.ingredientSelectionGroups && product.ingredientSelectionGroups.length > 0 && (
                   <AccordionItem value="ingredients" className="border border-gray-100 rounded-lg bg-gray-50/50">
                     <AccordionTrigger className="text-lg font-semibold px-4">Składniki</AccordionTrigger>
-                    <AccordionContent className="px-4">
-                      <div className="space-y-6">
-                        {product.ingredientGroups.map((group, groupIndex) => (
-                          <div key={groupIndex} className="space-y-4">
-                            <h3 className="font-medium text-base border-b pb-2 text-gray-700">{group.name}</h3>
-                            <div className="space-y-4">
-                              {group.ingredients.map((ingredient) => (
-                                <div
-                                  key={ingredient.id}
-                                  className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                                >
-                                  <div className="flex-1">
-                                    <p className="font-medium">{ingredient.name}</p>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-sm text-gray-500">
-                                        {ingredient.default} w cenie, dodatkowe: {ingredient.price.toFixed(2)} zł
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleIngredientChange(
-                                          ingredient.id,
-                                          Math.max(0, (selectedIngredients[ingredient.id] || 0) - 1),
-                                        )
-                                      }
-                                      disabled={(selectedIngredients[ingredient.id] || 0) === 0}
-                                    >
-                                      <Minus className="h-4 w-4" />
-                                    </Button>
-                                    <span>{selectedIngredients[ingredient.id] || 0}</span>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleIngredientChange(
-                                          ingredient.id,
-                                          Math.min(ingredient.max, (selectedIngredients[ingredient.id] || 0) + 1),
-                                        )
-                                      }
-                                      disabled={(selectedIngredients[ingredient.id] || 0) === ingredient.max}
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-
-                {/* Add-ons Section */}
-                {product.ingredientSelectionGroups && product.ingredientSelectionGroups.length > 0 && (
-                  <AccordionItem value="addons" className="border border-gray-100 rounded-lg bg-gray-50/50">
-                    <AccordionTrigger className="text-lg font-semibold px-4">Dodatki</AccordionTrigger>
                     <AccordionContent className="px-4">
                       <div className="space-y-6">
                         {product.ingredientSelectionGroups.map((group, groupIndex) => (
                           <div key={groupIndex} className="space-y-4">
                             <h3 className="font-medium text-base border-b pb-2 text-gray-700">{group.name}</h3>
                             <div className="space-y-4">
-                              {group.ingredientSelections.map((selection, selectionIndex) => (
+                              {group.ingredientSelections.map((selection) => (
                                 <div
-                                  key={selectionIndex}
+                                  key={selection.details.id}
                                   className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
                                 >
                                   <div className="flex-1">
-                                    <p className="font-medium text-gray-900">{selection.details.name}</p>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-sm text-gray-500">
-                                        {selection.details.note}
-                                        {selection.details.bundles[0].price > 0 &&
-                                          ` - ${selection.details.bundles[0].price.toFixed(2)} zł`}
-                                      </p>
-                                    </div>
+                                    <p className="font-medium">{selection.details.name}</p>
+                                    <p className="text-sm text-gray-500">{selection.details.note}</p>
                                   </div>
                                   <div className="flex items-center space-x-2">
                                     <Button
@@ -323,7 +243,6 @@ export default function EditProductPage() {
                   </AccordionItem>
                 )}
 
-                {/* Cutlery Section */}
                 {product.cutlerySelection && (
                   <AccordionItem value="cutlery" className="border border-gray-100 rounded-lg bg-gray-50/50">
                     <AccordionTrigger className="text-lg font-semibold px-4">Sztućce</AccordionTrigger>
@@ -336,12 +255,10 @@ export default function EditProductPage() {
                           >
                             <div className="flex-1">
                               <p className="font-medium text-gray-900">{option.details.name}</p>
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm text-gray-500">
-                                  {option.maxFreeCount} bezpłatnie
-                                  {option.details.price > 0 && `, następnie ${option.details.price.toFixed(2)} zł/szt`}
-                                </p>
-                              </div>
+                              <p className="text-sm text-gray-500">
+                                {option.maxFreeCount} bezpłatnie
+                                {option.details.price > 0 && `, następnie ${option.details.price.toFixed(2)} zł/szt`}
+                              </p>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Button

@@ -14,18 +14,14 @@ import { CartPopup } from "@/components/CartPopup"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Variant, CutleryOption } from "@/data/interfaces"
+import type { Product, Variant, CutleryOption } from "@/types/interfaces"
 
 function AnimatedPrice({ price }: { price: number }) {
   const count = useMotionValue(0)
   const rounded = useTransform(count, (latest) => latest.toFixed(2))
 
   useEffect(() => {
-    const animation = animate(count, price, {
-      duration: 0.3,
-      ease: "easeOut",
-    })
-
+    const animation = animate(count, price, { duration: 0.3, ease: "easeOut" })
     return animation.stop
   }, [price, count])
 
@@ -36,13 +32,23 @@ export default function ProductPage() {
   const params = useParams()
   const router = useRouter()
   const { addToCart } = useCart()
+  const [product, setProduct] = useState<Product | null>(null)
   const [selectedIngredients, setSelectedIngredients] = useState<Record<string, number>>({})
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedCutlery, setSelectedCutlery] = useState<Record<string, number>>({})
   const [isVisible, setIsVisible] = useState(false)
   const [buttonState, setButtonState] = useState<"neutral" | "success">("neutral")
 
-  const product = menu.categories.flatMap((category) => category.products).find((p) => p.id === params.id) || null
+  useEffect(() => {
+    const productId = Array.isArray(params.id) ? params.id[0] : params.id
+    const foundProduct = menu.products.find((p) => p.id === productId)
+    if (foundProduct) {
+      setProduct(foundProduct)
+      setSelectedSize(foundProduct.variants && foundProduct.variants.length > 0 ? foundProduct.variants[0].itemId : "")
+    } else {
+      router.push("/menu")
+    }
+  }, [params.id, router])
 
   useEffect(() => {
     document.body.style.opacity = "1"
@@ -50,36 +56,8 @@ export default function ProductPage() {
     setIsVisible(true)
 
     if (product) {
-      if (product.variants && product.variants.length > 0) {
-        setSelectedSize(product.variants[0].itemId)
-      }
-
-      const initialIngredients: Record<string, number> = {}
-      if (product.ingredientGroups) {
-        product.ingredientGroups.forEach((group) => {
-          group.ingredients.forEach((ingredient) => {
-            initialIngredients[ingredient.id] = ingredient.default
-          })
-        })
-      }
-
-      if (product.ingredientSelectionGroups) {
-        product.ingredientSelectionGroups.forEach((group) => {
-          group.ingredientSelections.forEach((selection) => {
-            initialIngredients[selection.details.id] = selection.defaultCount
-          })
-        })
-      }
-
-      setSelectedIngredients(initialIngredients)
-
-      if (product.cutlerySelection) {
-        const initialCutlery: Record<string, number> = {}
-        product.cutlerySelection.options.forEach((option) => {
-          initialCutlery[option.details.id] = option.maxFreeCount
-        })
-        setSelectedCutlery(initialCutlery)
-      }
+      setSelectedIngredients({})
+      setSelectedCutlery({})
     }
   }, [product])
 
@@ -88,46 +66,29 @@ export default function ProductPage() {
   }
 
   const handleIngredientChange = (ingredientId: string, count: number) => {
-    setSelectedIngredients((prev) => ({
-      ...prev,
-      [ingredientId]: count,
-    }))
+    setSelectedIngredients((prev) => ({ ...prev, [ingredientId]: count }))
   }
 
   const handleCutleryChange = (cutleryId: string, count: number) => {
-    setSelectedCutlery((prev) => ({
-      ...prev,
-      [cutleryId]: count,
-    }))
+    setSelectedCutlery((prev) => ({ ...prev, [cutleryId]: count }))
   }
 
   const calculateTotalPrice = () => {
     let total = product.price
 
-    if (selectedSize) {
-      const selectedVariant = product.variants?.find((v) => v.itemId === selectedSize)
-      if (selectedVariant) {
+    if (selectedSize && product.variants) {
+      const selectedVariant = product.variants.find((v) => v.itemId === selectedSize)
+      if (selectedVariant && typeof selectedVariant.price === "number") {
         total = selectedVariant.price
       }
-    }
-
-    if (product.ingredientGroups) {
-      product.ingredientGroups.forEach((group) => {
-        group.ingredients.forEach((ingredient) => {
-          const count = selectedIngredients[ingredient.id] || 0
-          if (count > ingredient.default) {
-            total += ingredient.price * (count - ingredient.default)
-          }
-        })
-      })
     }
 
     if (product.ingredientSelectionGroups) {
       product.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
           const count = selectedIngredients[selection.details.id] || 0
-          if (count > 0) {
-            total += selection.details.bundles[0].price * count
+          if (count > selection.defaultCount) {
+            total += selection.details.bundles[0].price * (count - selection.defaultCount)
           }
         })
       })
@@ -146,10 +107,10 @@ export default function ProductPage() {
     return total
   }
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (buttonState !== "neutral" || product.oos) return
 
-    const selectedVariant = product.variants.find((v) => v.itemId === selectedSize)
+    const selectedVariant = product.variants?.find((v) => v.itemId === selectedSize)
     const price = calculateTotalPrice()
 
     addToCart({
@@ -161,20 +122,19 @@ export default function ProductPage() {
     })
 
     setButtonState("success")
-
-    setTimeout(() => {
-      setButtonState("neutral")
-    }, 2000)
+    setTimeout(() => setButtonState("neutral"), 2000)
   }
 
   return (
     <motion.div
-      className="container mx-auto px-4 py-8"
+      className="container mx-auto px-0 md:px-4 py-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Breadcrumbs productName={product.name} />
+      <div className="px-4 md:px-0">
+        <Breadcrumbs productName={product.name} />
+      </div>
       <div className="grid md:grid-cols-2 gap-8">
         <div className="relative h-[calc(100vh-16rem)] md:h-[calc(100vh-12rem)]">
           <div className="relative w-full h-full">
@@ -182,22 +142,21 @@ export default function ProductPage() {
               src={product.photoUrl || "/placeholder.svg"}
               alt={product.name}
               fill
-              className="rounded-lg object-cover"
+              className="object-cover md:rounded-lg"
               loading="lazy"
               placeholder="blur"
               blurDataURL="/placeholder-blur.jpg"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent md:rounded-lg" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
               <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
               <p className="text-gray-200">{product.description}</p>
             </div>
           </div>
         </div>
-        <div className="relative flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-12rem)]">
+        <div className="relative flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-12rem)] px-4 md:px-0">
           <ScrollArea className="flex-grow">
             <div className="space-y-6 pr-4 rounded-lg">
-              {/* Product Variants Section */}
               {product.variants && product.variants.length > 0 ? (
                 <div className="bg-gray-50/50 p-4 rounded-lg border border-gray-100">
                   <h3 className="text-lg font-semibold mb-4">Wybierz wersję:</h3>
@@ -209,7 +168,7 @@ export default function ProductPage() {
                       >
                         <RadioGroupItem value={variant.itemId} id={variant.itemId} />
                         <Label htmlFor={variant.itemId} className="flex-1">
-                          {variant.type} - {variant.price.toFixed(2)} zł
+                          {variant.type} - {typeof variant.price === "number" ? variant.price.toFixed(2) : "N/A"} zł
                         </Label>
                       </div>
                     ))}
@@ -221,94 +180,24 @@ export default function ProductPage() {
                 </p>
               )}
 
-              {/* Main Accordion for Sections */}
               <Accordion type="multiple" className="space-y-4">
-                {/* Ingredients Section */}
-                {product.ingredientGroups && product.ingredientGroups.length > 0 && (
+                {product.ingredientSelectionGroups && product.ingredientSelectionGroups.length > 0 && (
                   <AccordionItem value="ingredients" className="border border-gray-100 rounded-lg bg-gray-50/50">
                     <AccordionTrigger className="text-lg font-semibold px-4">Składniki</AccordionTrigger>
-                    <AccordionContent className="px-4">
-                      <div className="space-y-6">
-                        {product.ingredientGroups.map((group, groupIndex) => (
-                          <div key={groupIndex} className="space-y-4">
-                            <h3 className="font-medium text-base border-b pb-2 text-gray-700">{group.name}</h3>
-                            <div className="space-y-4">
-                              {group.ingredients.map((ingredient) => (
-                                <div
-                                  key={ingredient.id}
-                                  className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                                >
-                                  <div className="flex-1">
-                                    <p className="font-medium text-gray-900">{ingredient.name}</p>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-sm text-gray-500">
-                                        {ingredient.default} w cenie, dodatkowe: {ingredient.price.toFixed(2)} zł
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleIngredientChange(
-                                          ingredient.id,
-                                          Math.max(0, (selectedIngredients[ingredient.id] || 0) - 1),
-                                        )
-                                      }
-                                      disabled={(selectedIngredients[ingredient.id] || 0) === 0}
-                                    >
-                                      <Minus className="h-4 w-4" />
-                                    </Button>
-                                    <span>{selectedIngredients[ingredient.id] || 0}</span>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleIngredientChange(
-                                          ingredient.id,
-                                          Math.min(ingredient.max, (selectedIngredients[ingredient.id] || 0) + 1),
-                                        )
-                                      }
-                                      disabled={(selectedIngredients[ingredient.id] || 0) === ingredient.max}
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-
-                {/* Add-ons Section */}
-                {product.ingredientSelectionGroups && product.ingredientSelectionGroups.length > 0 && (
-                  <AccordionItem value="addons" className="border border-gray-100 rounded-lg bg-gray-50/50">
-                    <AccordionTrigger className="text-lg font-semibold px-4">Dodatki</AccordionTrigger>
                     <AccordionContent className="px-4">
                       <div className="space-y-6">
                         {product.ingredientSelectionGroups.map((group, groupIndex) => (
                           <div key={groupIndex} className="space-y-4">
                             <h3 className="font-medium text-base border-b pb-2 text-gray-700">{group.name}</h3>
                             <div className="space-y-4">
-                              {group.ingredientSelections.map((selection, selectionIndex) => (
+                              {group.ingredientSelections.map((selection) => (
                                 <div
-                                  key={selectionIndex}
+                                  key={selection.details.id}
                                   className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
                                 >
                                   <div className="flex-1">
-                                    <p className="font-medium text-gray-900">{selection.details.name}</p>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-sm text-gray-500">
-                                        {selection.details.note}
-                                        {selection.details.bundles[0].price > 0 &&
-                                          ` - ${selection.details.bundles[0].price.toFixed(2)} zł`}
-                                      </p>
-                                    </div>
+                                    <p className="font-medium">{selection.details.name}</p>
+                                    <p className="text-sm text-gray-500">{selection.details.note}</p>
                                   </div>
                                   <div className="flex items-center space-x-2">
                                     <Button
@@ -352,7 +241,6 @@ export default function ProductPage() {
                   </AccordionItem>
                 )}
 
-                {/* Cutlery Section */}
                 {product.cutlerySelection && (
                   <AccordionItem value="cutlery" className="border border-gray-100 rounded-lg bg-gray-50/50">
                     <AccordionTrigger className="text-lg font-semibold px-4">Sztućce</AccordionTrigger>
@@ -365,12 +253,10 @@ export default function ProductPage() {
                           >
                             <div className="flex-1">
                               <p className="font-medium text-gray-900">{option.details.name}</p>
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm text-gray-500">
-                                  {option.maxFreeCount} bezpłatnie
-                                  {option.details.price > 0 && `, następnie ${option.details.price.toFixed(2)} zł/szt`}
-                                </p>
-                              </div>
+                              <p className="text-sm text-gray-500">
+                                {option.maxFreeCount} bezpłatnie
+                                {option.details.price > 0 && `, następnie ${option.details.price.toFixed(2)} zł/szt`}
+                              </p>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Button
@@ -432,7 +318,7 @@ export default function ProductPage() {
               layout
               disabled={buttonState !== "neutral" || product.oos}
               onClick={handleAddToCart}
-              className={`relative w-full rounded-md px-4 py-2 font-medium text-white transition-all ${
+              className={`relative w-full rounded-lg px-4 py-3 font-medium text-white transition-all ${
                 product.oos
                   ? "bg-gray-400 cursor-not-allowed"
                   : buttonState === "neutral"
@@ -445,7 +331,7 @@ export default function ProductPage() {
                   y: buttonState === "neutral" ? 0 : 6,
                   opacity: buttonState === "neutral" ? 1 : 0,
                 }}
-                className="inline-block"
+                className="inline-block text-base"
               >
                 {product.oos ? "Produkt niedostępny" : "Dodaj do koszyka"}
               </motion.span>
@@ -454,7 +340,7 @@ export default function ProductPage() {
 
             <CartPopup>
               <Button
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white flex items-center justify-center gap-2 text-base font-medium"
+                className="w-full bg-gray-500 hover:bg-gray-600 text-white flex items-center justify-center gap-2 text-base font-medium py-3 rounded-lg"
                 disabled={product.oos}
               >
                 <ShoppingCart className="w-5 h-5" />
