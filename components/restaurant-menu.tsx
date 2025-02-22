@@ -21,11 +21,7 @@ export default function RestaurantMenu() {
   const { totalItems } = useCart()
   const router = useRouter()
 
-  // Extract unique categories from products
-  const categories = [
-    "Wszystkie",
-    ...new Set(menu.products.flatMap((product) => product.categories.map((category) => category.name))),
-  ]
+  const categories = ["Wszystkie", ...menu.categories.map((category) => category.name)]
 
   useEffect(() => {
     const animateArrow = async () => {
