@@ -1,14 +1,14 @@
 export const menu = [
   {
     id: "98b56c5e-3b91-4542-9e03-d7be95675f9e",
-    name: "Pierwsze menu",
+    name: "Menu Główne",
     note: "",
     products: [
       {
         id: "38ff5964-3564-4efe-b947-0c703435991f",
         name: "Pizza kebab",
         note: "Pizza kebab notatka.",
-        photoUrl: "https://example.com/product-image.jpg",
+        photoUrl: "/placeholder.svg?height=400&width=400",
         description: "Pizza kebab opis",
         standalone: true,
         oos: false,
@@ -20,19 +20,19 @@ export const menu = [
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Mała",
-            price: 7.99
+            price: 7.99,
           },
           {
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Średnia",
-            price: 9.99
+            price: 9.99,
           },
           {
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Duża",
-            price: 11.99
+            price: 11.99,
           },
         ],
         cutlerySelection: {
@@ -67,56 +67,10 @@ export const menu = [
                 defaultCount: 1,
                 maxCount: 2,
                 details: {
-                  id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                  name: "Pomidor",
-                  note: "Fresh organic tomatoes",
-                  photo_url: "https://example.com/tomato.jpg",
-                  uom: "kg",
-                  bundles: [
-                    {
-                      note: "Small pack",
-                      price: 2.5,
-                      value: 1,
-                    },
-                    {
-                      note: "Large pack",
-                      price: 10,
-                      value: 5,
-                    },
-                  ],
-                },
-              },
-              {
-                defaultCount: 2,
-                maxCount: 3,
-                details: {
-                  id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                  name: "Pomidor",
-                  note: "Fresh organic tomatoes",
-                  photo_url: "https://example.com/tomato.jpg",
-                  uom: "kg",
-                  bundles: [
-                    {
-                      note: "Small pack",
-                      price: 2.5,
-                      value: 1,
-                    },
-                    {
-                      note: "Large pack",
-                      price: 10,
-                      value: 5,
-                    },
-                  ],
-                },
-              },
-              {
-                defaultCount: 1,
-                maxCount: 2,
-                details: {
                   id: "new-ingredient-id-1",
                   name: "Ser mozzarella",
                   note: "Świeży ser mozzarella",
-                  photo_url: "https://example.com/mozzarella.jpg",
+                  photo_url: "/placeholder.svg?height=100&width=100",
                   uom: "kg",
                   bundles: [
                     {
@@ -134,7 +88,7 @@ export const menu = [
                   id: "new-ingredient-id-2",
                   name: "Cebula",
                   note: "Świeża cebula",
-                  photo_url: "https://example.com/onion.jpg",
+                  photo_url: "/placeholder.svg?height=100&width=100",
                   uom: "kg",
                   bundles: [
                     {
@@ -162,7 +116,7 @@ export const menu = [
                   id: "2558aabe-b7f7-45b3-9b45-7d1918b4e3eb",
                   name: "Sos czosnkowy",
                   note: "Sos czosnkowy notatka.",
-                  photoUrl: "https://example.com/product-image.jpg",
+                  photoUrl: "/placeholder.svg?height=100&width=100",
                   description: "Sos czosnkowy do pizzy",
                   standalone: false,
                   oos: false,
@@ -180,7 +134,7 @@ export const menu = [
                   id: "b5bb762a-d1c0-46fa-8aaa-6fda535ba970",
                   name: "Sos bbq",
                   note: "Sos bbq notatka.",
-                  photoUrl: "https://example.com/product-image.jpg",
+                  photoUrl: "/placeholder.svg?height=100&width=100",
                   description: "Sos bbq do pizzy",
                   standalone: false,
                   oos: false,
@@ -206,7 +160,7 @@ export const menu = [
                   id: "new-item-id-1",
                   name: "Cola",
                   note: "",
-                  photoUrl: "https://example.com/cola.jpg",
+                  photoUrl: "/placeholder.svg?height=100&width=100",
                   description: "Chłodząca cola",
                   standalone: true,
                   oos: false,
@@ -239,7 +193,7 @@ export const menu = [
         id: "5151e756-1e38-4dae-ba66-10c22ae69bd6",
         name: "Pepperoni",
         note: "This is a seasonal special.",
-        photoUrl: "https://example.com/product-image.jpg",
+        photoUrl: "/placeholder.svg?height=400&width=400",
         description: "Pizza pepperoni opis",
         standalone: true,
         oos: false,
@@ -251,19 +205,19 @@ export const menu = [
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Standard",
-            price: 9.99
+            price: 9.99,
           },
           {
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Extra Ser",
-            price: 11.99
+            price: 11.99,
           },
           {
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Extra Pepperoni",
-            price: 12.99
+            price: 12.99,
           },
         ],
         cutlerySelection: {
@@ -298,56 +252,10 @@ export const menu = [
                 defaultCount: 1,
                 maxCount: 2,
                 details: {
-                  id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                  name: "Pomidor",
-                  note: "Fresh organic tomatoes",
-                  photo_url: "https://example.com/tomato.jpg",
-                  uom: "kg",
-                  bundles: [
-                    {
-                      note: "Small pack",
-                      price: 2.5,
-                      value: 1,
-                    },
-                    {
-                      note: "Large pack",
-                      price: 10,
-                      value: 5,
-                    },
-                  ],
-                },
-              },
-              {
-                defaultCount: 2,
-                maxCount: 3,
-                details: {
-                  id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                  name: "Pomidor",
-                  note: "Fresh organic tomatoes",
-                  photo_url: "https://example.com/tomato.jpg",
-                  uom: "kg",
-                  bundles: [
-                    {
-                      note: "Small pack",
-                      price: 2.5,
-                      value: 1,
-                    },
-                    {
-                      note: "Large pack",
-                      price: 10,
-                      value: 5,
-                    },
-                  ],
-                },
-              },
-              {
-                defaultCount: 1,
-                maxCount: 2,
-                details: {
                   id: "new-ingredient-id-3",
                   name: "Oliwki",
                   note: "Czarne oliwki",
-                  photo_url: "https://example.com/olives.jpg",
+                  photo_url: "/placeholder.svg?height=100&width=100",
                   uom: "kg",
                   bundles: [
                     {
@@ -365,7 +273,7 @@ export const menu = [
                   id: "new-ingredient-id-4",
                   name: "Papryka",
                   note: "Świeża papryka",
-                  photo_url: "https://example.com/pepper.jpg",
+                  photo_url: "/placeholder.svg?height=100&width=100",
                   uom: "kg",
                   bundles: [
                     {
@@ -393,7 +301,7 @@ export const menu = [
                   id: "93b323fa-ae50-4679-b043-8e2b02680e12",
                   name: "Hawajska",
                   note: "This is a seasonal special.",
-                  photoUrl: "https://example.com/product-image.jpg",
+                  photoUrl: "/placeholder.svg?height=400&width=400",
                   description: "Pizza hawajska opis",
                   standalone: true,
                   oos: false,
@@ -431,21 +339,16 @@ export const menu = [
                           defaultCount: 1,
                           maxCount: 2,
                           details: {
-                            id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                            name: "Pomidor",
-                            note: "Fresh organic tomatoes",
-                            photo_url: "https://example.com/tomato.jpg",
+                            id: "new-ingredient-id-5",
+                            name: "Ananas",
+                            note: "Świeży ananas",
+                            photo_url: "/placeholder.svg?height=100&width=100",
                             uom: "kg",
                             bundles: [
                               {
-                                note: "Small pack",
-                                price: 2.5,
+                                note: "Pakiet standardowy",
+                                price: 3,
                                 value: 1,
-                              },
-                              {
-                                note: "Large pack",
-                                price: 10,
-                                value: 5,
                               },
                             ],
                           },
@@ -457,101 +360,7 @@ export const menu = [
                             id: "936a7bce-66d6-4419-b756-8c2059a704cd",
                             name: "Pomidor",
                             note: "Fresh organic tomatoes",
-                            photo_url: "https://example.com/tomato.jpg",
-                            uom: "kg",
-                            bundles: [
-                              {
-                                note: "Small pack",
-                                price: 2.5,
-                                value: 1,
-                              },
-                              {
-                                note: "Large pack",
-                                price: 10,
-                                value: 5,
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                      maxCount: 3,
-                      name: "Toppings",
-                      partable: true,
-                    },
-                  ],
-                },
-                price: 5,
-              },
-              {
-                item: {
-                  id: "93b323fa-ae50-4679-b043-8e2b02680e12",
-                  name: "Hawajska",
-                  note: "This is a seasonal special.",
-                  photoUrl: "https://example.com/product-image.jpg",
-                  description: "Pizza hawajska opis",
-                  standalone: true,
-                  oos: false,
-                  price: 9.99,
-                  temperature: "COLD",
-                  dietetaryAttributes: ["VEGAN", "GLUTEN_FREE"],
-                  cutlerySelection: {
-                    options: [
-                      {
-                        maxCount: 2,
-                        maxFreeCount: 1,
-                        details: {
-                          id: "a8fb02b7-f4f6-4cd2-b06e-4363cf6e15b4",
-                          name: "Nóż",
-                          note: "note",
-                          price: 16,
-                        },
-                      },
-                      {
-                        maxCount: 3,
-                        maxFreeCount: 2,
-                        details: {
-                          id: "a8fb02b7-f4f6-4cd2-b06e-4363cf6e15b4",
-                          name: "Nóż",
-                          note: "note",
-                          price: 16,
-                        },
-                      },
-                    ],
-                  },
-                  ingredientSelectionGroups: [
-                    {
-                      ingredientSelections: [
-                        {
-                          defaultCount: 1,
-                          maxCount: 2,
-                          details: {
-                            id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                            name: "Pomidor",
-                            note: "Fresh organic tomatoes",
-                            photo_url: "https://example.com/tomato.jpg",
-                            uom: "kg",
-                            bundles: [
-                              {
-                                note: "Small pack",
-                                price: 2.5,
-                                value: 1,
-                              },
-                              {
-                                note: "Large pack",
-                                price: 10,
-                                value: 5,
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          defaultCount: 2,
-                          maxCount: 3,
-                          details: {
-                            id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                            name: "Pomidor",
-                            note: "Fresh organic tomatoes",
-                            photo_url: "https://example.com/tomato.jpg",
+                            photo_url: "/placeholder.svg?height=100&width=100",
                             uom: "kg",
                             bundles: [
                               {
@@ -589,7 +398,7 @@ export const menu = [
                   id: "new-item-id-2",
                   name: "Woda mineralna",
                   note: "",
-                  photoUrl: "https://example.com/water.jpg",
+                  photoUrl: "/placeholder.svg?height=100&width=100",
                   description: "Orzeźwiająca woda mineralna",
                   standalone: true,
                   oos: false,
@@ -622,7 +431,7 @@ export const menu = [
         id: "93b323fa-ae50-4679-b043-8e2b02680e12",
         name: "Hawajska",
         note: "This is a seasonal special.",
-        photoUrl: "https://example.com/product-image.jpg",
+        photoUrl: "/placeholder.svg?height=400&width=400",
         description: "Pizza hawajska opis",
         standalone: true,
         oos: false,
@@ -634,19 +443,19 @@ export const menu = [
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Standard",
-            price: 9.99
+            price: 9.99,
           },
           {
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Extra Ananas",
-            price: 11.99
+            price: 11.99,
           },
           {
             itemId: "1043be72-f629-4551-85f4-c173da3e383b",
             type: "PRODUCT",
             name: "Extra Szynka",
-            price: 12.99
+            price: 12.99,
           },
         ],
         cutlerySelection: {
@@ -681,56 +490,10 @@ export const menu = [
                 defaultCount: 1,
                 maxCount: 2,
                 details: {
-                  id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                  name: "Pomidor",
-                  note: "Fresh organic tomatoes",
-                  photo_url: "https://example.com/tomato.jpg",
-                  uom: "kg",
-                  bundles: [
-                    {
-                      note: "Small pack",
-                      price: 2.5,
-                      value: 1,
-                    },
-                    {
-                      note: "Large pack",
-                      price: 10,
-                      value: 5,
-                    },
-                  ],
-                },
-              },
-              {
-                defaultCount: 2,
-                maxCount: 3,
-                details: {
-                  id: "936a7bce-66d6-4419-b756-8c2059a704cd",
-                  name: "Pomidor",
-                  note: "Fresh organic tomatoes",
-                  photo_url: "https://example.com/tomato.jpg",
-                  uom: "kg",
-                  bundles: [
-                    {
-                      note: "Small pack",
-                      price: 2.5,
-                      value: 1,
-                    },
-                    {
-                      note: "Large pack",
-                      price: 10,
-                      value: 5,
-                    },
-                  ],
-                },
-              },
-              {
-                defaultCount: 1,
-                maxCount: 2,
-                details: {
                   id: "new-ingredient-id-5",
                   name: "Ananas",
                   note: "Świeży ananas",
-                  photo_url: "https://example.com/pineapple.jpg",
+                  photo_url: "/placeholder.svg?height=100&width=100",
                   uom: "kg",
                   bundles: [
                     {
@@ -748,7 +511,7 @@ export const menu = [
                   id: "new-ingredient-id-6",
                   name: "Szynka",
                   note: "Wysokiej jakości szynka",
-                  photo_url: "https://example.com/ham.jpg",
+                  photo_url: "/placeholder.svg?height=100&width=100",
                   uom: "kg",
                   bundles: [
                     {
@@ -776,7 +539,7 @@ export const menu = [
                   id: "new-item-id-3",
                   name: "Sos słodko-kwaśny",
                   note: "",
-                  photoUrl: "https://example.com/sweet-sour-sauce.jpg",
+                  photoUrl: "/placeholder.svg?height=100&width=100",
                   description: "Sos słodko-kwaśny do pizzy",
                   standalone: true,
                   oos: false,

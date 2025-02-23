@@ -226,7 +226,7 @@ export default function ProductPage() {
                       >
                         <RadioGroupItem value={variant.itemId} id={variant.itemId} />
                         <Label htmlFor={variant.itemId} className="flex-1">
-                          {variant.type}
+                          {variant.name}
                           {variant.price && ` - ${variant.price.toFixed(2)} zł`}
                         </Label>
                       </div>
