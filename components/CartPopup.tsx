@@ -86,7 +86,7 @@ export function CartPopup({
                     <h4 className="font-medium">{item.name}</h4>
                     {item.selectedSize && (
                       <p className="text-sm text-muted-foreground">
-                        Wersja: {item.variants.find((v) => v.itemId === item.selectedSize)?.type || item.selectedSize}
+                        Wersja: {item.variants.find((v) => v.itemId === item.selectedSize)?.name || item.selectedSize}
                       </p>
                     )}
                     {item.ingredients &&

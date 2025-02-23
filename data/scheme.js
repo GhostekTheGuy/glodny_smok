@@ -277,9 +277,19 @@ export const menu = [
                   uom: "kg",
                   bundles: [
                     {
-                      note: "Pakiet standardowy",
+                      note: "Mała porcja",
                       price: 2,
                       value: 1,
+                    },
+                    {
+                      note: "Średnia porcja",
+                      price: 3.5,
+                      value: 2,
+                    },
+                    {
+                      note: "Duża porcja",
+                      price: 5,
+                      value: 3,
                     },
                   ],
                 },

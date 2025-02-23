@@ -14,6 +14,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Variant } from "@/data/interfaces"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Checkbox } from "@/components/ui/checkbox"
+
+interface SelectedBundle {
+  ingredientId: string
+  bundleIndex: number
+}
 
 function AnimatedPrice({ price }: { price: number }) {
   const count = useMotionValue(0)
@@ -40,6 +47,7 @@ export default function ProductPage() {
   const [selectedCrossSaleItems, setSelectedCrossSaleItems] = useState<Record<string, number>>({})
   const [isVisible, setIsVisible] = useState(false)
   const [buttonState, setButtonState] = useState<"neutral" | "success">("neutral")
+  const [selectedBundles, setSelectedBundles] = useState<Record<string, number>>({})
 
   const product = menu[0].products.find((p) => p.id === params.id) || null
 
@@ -123,14 +131,17 @@ export default function ProductPage() {
       }
     }
 
-    // Add ingredient prices
+    // Add ingredient prices with bundle support
     if (product.ingredientSelectionGroups) {
       product.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
           const count = selectedIngredients[selection.details.id] || 0
-          const extraCount = Math.max(0, count - selection.defaultCount)
-          if (extraCount > 0 && selection.details.bundles?.[0]) {
-            total += extraCount * selection.details.bundles[0].price
+          if (count > 0 && selection.details.bundles) {
+            const bundleIndex = selectedBundles[selection.details.id] || 0
+            const bundle = selection.details.bundles[bundleIndex]
+            if (bundle) {
+              total += count * bundle.price
+            }
           }
         })
       })
@@ -214,199 +225,290 @@ export default function ProductPage() {
         <div className="relative flex flex-col min-h-[calc(60vh-8rem)] md:h-[calc(100vh-12rem)]">
           <ScrollArea className="flex-1 mb-[200px] md:mb-[180px]">
             <div className="space-y-6 pr-4 rounded-lg pb-4">
-              {/* Variants Section */}
-              {product.variants && product.variants.length > 0 && (
-                <div className="bg-gray-50/50 p-4 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-4">Wybierz wersję:</h3>
-                  <RadioGroup value={selectedSize} onValueChange={setSelectedSize}>
-                    {product.variants.map((variant: Variant) => (
-                      <div
-                        key={variant.itemId}
-                        className="flex items-center space-x-2 p-2 hover:bg-white rounded-md transition-colors"
-                      >
-                        <RadioGroupItem value={variant.itemId} id={variant.itemId} />
-                        <Label htmlFor={variant.itemId} className="flex-1">
-                          {variant.name}
-                          {variant.price && ` - ${variant.price.toFixed(2)} zł`}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-              )}
+              <Accordion type="multiple" className="space-y-4">
+                {[
+                  ...(product.variants && product.variants.length > 0 ? [{ type: "variants" }] : []),
+                  ...(product.ingredientSelectionGroups?.map((group, index) => ({
+                    type: "ingredients",
+                    index,
+                  })) || []),
+                  ...(product.cutlerySelection ? [{ type: "cutlery" }] : []),
+                  ...(product.crossSaleGroups?.map((group, index) => ({
+                    type: "crossSale",
+                    index,
+                  })) || []),
+                ].map((section, index) => (
+                  <motion.div
+                    key={`${section.type}-${section.index || 0}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    {section.type === "variants" && product.variants && product.variants.length > 0 && (
+                      <AccordionItem value="variants" className="border border-gray-100 rounded-lg bg-gray-50/50">
+                        <AccordionTrigger className="px-4">Wybierz wersję</AccordionTrigger>
+                        <AccordionContent className="px-4">
+                          <div className="space-y-2">
+                            {product.variants.map((variant: Variant) => (
+                              <div
+                                key={variant.itemId}
+                                className={`flex items-center space-x-2 p-2 rounded-md transition-colors hover:bg-white border border-transparent`}
+                              >
+                                <Checkbox
+                                  id={variant.itemId}
+                                  checked={selectedSize === variant.itemId}
+                                  onCheckedChange={(checked) => {
+                                    setSelectedSize(checked ? variant.itemId : "")
+                                  }}
+                                />
+                                <Label htmlFor={variant.itemId} className="flex-1 cursor-pointer">
+                                  {variant.name} - {variant.price.toFixed(2)} zł
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    )}
 
-              {/* Ingredient Groups Section */}
-              {product.ingredientSelectionGroups?.map((group, groupIndex) => (
-                <div key={groupIndex} className="bg-gray-50/50 p-4 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-4">{group.name}</h3>
-                  <div className="space-y-4">
-                    {group.ingredientSelections.map((selection, selectionIndex) => (
-                      <div
-                        key={selectionIndex}
-                        className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{selection.details.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {selection.details.note}
-                            {selection.details.bundles?.[0]?.price > 0 &&
-                              ` - ${selection.details.bundles[0].price.toFixed(2)} zł za dodatkową porcję`}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleIngredientChange(
-                                selection.details.id,
-                                (selectedIngredients[selection.details.id] || 0) - 1,
-                                selection.maxCount,
-                              )
-                            }
-                            disabled={(selectedIngredients[selection.details.id] || 0) <= 0}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-8 text-center">
-                            {selectedIngredients[selection.details.id] || 0}
-                            {selection.defaultCount > 0 && (
-                              <span className="text-xs text-gray-500 block">({selection.defaultCount})</span>
-                            )}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleIngredientChange(
-                                selection.details.id,
-                                (selectedIngredients[selection.details.id] || 0) + 1,
-                                selection.maxCount,
-                              )
-                            }
-                            disabled={(selectedIngredients[selection.details.id] || 0) >= selection.maxCount}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                    {section.type === "ingredients" &&
+                      product.ingredientSelectionGroups &&
+                      product.ingredientSelectionGroups[section.index].ingredientSelections && (
+                        <AccordionItem
+                          key={section.index}
+                          value={`ingredient-group-${section.index}`}
+                          className="border border-gray-100 rounded-lg bg-gray-50/50"
+                        >
+                          <AccordionTrigger className="px-4">
+                            {product.ingredientSelectionGroups[section.index].name}
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4">
+                            <div className="space-y-4">
+                              {product.ingredientSelectionGroups[section.index].ingredientSelections.map(
+                                (selection, selectionIndex) => (
+                                  <div
+                                    key={selectionIndex}
+                                    className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
+                                  >
+                                    <div className="flex-1">
+                                      <p className="font-medium">{selection.details.name}</p>
+                                      <p className="text-sm text-gray-500">{selection.details.note}</p>
+                                      {selection.details.bundles && selection.details.bundles.length > 1 ? (
+                                        <div className="mt-2 space-y-2">
+                                          <p className="text-sm font-medium text-gray-700">Wybierz porcję:</p>
+                                          <RadioGroup
+                                            value={String(selectedBundles[selection.details.id] || 0)}
+                                            onValueChange={(value) =>
+                                              setSelectedBundles((prev) => ({
+                                                ...prev,
+                                                [selection.details.id]: Number.parseInt(value),
+                                              }))
+                                            }
+                                          >
+                                            {selection.details.bundles.map((bundle, bundleIndex) => (
+                                              <div
+                                                key={bundleIndex}
+                                                className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-md"
+                                              >
+                                                <RadioGroupItem
+                                                  value={String(bundleIndex)}
+                                                  id={`${selection.details.id}-${bundleIndex}`}
+                                                />
+                                                <Label
+                                                  htmlFor={`${selection.details.id}-${bundleIndex}`}
+                                                  className="flex-1"
+                                                >
+                                                  {bundle.note} ({bundle.value} {selection.details.uom}) -{" "}
+                                                  {bundle.price.toFixed(2)} zł
+                                                </Label>
+                                              </div>
+                                            ))}
+                                          </RadioGroup>
+                                        </div>
+                                      ) : (
+                                        <p className="text-sm text-gray-500">
+                                          {selection.details.bundles?.[0]?.price > 0 &&
+                                            `${selection.details.bundles[0].price.toFixed(2)} zł za porcję`}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() =>
+                                          handleIngredientChange(
+                                            selection.details.id,
+                                            (selectedIngredients[selection.details.id] || 0) - 1,
+                                            selection.maxCount,
+                                          )
+                                        }
+                                        disabled={(selectedIngredients[selection.details.id] || 0) <= 0}
+                                      >
+                                        <Minus className="h-4 w-4" />
+                                      </Button>
+                                      <span className="w-8 text-center">
+                                        {selectedIngredients[selection.details.id] || 0}
+                                        {selection.defaultCount > 0 && (
+                                          <span className="text-xs text-gray-500 block">
+                                            ({selection.defaultCount})
+                                          </span>
+                                        )}
+                                      </span>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() =>
+                                          handleIngredientChange(
+                                            selection.details.id,
+                                            (selectedIngredients[selection.details.id] || 0) + 1,
+                                            selection.maxCount,
+                                          )
+                                        }
+                                        disabled={
+                                          (selectedIngredients[selection.details.id] || 0) >= selection.maxCount
+                                        }
+                                      >
+                                        <Plus className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
-              {/* Cutlery Section */}
-              {product.cutlerySelection && (
-                <div className="bg-gray-50/50 p-4 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-4">Sztućce</h3>
-                  <div className="space-y-4">
-                    {product.cutlerySelection.options.map((option, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{option.details.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {option.maxFreeCount > 0 && `${option.maxFreeCount} szt. gratis, `}
-                            {option.details.price > 0 && `${option.details.price.toFixed(2)} zł za dodatkową sztukę`}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleCutleryChange(
-                                option.details.id,
-                                (selectedCutlery[option.details.id] || 0) - 1,
-                                option.maxCount,
-                              )
-                            }
-                            disabled={(selectedCutlery[option.details.id] || 0) <= 0}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-8 text-center">
-                            {selectedCutlery[option.details.id] || 0}
-                            {option.maxFreeCount > 0 && (
-                              <span className="text-xs text-gray-500 block">({option.maxFreeCount})</span>
-                            )}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleCutleryChange(
-                                option.details.id,
-                                (selectedCutlery[option.details.id] || 0) + 1,
-                                option.maxCount,
-                              )
-                            }
-                            disabled={(selectedCutlery[option.details.id] || 0) >= option.maxCount}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    {section.type === "cutlery" && product.cutlerySelection && (
+                      <AccordionItem value="cutlery" className="border border-gray-100 rounded-lg bg-gray-50/50">
+                        <AccordionTrigger className="px-4">Sztućce</AccordionTrigger>
+                        <AccordionContent className="px-4">
+                          <div className="space-y-4">
+                            {product.cutlerySelection.options.map((option, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
+                              >
+                                <div className="flex-1">
+                                  <p className="font-medium">{option.details.name}</p>
+                                  <p className="text-sm text-gray-500">
+                                    {option.maxFreeCount > 0 && `${option.maxFreeCount} szt. gratis, `}
+                                    {option.details.price > 0 &&
+                                      `${option.details.price.toFixed(2)} zł za dodatkową sztukę`}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleCutleryChange(
+                                        option.details.id,
+                                        (selectedCutlery[option.details.id] || 0) - 1,
+                                        option.maxCount,
+                                      )
+                                    }
+                                    disabled={(selectedCutlery[option.details.id] || 0) <= 0}
+                                  >
+                                    <Minus className="h-4 w-4" />
+                                  </Button>
+                                  <span className="w-8 text-center">
+                                    {selectedCutlery[option.details.id] || 0}
+                                    {option.maxFreeCount > 0 && (
+                                      <span className="text-xs text-gray-500 block">({option.maxFreeCount})</span>
+                                    )}
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleCutleryChange(
+                                        option.details.id,
+                                        (selectedCutlery[option.details.id] || 0) + 1,
+                                        option.maxCount,
+                                      )
+                                    }
+                                    disabled={(selectedCutlery[option.details.id] || 0) >= option.maxCount}
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    )}
 
-              {/* Cross-Sale Groups Section */}
-              {product.crossSaleGroups?.map((group, groupIndex) => (
-                <div key={groupIndex} className="bg-gray-50/50 p-4 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-4">{group.name}</h3>
-                  <div className="space-y-4">
-                    {group.items.map((item, itemIndex) => (
-                      <div
-                        key={itemIndex}
-                        className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{item.item.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {item.item.description}
-                            {item.price > 0 && ` - ${item.price.toFixed(2)} zł`}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleCrossSaleChange(
-                                item.item.id,
-                                (selectedCrossSaleItems[item.item.id] || 0) - 1,
-                                group.maxCount,
-                              )
-                            }
-                            disabled={(selectedCrossSaleItems[item.item.id] || 0) <= 0}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-8 text-center">{selectedCrossSaleItems[item.item.id] || 0}</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleCrossSaleChange(
-                                item.item.id,
-                                (selectedCrossSaleItems[item.item.id] || 0) + 1,
-                                group.maxCount,
-                              )
-                            }
-                            disabled={(selectedCrossSaleItems[item.item.id] || 0) >= group.maxCount}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                    {section.type === "crossSale" &&
+                      product.crossSaleGroups &&
+                      product.crossSaleGroups[section.index].items && (
+                        <AccordionItem
+                          key={section.index}
+                          value={`cross-sale-${section.index}`}
+                          className="border border-gray-100 rounded-lg bg-gray-50/50"
+                        >
+                          <AccordionTrigger className="px-4">
+                            {product.crossSaleGroups[section.index].name}
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4">
+                            <div className="space-y-4">
+                              {product.crossSaleGroups[section.index].items.map((item, itemIndex) => (
+                                <div
+                                  key={itemIndex}
+                                  className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.item.name}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {item.item.description}
+                                      {item.price > 0 && ` - ${item.price.toFixed(2)} zł`}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        handleCrossSaleChange(
+                                          item.item.id,
+                                          (selectedCrossSaleItems[item.item.id] || 0) - 1,
+                                          product.crossSaleGroups[section.index].maxCount,
+                                        )
+                                      }
+                                      disabled={(selectedCrossSaleItems[item.item.id] || 0) <= 0}
+                                    >
+                                      <Minus className="h-4 w-4" />
+                                    </Button>
+                                    <span className="w-8 text-center">{selectedCrossSaleItems[item.item.id] || 0}</span>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        handleCrossSaleChange(
+                                          item.item.id,
+                                          (selectedCrossSaleItems[item.item.id] || 0) + 1,
+                                          product.crossSaleGroups[section.index].maxCount,
+                                        )
+                                      }
+                                      disabled={
+                                        (selectedCrossSaleItems[item.item.id] || 0) >=
+                                        product.crossSaleGroups[section.index].maxCount
+                                      }
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+                  </motion.div>
+                ))}
+              </Accordion>
             </div>
           </ScrollArea>
 
