@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { MenuHeader } from "@/components/MenuHeader"
 import { ProductGrid } from "@/components/ProductGrid"
-import { menu } from "@/data/products"
+import menu from "@/data/scheme"
 import { CategoryDisplay } from "@/components/CategoryDisplay"
 import { motion, useAnimation, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -25,7 +25,10 @@ export default function MenuPage() {
   const { totalItems } = useCart()
   const router = useRouter()
 
-  const categories = ["Wszystkie", ...menu.categories.map((category) => category.name)]
+  const categories = [
+    "Wszystkie",
+    ...new Set(menu[0].products.flatMap((product) => product.categories.map((category) => category.name))),
+  ]
 
   useEffect(() => {
     const animateArrow = async () => {

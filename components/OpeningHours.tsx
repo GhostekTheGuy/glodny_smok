@@ -28,9 +28,9 @@ export function OpeningHours() {
     <div className="relative -mt-32">
       {/* Biała fala na górze */}
       <div
-        className="absolute -top-20 left-0 right-0 h-32 bg-white"
+        className="absolute -top-20 left-0 right-0 h-64 md:h-32 bg-white"
         style={{
-          clipPath: "ellipse(70% 100% at 50% 100%)",
+          clipPath: "ellipse(80% 100% at 50% 100%)",
         }}
       />
 

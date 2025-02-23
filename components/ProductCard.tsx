@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useCart } from "@/contexts/cart-context"
 import type React from "react"
-import type { Product } from "../data/products"
+import type { Product } from "../data/interfaces"
 
 interface ProductCardProps {
   product: Product

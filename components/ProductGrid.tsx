@@ -3,10 +3,10 @@
 import { useMemo } from "react"
 import ProductCard from "./ProductCard"
 import { motion, AnimatePresence } from "framer-motion"
-import type { Menu, Product } from "../data/products"
+import type { Menu, Product } from "../data/interfaces"
 
 interface ProductGridProps {
-  menu: Menu
+  menu: Menu[]
   selectedCategory: string
   sortOrder: string
 }
@@ -16,10 +16,11 @@ export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridPr
     let result: Product[] = []
 
     if (selectedCategory === "Wszystkie") {
-      result = menu.categories.flatMap((category) => category.products)
+      result = menu[0].products
     } else {
-      const category = menu.categories.find((cat) => cat.name === selectedCategory)
-      result = category ? category.products : []
+      result = menu[0].products.filter((product) =>
+        product.categories.some((category) => category.name === selectedCategory),
+      )
     }
 
     // First, sort products with notes to the beginning

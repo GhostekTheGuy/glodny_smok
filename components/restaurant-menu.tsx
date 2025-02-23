@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { MenuHeader } from "./MenuHeader"
 import { ProductGrid } from "./ProductGrid"
-import { menu } from "../data/products"
+import menu from "../data/scheme"
 import { CategoryDisplay } from "./CategoryDisplay"
 import { motion, useAnimation, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,10 @@ export default function RestaurantMenu() {
   const { totalItems } = useCart()
   const router = useRouter()
 
-  const categories = ["Wszystkie", ...menu.categories.map((category) => category.name)]
+  const categories = [
+    "Wszystkie",
+    ...new Set(menu[0].products.flatMap((product) => product.categories.map((category) => category.name))),
+  ]
 
   useEffect(() => {
     const animateArrow = async () => {
@@ -92,7 +95,7 @@ export default function RestaurantMenu() {
           <AnimatePresence>
             {showScrollIndicator && (
               <motion.div
-                className="absolute left-0 right-0 flex items-center justify-center mt-2 space-x-2"
+                className="absolute left-0 right-0 flex items-center justify-center mt-2 mb-4 space-x-2"
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
