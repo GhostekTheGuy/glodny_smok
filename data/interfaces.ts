@@ -1,5 +1,4 @@
 export interface Bundle {
-  note: string
   price: number
   value: number
 }
@@ -7,10 +6,11 @@ export interface Bundle {
 export interface IngredientDetails {
   id: string
   name: string
-  note: string
   photo_url: string
   uom: string
-  bundles: Bundle[]
+  value: number
+  price: number
+  ingredientId: string
 }
 
 export interface IngredientSelection {
@@ -29,7 +29,6 @@ export interface IngredientSelectionGroup {
 export interface CutleryDetails {
   id: string
   name: string
-  note: string
   price: number
 }
 
@@ -49,14 +48,23 @@ export interface Variant {
 }
 
 export interface CrossSaleItem {
-  item: Product
   price: number
+  id: string
+  name: string
+  photoUrl: string
+  description: string
+  standalone: boolean
+  oos: boolean
+  temperature: string
+  dietetaryAttributes: string[]
+  variants: Variant[] | null
+  cutlerySelection: CutlerySelection | null
+  ingredientSelectionGroups: IngredientSelectionGroup[] | null
 }
 
 export interface CrossSaleGroup {
   id: string
   name: string
-  note: string | null
   maxCount: number
   items: CrossSaleItem[]
 }
@@ -64,13 +72,11 @@ export interface CrossSaleGroup {
 export interface Category {
   id: string
   name: string
-  note: string
 }
 
 export interface Product {
   id: string
   name: string
-  note?: string
   photoUrl: string
   description: string
   standalone: boolean
@@ -81,7 +87,7 @@ export interface Product {
   variants: Variant[] | null
   cutlerySelection: CutlerySelection | null
   ingredientSelectionGroups: IngredientSelectionGroup[] | null
-  crossSaleGroups: CrossSaleGroup[] | null
+  crossSaleGroups: CrossSaleGroup[]
   categories: Category[]
 }
 
@@ -101,7 +107,6 @@ export interface Hours {
 export interface Menu {
   id: string
   name: string
-  note: string
   products: Product[]
   hours: Hours[]
 }

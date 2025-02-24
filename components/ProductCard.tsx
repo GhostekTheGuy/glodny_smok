@@ -25,23 +25,24 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!product.oos) {
-      const basePrice = product.variants.length > 0 ? Math.min(...product.variants.map((v) => v.price)) : product.price
-      addToCart(
-        {
-          ...product,
-          price: basePrice,
-          selectedIngredients: {},
-          selectedCutlery: {},
-          selectedSize: product.variants.length > 0 ? product.variants[0].type : "",
-        },
-        [],
-      )
+      const basePrice =
+        product.variants && product.variants.length > 0
+          ? Math.min(...product.variants.map((v) => v.price || product.price))
+          : product.price
+
+      addToCart({
+        ...product,
+        price: basePrice,
+        selectedIngredients: {},
+        selectedCutlery: {},
+        selectedSize: product.variants && product.variants.length > 0 ? product.variants[0].type : "",
+      })
     }
   }
 
   const displayPrice =
-    product.variants.length > 0
-      ? `${Math.min(...product.variants.map((v) => v.price)).toFixed(2)} zł`
+    product.variants && product.variants.length > 0
+      ? `${Math.min(...product.variants.map((v) => v.price || product.price)).toFixed(2)} zł`
       : `${product.price.toFixed(2)} zł`
 
   return (

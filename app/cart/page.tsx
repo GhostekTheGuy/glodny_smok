@@ -2,7 +2,7 @@
 
 import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
-import { Minus, Plus, Trash2, Pencil, X } from "lucide-react"
+import { Minus, Plus, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -24,10 +24,6 @@ export default function CartPage() {
     address: "",
     notes: "",
   })
-
-  const handleEditItem = (itemId: number) => {
-    router.push(`/edit-product/${itemId}`)
-  }
 
   const handleOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,14 +134,6 @@ export default function CartPage() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 ml-2"
-                      onClick={() => handleEditItem(item.id)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
                     <span className="ml-4">{(item.price * item.quantity).toFixed(2)} zł</span>
                   </div>
                 </div>
@@ -159,9 +147,17 @@ export default function CartPage() {
               <span className="font-medium">Razem:</span>
               <span className="font-medium">{cart.totalPrice.toFixed(2)} zł</span>
             </div>
-            <Button className="w-full" onClick={() => setIsOrderModalVisible(true)}>
-              Przejdź do zamówienia ({cart.totalItems})
-            </Button>
+            <div className="flex flex-col space-y-2 w-full">
+              <Button
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+                onClick={() => setIsOrderModalVisible(true)}
+              >
+                Złóż zamówienie ({cart.totalItems})
+              </Button>
+              <Button className="w-full bg-black hover:bg-gray-800 text-white" onClick={() => router.push("/menu")}>
+                Powrót do Menu
+              </Button>
+            </div>
           </div>
         )}
         {/* Order Modal */}

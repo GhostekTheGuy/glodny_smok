@@ -21,6 +21,7 @@ export interface CartItem {
   id: number
   name: string
   price: number
+  basePrice: number // Add basePrice to track original price
   quantity: number
   selectedIngredients: Record<string, number>
   selectedCutlery: Record<string, number>
@@ -167,11 +168,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const updateCartItem = useCallback((updatedItem: CartItem) => {
     setItems((currentItems) => {
-      const existingItemIndex = currentItems.findIndex((item) => item.id === updatedItem.id)
-      if (existingItemIndex > -1) {
-        return currentItems.map((item, index) => (index === existingItemIndex ? { ...updatedItem } : item))
-      }
-      return [...currentItems, updatedItem]
+      // Remove the old item with the same ID
+      const filteredItems = currentItems.filter((item) => item.id !== updatedItem.id)
+
+      // Add the updated item
+      return [
+        ...filteredItems,
+        {
+          ...updatedItem,
+          basePrice: updatedItem.basePrice || updatedItem.price,
+        },
+      ]
     })
   }, [])
 

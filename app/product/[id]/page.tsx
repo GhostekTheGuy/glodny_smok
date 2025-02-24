@@ -13,7 +13,6 @@ import { CartPopup } from "@/components/CartPopup"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Variant } from "@/data/interfaces"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -87,7 +86,7 @@ export default function ProductPage() {
         const initialCrossSale: Record<string, number> = {}
         product.crossSaleGroups.forEach((group) => {
           group.items.forEach((item) => {
-            initialCrossSale[item.item.id] = 0
+            initialCrossSale[item.id] = 0
           })
         })
         setSelectedCrossSaleItems(initialCrossSale)
@@ -131,17 +130,13 @@ export default function ProductPage() {
       }
     }
 
-    // Add ingredient prices with bundle support
+    // Add ingredient prices (no longer using bundles)
     if (product.ingredientSelectionGroups) {
       product.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
           const count = selectedIngredients[selection.details.id] || 0
-          if (count > 0 && selection.details.bundles) {
-            const bundleIndex = selectedBundles[selection.details.id] || 0
-            const bundle = selection.details.bundles[bundleIndex]
-            if (bundle) {
-              total += count * bundle.price
-            }
+          if (count > 0) {
+            total += count * selection.details.price
           }
         })
       })
@@ -162,7 +157,7 @@ export default function ProductPage() {
     if (product.crossSaleGroups) {
       product.crossSaleGroups.forEach((group) => {
         group.items.forEach((item) => {
-          const count = selectedCrossSaleItems[item.item.id] || 0
+          const count = selectedCrossSaleItems[item.id] || 0
           total += count * item.price
         })
       })
@@ -249,7 +244,7 @@ export default function ProductPage() {
                         <AccordionTrigger className="px-4">Wybierz wersję</AccordionTrigger>
                         <AccordionContent className="px-4">
                           <div className="space-y-2">
-                            {product.variants.map((variant: Variant) => (
+                            {product.variants.map((variant) => (
                               <div
                                 key={variant.itemId}
                                 className={`flex items-center space-x-2 p-2 rounded-md transition-colors hover:bg-white border border-transparent`}
@@ -262,7 +257,7 @@ export default function ProductPage() {
                                   }}
                                 />
                                 <Label htmlFor={variant.itemId} className="flex-1 cursor-pointer">
-                                  {variant.name} - {variant.price.toFixed(2)} zł
+                                  {variant.type} {variant.price ? `- ${variant.price.toFixed(2)} zł` : ""}
                                 </Label>
                               </div>
                             ))}
@@ -460,9 +455,9 @@ export default function ProductPage() {
                                   className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
                                 >
                                   <div className="flex-1">
-                                    <p className="font-medium">{item.item.name}</p>
+                                    <p className="font-medium">{item.name}</p>
                                     <p className="text-sm text-gray-500">
-                                      {item.item.description}
+                                      {item.description}
                                       {item.price > 0 && ` - ${item.price.toFixed(2)} zł`}
                                     </p>
                                   </div>
@@ -472,28 +467,28 @@ export default function ProductPage() {
                                       variant="outline"
                                       onClick={() =>
                                         handleCrossSaleChange(
-                                          item.item.id,
-                                          (selectedCrossSaleItems[item.item.id] || 0) - 1,
+                                          item.id,
+                                          (selectedCrossSaleItems[item.id] || 0) - 1,
                                           product.crossSaleGroups[section.index].maxCount,
                                         )
                                       }
-                                      disabled={(selectedCrossSaleItems[item.item.id] || 0) <= 0}
+                                      disabled={(selectedCrossSaleItems[item.id] || 0) <= 0}
                                     >
                                       <Minus className="h-4 w-4" />
                                     </Button>
-                                    <span className="w-8 text-center">{selectedCrossSaleItems[item.item.id] || 0}</span>
+                                    <span className="w-8 text-center">{selectedCrossSaleItems[item.id] || 0}</span>
                                     <Button
                                       size="sm"
                                       variant="outline"
                                       onClick={() =>
                                         handleCrossSaleChange(
-                                          item.item.id,
-                                          (selectedCrossSaleItems[item.item.id] || 0) + 1,
+                                          item.id,
+                                          (selectedCrossSaleItems[item.id] || 0) + 1,
                                           product.crossSaleGroups[section.index].maxCount,
                                         )
                                       }
                                       disabled={
-                                        (selectedCrossSaleItems[item.item.id] || 0) >=
+                                        (selectedCrossSaleItems[item.id] || 0) >=
                                         product.crossSaleGroups[section.index].maxCount
                                       }
                                     >
