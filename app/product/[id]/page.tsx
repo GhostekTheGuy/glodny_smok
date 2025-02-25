@@ -10,7 +10,6 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "
 import { Breadcrumbs } from "@/components/Breadcrumbs"
 import { ShoppingCart, Check, Plus, Minus } from "lucide-react"
 import { CartPopup } from "@/components/CartPopup"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -221,176 +220,52 @@ export default function ProductPage() {
           <ScrollArea className="flex-1 mb-[200px] md:mb-[180px]">
             <div className="space-y-6 pr-4 rounded-lg pb-4">
               <Accordion type="multiple" className="space-y-4">
-                {[
-                  ...(product.variants && product.variants.length > 0 ? [{ type: "variants" }] : []),
-                  ...(product.ingredientSelectionGroups?.map((group, index) => ({
-                    type: "ingredients",
-                    index,
-                  })) || []),
-                  ...(product.cutlerySelection ? [{ type: "cutlery" }] : []),
-                  ...(product.crossSaleGroups?.map((group, index) => ({
-                    type: "crossSale",
-                    index,
-                  })) || []),
-                ].map((section, index) => (
-                  <motion.div
-                    key={`${section.type}-${section.index || 0}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {section.type === "variants" && product.variants && product.variants.length > 0 && (
-                      <AccordionItem value="variants" className="border border-gray-100 rounded-lg bg-gray-50/50">
-                        <AccordionTrigger className="px-4">Wybierz wersję</AccordionTrigger>
-                        <AccordionContent className="px-4">
-                          <div className="space-y-2">
-                            {product.variants.map((variant) => (
-                              <div
-                                key={variant.itemId}
-                                className={`flex items-center space-x-2 p-2 rounded-md transition-colors hover:bg-white border border-transparent`}
-                              >
-                                <Checkbox
-                                  id={variant.itemId}
-                                  checked={selectedSize === variant.itemId}
-                                  onCheckedChange={(checked) => {
-                                    setSelectedSize(checked ? variant.itemId : "")
-                                  }}
-                                />
-                                <Label htmlFor={variant.itemId} className="flex-1 cursor-pointer">
-                                  {variant.type} {variant.price ? `- ${variant.price.toFixed(2)} zł` : ""}
-                                </Label>
-                              </div>
-                            ))}
+                {/* Variants */}
+                {product.variants && product.variants.length > 0 && (
+                  <AccordionItem value="variants" className="border border-gray-100 rounded-lg bg-gray-50/50">
+                    <AccordionTrigger className="px-4">Wybierz wersję</AccordionTrigger>
+                    <AccordionContent className="px-4">
+                      <div className="space-y-2">
+                        {product.variants.map((variant) => (
+                          <div
+                            key={variant.itemId}
+                            className={`flex items-center space-x-2 p-2 rounded-md transition-colors hover:bg-white border border-transparent`}
+                          >
+                            <Checkbox
+                              id={variant.itemId}
+                              checked={selectedSize === variant.itemId}
+                              onCheckedChange={(checked) => {
+                                setSelectedSize(checked ? variant.itemId : "")
+                              }}
+                            />
+                            <Label htmlFor={variant.itemId} className="flex-1 cursor-pointer">
+                              {variant.type} {variant.price ? `- ${variant.price.toFixed(2)} zł` : ""}
+                            </Label>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
 
-                    {section.type === "ingredients" &&
-                      product.ingredientSelectionGroups &&
-                      product.ingredientSelectionGroups[section.index].ingredientSelections && (
-                        <AccordionItem
-                          key={section.index}
-                          value={`ingredient-group-${section.index}`}
-                          className="border border-gray-100 rounded-lg bg-gray-50/50"
-                        >
-                          <AccordionTrigger className="px-4">
-                            {product.ingredientSelectionGroups[section.index].name}
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4">
-                            <div className="space-y-4">
-                              {product.ingredientSelectionGroups[section.index].ingredientSelections.map(
-                                (selection, selectionIndex) => (
-                                  <div
-                                    key={selectionIndex}
-                                    className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                                  >
-                                    <div className="flex-1">
-                                      <p className="font-medium">{selection.details.name}</p>
-                                      <p className="text-sm text-gray-500">{selection.details.note}</p>
-                                      {selection.details.bundles && selection.details.bundles.length > 1 ? (
-                                        <div className="mt-2 space-y-2">
-                                          <p className="text-sm font-medium text-gray-700">Wybierz porcję:</p>
-                                          <RadioGroup
-                                            value={String(selectedBundles[selection.details.id] || 0)}
-                                            onValueChange={(value) =>
-                                              setSelectedBundles((prev) => ({
-                                                ...prev,
-                                                [selection.details.id]: Number.parseInt(value),
-                                              }))
-                                            }
-                                          >
-                                            {selection.details.bundles.map((bundle, bundleIndex) => (
-                                              <div
-                                                key={bundleIndex}
-                                                className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-md"
-                                              >
-                                                <RadioGroupItem
-                                                  value={String(bundleIndex)}
-                                                  id={`${selection.details.id}-${bundleIndex}`}
-                                                />
-                                                <Label
-                                                  htmlFor={`${selection.details.id}-${bundleIndex}`}
-                                                  className="flex-1"
-                                                >
-                                                  {bundle.note} ({bundle.value} {selection.details.uom}) -{" "}
-                                                  {bundle.price.toFixed(2)} zł
-                                                </Label>
-                                              </div>
-                                            ))}
-                                          </RadioGroup>
-                                        </div>
-                                      ) : (
-                                        <p className="text-sm text-gray-500">
-                                          {selection.details.bundles?.[0]?.price > 0 &&
-                                            `${selection.details.bundles[0].price.toFixed(2)} zł za porcję`}
-                                        </p>
-                                      )}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() =>
-                                          handleIngredientChange(
-                                            selection.details.id,
-                                            (selectedIngredients[selection.details.id] || 0) - 1,
-                                            selection.maxCount,
-                                          )
-                                        }
-                                        disabled={(selectedIngredients[selection.details.id] || 0) <= 0}
-                                      >
-                                        <Minus className="h-4 w-4" />
-                                      </Button>
-                                      <span className="w-8 text-center">
-                                        {selectedIngredients[selection.details.id] || 0}
-                                        {selection.defaultCount > 0 && (
-                                          <span className="text-xs text-gray-500 block">
-                                            ({selection.defaultCount})
-                                          </span>
-                                        )}
-                                      </span>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() =>
-                                          handleIngredientChange(
-                                            selection.details.id,
-                                            (selectedIngredients[selection.details.id] || 0) + 1,
-                                            selection.maxCount,
-                                          )
-                                        }
-                                        disabled={
-                                          (selectedIngredients[selection.details.id] || 0) >= selection.maxCount
-                                        }
-                                      >
-                                        <Plus className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ),
-                              )}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-
-                    {section.type === "cutlery" && product.cutlerySelection && (
-                      <AccordionItem value="cutlery" className="border border-gray-100 rounded-lg bg-gray-50/50">
-                        <AccordionTrigger className="px-4">Sztućce</AccordionTrigger>
-                        <AccordionContent className="px-4">
-                          <div className="space-y-4">
-                            {product.cutlerySelection.options.map((option, index) => (
+                {/* All Ingredients in one accordion */}
+                {product.ingredientSelectionGroups && product.ingredientSelectionGroups.length > 0 && (
+                  <AccordionItem value="ingredients" className="border border-gray-100 rounded-lg bg-gray-50/50">
+                    <AccordionTrigger className="px-4">Składniki</AccordionTrigger>
+                    <AccordionContent className="px-4">
+                      <div className="space-y-6">
+                        {product.ingredientSelectionGroups.map((group, groupIndex) => (
+                          <div key={groupIndex} className="space-y-4">
+                            <h3 className="font-bold text-lg border-b pb-2 text-gray-800">{group.name}</h3>
+                            {group.ingredientSelections.map((selection, selectionIndex) => (
                               <div
-                                key={index}
+                                key={selectionIndex}
                                 className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
                               >
                                 <div className="flex-1">
-                                  <p className="font-medium">{option.details.name}</p>
+                                  <p className="font-medium">{selection.details.name}</p>
                                   <p className="text-sm text-gray-500">
-                                    {option.maxFreeCount > 0 && `${option.maxFreeCount} szt. gratis, `}
-                                    {option.details.price > 0 &&
-                                      `${option.details.price.toFixed(2)} zł za dodatkową sztukę`}
+                                    {selection.details.price.toFixed(2)} zł za porcję
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -398,33 +273,33 @@ export default function ProductPage() {
                                     size="sm"
                                     variant="outline"
                                     onClick={() =>
-                                      handleCutleryChange(
-                                        option.details.id,
-                                        (selectedCutlery[option.details.id] || 0) - 1,
-                                        option.maxCount,
+                                      handleIngredientChange(
+                                        selection.details.id,
+                                        (selectedIngredients[selection.details.id] || 0) - 1,
+                                        selection.maxCount,
                                       )
                                     }
-                                    disabled={(selectedCutlery[option.details.id] || 0) <= 0}
+                                    disabled={(selectedIngredients[selection.details.id] || 0) <= 0}
                                   >
                                     <Minus className="h-4 w-4" />
                                   </Button>
                                   <span className="w-8 text-center">
-                                    {selectedCutlery[option.details.id] || 0}
-                                    {option.maxFreeCount > 0 && (
-                                      <span className="text-xs text-gray-500 block">({option.maxFreeCount})</span>
+                                    {selectedIngredients[selection.details.id] || 0}
+                                    {selection.defaultCount > 0 && (
+                                      <span className="text-xs text-gray-500 block">({selection.defaultCount})</span>
                                     )}
                                   </span>
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() =>
-                                      handleCutleryChange(
-                                        option.details.id,
-                                        (selectedCutlery[option.details.id] || 0) + 1,
-                                        option.maxCount,
+                                      handleIngredientChange(
+                                        selection.details.id,
+                                        (selectedIngredients[selection.details.id] || 0) + 1,
+                                        selection.maxCount,
                                       )
                                     }
-                                    disabled={(selectedCutlery[option.details.id] || 0) >= option.maxCount}
+                                    disabled={(selectedIngredients[selection.details.id] || 0) >= selection.maxCount}
                                   >
                                     <Plus className="h-4 w-4" />
                                   </Button>
@@ -432,76 +307,132 @@ export default function ProductPage() {
                               </div>
                             ))}
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
 
-                    {section.type === "crossSale" &&
-                      product.crossSaleGroups &&
-                      product.crossSaleGroups[section.index].items && (
-                        <AccordionItem
-                          key={section.index}
-                          value={`cross-sale-${section.index}`}
-                          className="border border-gray-100 rounded-lg bg-gray-50/50"
-                        >
-                          <AccordionTrigger className="px-4">
-                            {product.crossSaleGroups[section.index].name}
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4">
-                            <div className="space-y-4">
-                              {product.crossSaleGroups[section.index].items.map((item, itemIndex) => (
-                                <div
-                                  key={itemIndex}
-                                  className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                                >
-                                  <div className="flex-1">
-                                    <p className="font-medium">{item.name}</p>
-                                    <p className="text-sm text-gray-500">
-                                      {item.description}
-                                      {item.price > 0 && ` - ${item.price.toFixed(2)} zł`}
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleCrossSaleChange(
-                                          item.id,
-                                          (selectedCrossSaleItems[item.id] || 0) - 1,
-                                          product.crossSaleGroups[section.index].maxCount,
-                                        )
-                                      }
-                                      disabled={(selectedCrossSaleItems[item.id] || 0) <= 0}
-                                    >
-                                      <Minus className="h-4 w-4" />
-                                    </Button>
-                                    <span className="w-8 text-center">{selectedCrossSaleItems[item.id] || 0}</span>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleCrossSaleChange(
-                                          item.id,
-                                          (selectedCrossSaleItems[item.id] || 0) + 1,
-                                          product.crossSaleGroups[section.index].maxCount,
-                                        )
-                                      }
-                                      disabled={
-                                        (selectedCrossSaleItems[item.id] || 0) >=
-                                        product.crossSaleGroups[section.index].maxCount
-                                      }
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
+                {/* Cutlery */}
+                {product.cutlerySelection && (
+                  <AccordionItem value="cutlery" className="border border-gray-100 rounded-lg bg-gray-50/50">
+                    <AccordionTrigger className="px-4">Sztućce</AccordionTrigger>
+                    <AccordionContent className="px-4">
+                      <div className="space-y-4">
+                        {product.cutlerySelection.options.map((option, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium">{option.details.name}</p>
+                              <p className="text-sm text-gray-500">
+                                {option.maxFreeCount > 0 && `${option.maxFreeCount} szt. gratis, `}
+                                {option.details.price > 0 &&
+                                  `${option.details.price.toFixed(2)} zł za dodatkową sztukę`}
+                              </p>
                             </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-                  </motion.div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleCutleryChange(
+                                    option.details.id,
+                                    (selectedCutlery[option.details.id] || 0) - 1,
+                                    option.maxCount,
+                                  )
+                                }
+                                disabled={(selectedCutlery[option.details.id] || 0) <= 0}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="w-8 text-center">
+                                {selectedCutlery[option.details.id] || 0}
+                                {option.maxFreeCount > 0 && (
+                                  <span className="text-xs text-gray-500 block">({option.maxFreeCount})</span>
+                                )}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleCutleryChange(
+                                    option.details.id,
+                                    (selectedCutlery[option.details.id] || 0) + 1,
+                                    option.maxCount,
+                                  )
+                                }
+                                disabled={(selectedCutlery[option.details.id] || 0) >= option.maxCount}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
+                {/* Cross-sale */}
+                {product.crossSaleGroups?.map((group, groupIndex) => (
+                  <AccordionItem
+                    key={groupIndex}
+                    value={`cross-sale-${groupIndex}`}
+                    className="border border-gray-100 rounded-lg bg-gray-50/50"
+                  >
+                    <AccordionTrigger className="px-4">{group.name}</AccordionTrigger>
+                    <AccordionContent className="px-4">
+                      <div className="space-y-4">
+                        {group.items.map((item, itemIndex) => (
+                          <div
+                            key={itemIndex}
+                            className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium">{item.name}</p>
+                              <p className="text-sm text-gray-500">
+                                {item.description}
+                                {item.price > 0 && ` - ${item.price.toFixed(2)} zł`}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleCrossSaleChange(
+                                    item.id,
+                                    (selectedCrossSaleItems[item.id] || 0) - 1,
+                                    group.maxCount,
+                                  )
+                                }
+                                disabled={(selectedCrossSaleItems[item.id] || 0) <= 0}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="w-8 text-center">{selectedCrossSaleItems[item.id] || 0}</span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleCrossSaleChange(
+                                    item.id,
+                                    (selectedCrossSaleItems[item.id] || 0) + 1,
+                                    group.maxCount,
+                                  )
+                                }
+                                disabled={(selectedCrossSaleItems[item.id] || 0) >= group.maxCount}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
               </Accordion>
             </div>

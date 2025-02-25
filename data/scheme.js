@@ -385,6 +385,208 @@ export const menu = [
           },
         ],
       },
+      {
+        id: "b5144caf-5373-42cf-aadd-41571ca63c0g",
+        name: "Burger Deluxe",
+        photoUrl: "/placeholder.svg?height=400&width=400",
+        description: "Wyjątkowy burger z trzema rodzajami dodatków do wyboru",
+        standalone: true,
+        oos: false,
+        price: 24.99,
+        temperature: "HOT",
+        dietetaryAttributes: [],
+        variants: [
+          {
+            itemId: "7043be72-f629-4551-85f4-c173da3e383h",
+            type: "Standard",
+            price: 24.99,
+          },
+          {
+            itemId: "8043be72-f629-4551-85f4-c173da3e383i",
+            type: "Duży",
+            price: 29.99,
+          },
+        ],
+        cutlerySelection: {
+          options: [
+            {
+              maxCount: 2,
+              maxFreeCount: 1,
+              details: {
+                id: "c8fb02b7-f4f6-4cd2-b06e-4363cf6e15b6",
+                name: "Nóż",
+                price: 16,
+              },
+            },
+            {
+              maxCount: 3,
+              maxFreeCount: 2,
+              details: {
+                id: "d8fb02b7-f4f6-4cd2-b06e-4363cf6e15b7",
+                name: "Widelec",
+                price: 16,
+              },
+            },
+          ],
+        },
+        ingredientSelectionGroups: [
+          {
+            ingredientSelections: [
+              {
+                defaultCount: 1,
+                maxCount: 2,
+                details: {
+                  id: "a0c32771-e1ec-492c-b3c8-5c61cd969737",
+                  value: 6,
+                  price: 8,
+                  name: "Sałata",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "szt",
+                  ingredientId: "436a7bce-66d6-4419-b756-8c2059a704ci",
+                },
+              },
+              {
+                defaultCount: 1,
+                maxCount: 2,
+                details: {
+                  id: "b0c32771-e1ec-492c-b3c8-5c61cd969738",
+                  value: 4,
+                  price: 6,
+                  name: "Pomidor",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "szt",
+                  ingredientId: "336a7bce-66d6-4419-b756-8c2059a704cj",
+                },
+              },
+            ],
+            maxCount: 4,
+            name: "Warzywa",
+            partable: true,
+          },
+          {
+            ingredientSelections: [
+              {
+                defaultCount: 1,
+                maxCount: 2,
+                details: {
+                  id: "c0c32771-e1ec-492c-b3c8-5c61cd969739",
+                  value: 5,
+                  price: 12,
+                  name: "Ser cheddar",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "plaster",
+                  ingredientId: "236a7bce-66d6-4419-b756-8c2059a704ck",
+                },
+              },
+              {
+                defaultCount: 0,
+                maxCount: 2,
+                details: {
+                  id: "d0c32771-e1ec-492c-b3c8-5c61cd969740",
+                  value: 3,
+                  price: 14,
+                  name: "Ser pleśniowy",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "plaster",
+                  ingredientId: "136a7bce-66d6-4419-b756-8c2059a704cl",
+                },
+              },
+            ],
+            maxCount: 4,
+            name: "Sery",
+            partable: true,
+          },
+          {
+            ingredientSelections: [
+              {
+                defaultCount: 1,
+                maxCount: 2,
+                details: {
+                  id: "e0c32771-e1ec-492c-b3c8-5c61cd969741",
+                  value: 2,
+                  price: 10,
+                  name: "Ketchup",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "porcja",
+                  ingredientId: "036a7bce-66d6-4419-b756-8c2059a704cm",
+                },
+              },
+              {
+                defaultCount: 1,
+                maxCount: 2,
+                details: {
+                  id: "f0c32771-e1ec-492c-b3c8-5c61cd969742",
+                  value: 2,
+                  price: 10,
+                  name: "Majonez",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "porcja",
+                  ingredientId: "936a7bce-66d6-4419-b756-8c2059a704cn",
+                },
+              },
+              {
+                defaultCount: 0,
+                maxCount: 2,
+                details: {
+                  id: "g0c32771-e1ec-492c-b3c8-5c61cd969743",
+                  value: 2,
+                  price: 12,
+                  name: "Sos BBQ",
+                  photo_url: "/placeholder.svg?height=100&width=100",
+                  uom: "porcja",
+                  ingredientId: "836a7bce-66d6-4419-b756-8c2059a704co",
+                },
+              },
+            ],
+            maxCount: 6,
+            name: "Sosy",
+            partable: true,
+          },
+        ],
+        crossSaleGroups: [
+          {
+            id: "e2170be3-e7ed-42a4-ab73-7a4399347320",
+            name: "Dodatki",
+            maxCount: 5,
+            items: [
+              {
+                price: 9.99,
+                id: "c558aabe-b7f7-45b3-9b45-7d1918b4e3ec",
+                name: "Frytki",
+                photoUrl: "/placeholder.svg?height=100&width=100",
+                description: "Chrupiące frytki",
+                standalone: false,
+                oos: false,
+                temperature: "HOT",
+                dietetaryAttributes: [],
+                variants: null,
+                cutlerySelection: null,
+                ingredientSelectionGroups: null,
+              },
+              {
+                price: 7.99,
+                id: "d5bb762a-d1c0-46fa-8aaa-6fda535ba971",
+                name: "Napój",
+                photoUrl: "/placeholder.svg?height=100&width=100",
+                description: "Cola, Sprite lub Fanta",
+                standalone: false,
+                oos: false,
+                temperature: "COLD",
+                dietetaryAttributes: [],
+                variants: null,
+                cutlerySelection: null,
+                ingredientSelectionGroups: null,
+              },
+            ],
+          },
+        ],
+        categories: [
+          {
+            id: "36b895ed-7970-42e6-a21b-01347e0ab154",
+            name: "Burgery",
+          },
+        ],
+      },
     ],
     hours: [
       {
