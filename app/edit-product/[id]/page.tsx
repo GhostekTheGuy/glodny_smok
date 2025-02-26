@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 function AnimatedPrice({ price }: { price: number }) {
   const count = useMotionValue(0)
