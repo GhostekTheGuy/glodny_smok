@@ -2,6 +2,7 @@ import { CartProvider } from "@/contexts/cart-context"
 import "@/app/globals.css"
 import { Poppins, Qwigley } from "next/font/google"
 import type React from "react"
+import { Toaster } from "@/components/ui/toaster"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className={`scroll-smooth ${poppins.variable} ${qwigley.variable}`}>
       <body className="min-h-screen bg-white font-poppins">
         <CartProvider>{children}</CartProvider>
+        <Toaster />
       </body>
     </html>
   )

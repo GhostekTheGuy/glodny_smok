@@ -4,17 +4,14 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Trash2, X, Pencil, Plus, Minus, ShoppingBag } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export function CartPopup({
   children,
@@ -27,14 +24,6 @@ export function CartPopup({
 }) {
   const router = useRouter()
   const { items, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart()
-  const [isOrderModalVisible, setIsOrderModalVisible] = useState(false)
-  const [orderFormData, setOrderFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    notes: "",
-  })
   const [isOpen, setIsOpen] = useState(false)
   const [, forceUpdate] = useState({})
 
@@ -45,24 +34,6 @@ export function CartPopup({
       onItemAdded()
     }
   }, [onItemAdded])
-
-  const handleOrderSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically send the order data to your backend
-    console.log("Order submitted:", { items, totalPrice, ...orderFormData })
-    // Reset cart and form
-    items.forEach((item) => removeFromCart(item.id, item.selectedIngredients, item.selectedCutlery, item.selectedSize))
-    setOrderFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      notes: "",
-    })
-    setIsOrderModalVisible(false)
-    // Redirect to a thank you page
-    router.push("/order-success")
-  }
 
   const handleEditItem = (itemId: number) => {
     setIsOpen(false)
@@ -84,22 +55,32 @@ export function CartPopup({
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0 border-l-0 sm:border-l">
         <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-6">
-          <SheetHeader className="text-left">
-            <SheetTitle className="text-white text-2xl flex items-center gap-2">
-              <ShoppingBag className="h-6 w-6" />
-              Twój koszyk
-              {totalItems > 0 && (
-                <Badge variant="outline" className="ml-2 text-white border-white">
-                  {totalItems}
-                </Badge>
-              )}
-            </SheetTitle>
-            <p className="text-white/80 text-sm mt-1">
-              {totalItems === 0
-                ? "Twój koszyk jest pusty"
-                : `${totalItems} ${totalItems === 1 ? "produkt" : "produkty"} w koszyku`}
-            </p>
-          </SheetHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-semibold flex items-center gap-2">
+                <ShoppingBag className="h-6 w-6" />
+                Twój koszyk
+                {totalItems > 0 && (
+                  <Badge variant="outline" className="ml-2 text-white border-white">
+                    {totalItems}
+                  </Badge>
+                )}
+              </h2>
+              <p className="text-white/80 text-sm mt-1">
+                {totalItems === 0
+                  ? "Twój koszyk jest pusty"
+                  : `${totalItems} ${totalItems === 1 ? "produkt" : "produkty"} w koszyku`}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              className="text-white hover:text-white/80"
+              size="icon"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+          </div>
         </div>
 
         <ScrollArea className="flex-grow px-6">
@@ -270,9 +251,12 @@ export function CartPopup({
             <div className="flex flex-col space-y-2 w-full">
               <Button
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
-                onClick={() => setIsOrderModalVisible(true)}
+                onClick={() => {
+                  setIsOpen(false)
+                  router.push("/cart")
+                }}
               >
-                Złóż zamówienie
+                Przejdź do kasy
               </Button>
               <Button
                 className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-800"
@@ -284,118 +268,6 @@ export function CartPopup({
                 {isMenuPage ? "Powrót do strony głównej" : "Kontynuuj zakupy"}
               </Button>
             </div>
-          </div>
-        )}
-
-        {/* Order Modal */}
-        {isOrderModalVisible && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Podsumowanie zamówienia</h2>
-                <Button variant="ghost" size="icon" onClick={() => setIsOrderModalVisible(false)}>
-                  <X className="h-6 w-6" />
-                </Button>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">Zamówione produkty:</h3>
-                <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
-                  {items.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center py-2 border-b">
-                      <div className="flex items-center">
-                        <div className="relative h-10 w-10 rounded-md overflow-hidden mr-3">
-                          <Image
-                            src={item.photoUrl || "/placeholder.svg?height=40&width=40"}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span className="text-sm">
-                          {item.name} <span className="text-gray-500">x{item.quantity}</span>
-                        </span>
-                      </div>
-                      <span className="font-medium">{(item.price * item.quantity).toFixed(2)} zł</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="border-t pt-2 mt-4">
-                  <div className="flex justify-between items-center font-bold">
-                    <span>Suma:</span>
-                    <span>{totalPrice.toFixed(2)} zł</span>
-                  </div>
-                </div>
-              </div>
-
-              <form onSubmit={handleOrderSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Imię i nazwisko</Label>
-                  <Input
-                    id="name"
-                    value={orderFormData.name}
-                    onChange={(e) => setOrderFormData({ ...orderFormData, name: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={orderFormData.email}
-                    onChange={(e) => setOrderFormData({ ...orderFormData, email: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Telefon</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={orderFormData.phone}
-                    onChange={(e) => setOrderFormData({ ...orderFormData, phone: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="address">Adres dostawy</Label>
-                  <Textarea
-                    id="address"
-                    value={orderFormData.address}
-                    onChange={(e) => setOrderFormData({ ...orderFormData, address: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="notes">Uwagi do zamówienia</Label>
-                  <Textarea
-                    id="notes"
-                    value={orderFormData.notes}
-                    onChange={(e) => setOrderFormData({ ...orderFormData, notes: e.target.value })}
-                    className="mt-1"
-                  />
-                </div>
-                <div className="flex justify-end space-x-4 pt-2">
-                  <Button type="button" variant="outline" onClick={() => setIsOrderModalVisible(false)}>
-                    Anuluj
-                  </Button>
-                  <Button type="submit" className="bg-red-600 hover:bg-red-700">
-                    Złóż zamówienie
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
           </div>
         )}
       </SheetContent>
