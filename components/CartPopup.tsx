@@ -6,20 +6,27 @@ import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Trash2, X, Pencil } from "lucide-react"
+import { Trash2, X, Pencil, Plus, Minus, ShoppingBag } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 
 export function CartPopup({
   children,
   onItemAdded,
   isMenuPage = false,
-}: { children: React.ReactNode; onItemAdded?: () => void; isMenuPage?: boolean }) {
+}: {
+  children: React.ReactNode
+  onItemAdded?: () => void
+  isMenuPage?: boolean
+}) {
   const router = useRouter()
-  const { items, removeFromCart, updateQuantity, totalItems, totalPrice, editCartItem } = useCart()
+  const { items, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart()
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false)
   const [orderFormData, setOrderFormData] = useState({
     name: "",
@@ -28,6 +35,7 @@ export function CartPopup({
     address: "",
     notes: "",
   })
+  const [isOpen, setIsOpen] = useState(false)
   const [, forceUpdate] = useState({})
 
   useEffect(() => {
@@ -57,135 +65,275 @@ export function CartPopup({
   }
 
   const handleEditItem = (itemId: number) => {
+    setIsOpen(false)
     router.push(`/edit-product/${itemId}`)
   }
 
+  const handleQuantityChange = (
+    itemId: number,
+    selectedIngredients: Record<string, number>,
+    selectedCutlery: Record<string, number>,
+    selectedSize: string,
+    newQuantity: number,
+  ) => {
+    updateQuantity(itemId, selectedIngredients, selectedCutlery, selectedSize, newQuantity)
+  }
+
   return (
-    <Sheet onOpenChange={(open) => !open && isMenuPage && router.push("/")}>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg flex flex-col">
-        <SheetHeader>
-          <SheetTitle>Koszyk</SheetTitle>
-        </SheetHeader>
-        <ScrollArea className="flex-grow mt-4">
-          {items.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6">Koszyk jest pusty</p>
-          ) : (
-            <div className="space-y-4">
-              {items.map((item, idx) => (
-                <div key={`${item.id}-${idx}`} className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg">
-                  <Image
-                    src={item.photoUrl || "/placeholder.svg"}
-                    alt={item.name}
-                    width={80}
-                    height={80}
-                    className="rounded-md object-cover"
-                    loading="lazy"
-                  />
-                  <div className="flex-1 space-y-1">
-                    <h4 className="font-medium">{item.name}</h4>
-                    {item.selectedSize && (
-                      <p className="text-sm text-muted-foreground">
-                        Wersja: {item.variants.find((v) => v.itemId === item.selectedSize)?.name || item.selectedSize}
-                      </p>
-                    )}
-                    {item.ingredients &&
-                      item.ingredients.map((ingredient) => {
-                        const count = item.selectedIngredients[ingredient.id] || 0
-                        if (count > 0) {
-                          return (
-                            <p key={ingredient.id} className="text-sm text-muted-foreground">
-                              {ingredient.name}: {count}{" "}
-                              {count > ingredient.default ? `(+${count - ingredient.default})` : ""}
-                            </p>
-                          )
-                        }
-                        return null
-                      })}
-                    {Object.entries(item.selectedCutlery).map(([id, count]) => {
-                      const cutlery = item.cutlerySelection?.options.find((option) => option.details.id === id)
-                      if (cutlery && count > 0) {
-                        return (
-                          <p key={id} className="text-sm text-muted-foreground">
-                            {cutlery.details.name}: {count}
-                          </p>
-                        )
-                      }
-                      return null
-                    })}
-                  </div>
-                  <div className="text-right space-y-2">
-                    <p className="font-medium">{(item.price * item.quantity).toFixed(2)} zł</p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() =>
-                          removeFromCart(item.id, item.selectedIngredients, item.selectedCutlery, item.selectedSize)
-                        }
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditItem(item.id)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 border-l-0 sm:border-l">
+        <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-6">
+          <SheetHeader className="text-left">
+            <SheetTitle className="text-white text-2xl flex items-center gap-2">
+              <ShoppingBag className="h-6 w-6" />
+              Twój koszyk
+              {totalItems > 0 && (
+                <Badge variant="outline" className="ml-2 text-white border-white">
+                  {totalItems}
+                </Badge>
+              )}
+            </SheetTitle>
+            <p className="text-white/80 text-sm mt-1">
+              {totalItems === 0
+                ? "Twój koszyk jest pusty"
+                : `${totalItems} ${totalItems === 1 ? "produkt" : "produkty"} w koszyku`}
+            </p>
+          </SheetHeader>
+        </div>
+
+        <ScrollArea className="flex-grow px-6">
+          <div className="py-6">
+            {items.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="bg-gray-100 p-6 rounded-full mb-4">
+                  <ShoppingBag className="h-12 w-12 text-gray-400" />
                 </div>
-              ))}
-            </div>
-          )}
+                <h3 className="text-lg font-medium mb-2">Twój koszyk jest pusty</h3>
+                <p className="text-gray-500 mb-6">Dodaj produkty, aby rozpocząć zamówienie</p>
+                <Button
+                  onClick={() => {
+                    setIsOpen(false)
+                    router.push("/menu")
+                  }}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Przejdź do menu
+                </Button>
+              </div>
+            ) : (
+              <AnimatePresence initial={false}>
+                <div className="space-y-6">
+                  {items.map((item, idx) => (
+                    <motion.div
+                      key={`${item.id}-${idx}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="bg-white rounded-lg overflow-hidden shadow-sm border"
+                    >
+                      <div className="flex p-4">
+                        <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
+                          <Image
+                            src={item.photoUrl || "/placeholder.svg?height=80&width=80"}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="ml-4 flex-1">
+                          <div className="flex justify-between">
+                            <h3 className="font-medium text-gray-900">{item.name}</h3>
+                            <p className="font-medium text-gray-900">{(item.price * item.quantity).toFixed(2)} zł</p>
+                          </div>
+
+                          {item.selectedSize && (
+                            <p className="text-sm text-gray-500 mt-1">
+                              Rozmiar:{" "}
+                              {item.variants.find((v) => v.itemId === item.selectedSize)?.type || item.selectedSize}
+                            </p>
+                          )}
+
+                          {/* Ingredient selections */}
+                          {Object.entries(item.selectedIngredients).length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500">Składniki:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {Object.entries(item.selectedIngredients).map(([id, count]) => {
+                                  const ingredient = item.ingredientSelectionGroups
+                                    ?.flatMap((group) => group.ingredientSelections)
+                                    .find((selection) => selection.details.id === id)
+
+                                  if (ingredient && count > 0) {
+                                    return (
+                                      <Badge key={id} variant="outline" className="text-xs">
+                                        {ingredient.details.name} x{count}
+                                      </Badge>
+                                    )
+                                  }
+                                  return null
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() =>
+                              handleQuantityChange(
+                                item.id,
+                                item.selectedIngredients,
+                                item.selectedCutlery,
+                                item.selectedSize,
+                                item.quantity - 1,
+                              )
+                            }
+                            disabled={item.quantity <= 1}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="w-6 text-center font-medium">{item.quantity}</span>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() =>
+                              handleQuantityChange(
+                                item.id,
+                                item.selectedIngredients,
+                                item.selectedCutlery,
+                                item.selectedSize,
+                                item.quantity + 1,
+                              )
+                            }
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 px-2 text-gray-500 hover:text-gray-700"
+                            onClick={() => handleEditItem(item.id)}
+                          >
+                            <Pencil className="h-4 w-4 mr-1" />
+                            <span className="text-xs">Edytuj</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 px-2 text-gray-500 hover:text-red-600"
+                            onClick={() =>
+                              removeFromCart(item.id, item.selectedIngredients, item.selectedCutlery, item.selectedSize)
+                            }
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            <span className="text-xs">Usuń</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </AnimatePresence>
+            )}
+          </div>
         </ScrollArea>
+
         {items.length > 0 && (
-          <div className="border-t pt-4 mt-4">
-            <div className="flex justify-between mb-4">
-              <span className="font-medium">Razem:</span>
-              <span className="font-medium">{totalPrice.toFixed(2)} zł</span>
+          <div className="border-t p-6 space-y-4 bg-gray-50">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Suma częściowa</span>
+                <span>{totalPrice.toFixed(2)} zł</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Dostawa</span>
+                <span>0.00 zł</span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex justify-between font-medium text-lg">
+                <span>Razem</span>
+                <span>{totalPrice.toFixed(2)} zł</span>
+              </div>
             </div>
+
             <div className="flex flex-col space-y-2 w-full">
               <Button
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                 onClick={() => setIsOrderModalVisible(true)}
               >
-                Złóż zamówienie ({totalItems})
+                Złóż zamówienie
               </Button>
               <Button
-                className="w-full bg-black hover:bg-gray-800 text-white"
-                onClick={() => (isMenuPage ? router.push("/") : router.push("/menu"))}
+                className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-800"
+                onClick={() => {
+                  setIsOpen(false)
+                  router.push(isMenuPage ? "/" : "/menu")
+                }}
               >
-                {isMenuPage ? "Powrót do strony głównej" : "Powrót do Menu"}
+                {isMenuPage ? "Powrót do strony głównej" : "Kontynuuj zakupy"}
               </Button>
             </div>
           </div>
         )}
+
         {/* Order Modal */}
         {isOrderModalVisible && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Podsumowanie zamówienia</h2>
                 <Button variant="ghost" size="icon" onClick={() => setIsOrderModalVisible(false)}>
                   <X className="h-6 w-6" />
                 </Button>
               </div>
+
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Zamówione produkty:</h3>
-                {items.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center mb-2">
-                    <span>
-                      {item.name} x{item.quantity}
-                    </span>
-                    <span>{(item.price * item.quantity).toFixed(2)} zł</span>
-                  </div>
-                ))}
-                <div className="border-t pt-2 mt-2">
+                <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
+                  {items.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center py-2 border-b">
+                      <div className="flex items-center">
+                        <div className="relative h-10 w-10 rounded-md overflow-hidden mr-3">
+                          <Image
+                            src={item.photoUrl || "/placeholder.svg?height=40&width=40"}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <span className="text-sm">
+                          {item.name} <span className="text-gray-500">x{item.quantity}</span>
+                        </span>
+                      </div>
+                      <span className="font-medium">{(item.price * item.quantity).toFixed(2)} zł</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t pt-2 mt-4">
                   <div className="flex justify-between items-center font-bold">
                     <span>Suma:</span>
                     <span>{totalPrice.toFixed(2)} zł</span>
                   </div>
                 </div>
               </div>
+
               <form onSubmit={handleOrderSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Imię i nazwisko</Label>
@@ -194,6 +342,7 @@ export function CartPopup({
                     value={orderFormData.name}
                     onChange={(e) => setOrderFormData({ ...orderFormData, name: e.target.value })}
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -204,6 +353,7 @@ export function CartPopup({
                     value={orderFormData.email}
                     onChange={(e) => setOrderFormData({ ...orderFormData, email: e.target.value })}
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -214,6 +364,7 @@ export function CartPopup({
                     value={orderFormData.phone}
                     onChange={(e) => setOrderFormData({ ...orderFormData, phone: e.target.value })}
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -223,6 +374,7 @@ export function CartPopup({
                     value={orderFormData.address}
                     onChange={(e) => setOrderFormData({ ...orderFormData, address: e.target.value })}
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -231,16 +383,19 @@ export function CartPopup({
                     id="notes"
                     value={orderFormData.notes}
                     onChange={(e) => setOrderFormData({ ...orderFormData, notes: e.target.value })}
+                    className="mt-1"
                   />
                 </div>
-                <div className="flex justify-end space-x-4">
+                <div className="flex justify-end space-x-4 pt-2">
                   <Button type="button" variant="outline" onClick={() => setIsOrderModalVisible(false)}>
                     Anuluj
                   </Button>
-                  <Button type="submit">Złóż zamówienie</Button>
+                  <Button type="submit" className="bg-red-600 hover:bg-red-700">
+                    Złóż zamówienie
+                  </Button>
                 </div>
               </form>
-            </div>
+            </motion.div>
           </div>
         )}
       </SheetContent>
