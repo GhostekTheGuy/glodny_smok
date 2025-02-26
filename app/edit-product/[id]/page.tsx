@@ -127,31 +127,34 @@ export default function EditProductPage() {
   }
 
   const calculateTotalPrice = () => {
-    let total = product.price
+    // Get the original product from menu data
+    const originalProduct = menu[0].products.find((p) => p.id === params.id)
+    if (!originalProduct) return 0
+
+    // Start with base price
+    let total = originalProduct.price
 
     // Add variant price if selected
-    if (selectedSize && product.variants) {
-      const selectedVariant = product.variants.find((v) => v.itemId === selectedSize)
+    if (selectedSize && originalProduct.variants) {
+      const selectedVariant = originalProduct.variants.find((v) => v.itemId === selectedSize)
       if (selectedVariant?.price) {
         total = selectedVariant.price
       }
     }
 
     // Add ingredient prices
-    if (product.ingredientSelectionGroups) {
-      product.ingredientSelectionGroups.forEach((group) => {
+    if (originalProduct.ingredientSelectionGroups) {
+      originalProduct.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
           const count = selectedIngredients[selection.details.id] || 0
-          if (count > 0) {
-            total += count * selection.details.price
-          }
+          total += count * selection.details.price
         })
       })
     }
 
-    // Add cutlery prices
-    if (product.cutlerySelection) {
-      product.cutlerySelection.options.forEach((option) => {
+    // Add cutlery prices (only for items exceeding free count)
+    if (originalProduct.cutlerySelection) {
+      originalProduct.cutlerySelection.options.forEach((option) => {
         const count = selectedCutlery[option.details.id] || 0
         const extraCount = Math.max(0, count - option.maxFreeCount)
         if (extraCount > 0) {
@@ -161,11 +164,13 @@ export default function EditProductPage() {
     }
 
     // Add cross-sale items prices
-    if (product.crossSaleGroups) {
-      product.crossSaleGroups.forEach((group) => {
+    if (originalProduct.crossSaleGroups) {
+      originalProduct.crossSaleGroups.forEach((group) => {
         group.items.forEach((item) => {
           const count = selectedCrossSaleItems[item.id] || 0
-          total += count * item.price
+          if (count > 0) {
+            total += count * item.price
+          }
         })
       })
     }

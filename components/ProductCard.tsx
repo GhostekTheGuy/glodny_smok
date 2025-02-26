@@ -22,28 +22,88 @@ export function ProductCard({ product }: ProductCardProps) {
     }, 500)
   }
 
+  const calculateDefaultPrice = () => {
+    // Start with base price or default variant price
+    let totalPrice = product.price
+    if (product.variants && product.variants.length > 0) {
+      totalPrice = product.variants[0].price || product.price
+    }
+
+    // Add default ingredient prices
+    if (product.ingredientSelectionGroups) {
+      product.ingredientSelectionGroups.forEach((group) => {
+        group.ingredientSelections.forEach((selection) => {
+          if (selection.defaultCount > 0) {
+            totalPrice += selection.details.price * selection.defaultCount
+          }
+        })
+      })
+    }
+
+    // Add default cutlery prices (only for items exceeding free count)
+    if (product.cutlerySelection) {
+      product.cutlerySelection.options.forEach((option) => {
+        const defaultCount = option.maxFreeCount || 0
+        const extraCount = Math.max(0, defaultCount - option.maxFreeCount)
+        if (extraCount > 0) {
+          totalPrice += extraCount * option.details.price
+        }
+      })
+    }
+
+    return totalPrice
+  }
+
+  const getDefaultConfiguration = () => {
+    // Get default variant
+    const defaultSize = product.variants && product.variants.length > 0 ? product.variants[0].itemId : ""
+
+    // Get default ingredients
+    const defaultIngredients: Record<string, number> = {}
+    if (product.ingredientSelectionGroups) {
+      product.ingredientSelectionGroups.forEach((group) => {
+        group.ingredientSelections.forEach((selection) => {
+          defaultIngredients[selection.details.id] = selection.defaultCount
+        })
+      })
+    }
+
+    // Get default cutlery
+    const defaultCutlery: Record<string, number> = {}
+    if (product.cutlerySelection) {
+      product.cutlerySelection.options.forEach((option) => {
+        defaultCutlery[option.details.id] = option.maxFreeCount
+      })
+    }
+
+    // No cross-sale items by default
+    const defaultCrossSaleItems: Record<string, number> = {}
+
+    return {
+      selectedSize: defaultSize,
+      selectedIngredients: defaultIngredients,
+      selectedCutlery: defaultCutlery,
+      crossSaleItems: defaultCrossSaleItems,
+    }
+  }
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!product.oos) {
-      const basePrice =
-        product.variants && product.variants.length > 0
-          ? Math.min(...product.variants.map((v) => v.price || product.price))
-          : product.price
+      const defaultConfig = getDefaultConfiguration()
+      const defaultPrice = calculateDefaultPrice()
 
       addToCart({
         ...product,
-        price: basePrice,
-        selectedIngredients: {},
-        selectedCutlery: {},
-        selectedSize: product.variants && product.variants.length > 0 ? product.variants[0].type : "",
+        price: defaultPrice,
+        basePrice: product.price,
+        ...defaultConfig,
+        quantity: 1,
       })
     }
   }
 
-  const displayPrice =
-    product.variants && product.variants.length > 0
-      ? `${Math.min(...product.variants.map((v) => v.price || product.price)).toFixed(2)} zł`
-      : `${product.price.toFixed(2)} zł`
+  const displayPrice = calculateDefaultPrice().toFixed(2)
 
   return (
     <motion.div
@@ -86,7 +146,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.description}
           </motion.p>
           <motion.div layout className="flex items-center justify-between gap-4 mt-auto">
-            <span className="text-lg font-bold text-gray-900">{displayPrice}</span>
+            <span className="text-lg font-bold text-gray-900">{displayPrice} zł</span>
             <button
               onClick={handleAddToCart}
               className={`bg-red-600 hover:bg-black text-white px-4 py-2 rounded-full text-sm transition-colors duration-300 ${

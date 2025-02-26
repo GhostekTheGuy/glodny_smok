@@ -5,7 +5,7 @@ import type React from "react"
 import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Trash2, X, Pencil, Plus, Minus, ShoppingBag } from "lucide-react"
+import { Trash2, Pencil, Plus, Minus, ShoppingBag } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -28,7 +28,6 @@ export function CartPopup({
   const [, forceUpdate] = useState({})
 
   useEffect(() => {
-    // Force re-render when items change
     forceUpdate({})
     if (onItemAdded) {
       onItemAdded()
@@ -60,11 +59,6 @@ export function CartPopup({
               <h2 className="text-2xl font-semibold flex items-center gap-2">
                 <ShoppingBag className="h-6 w-6" />
                 Twój koszyk
-                {totalItems > 0 && (
-                  <Badge variant="outline" className="ml-2 text-white border-white">
-                    {totalItems}
-                  </Badge>
-                )}
               </h2>
               <p className="text-white/80 text-sm mt-1">
                 {totalItems === 0
@@ -72,14 +66,6 @@ export function CartPopup({
                   : `${totalItems} ${totalItems === 1 ? "produkt" : "produkty"} w koszyku`}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              className="text-white hover:text-white/80"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
           </div>
         </div>
 
@@ -158,6 +144,51 @@ export function CartPopup({
                               </div>
                             </div>
                           )}
+
+                          {/* Cutlery selections */}
+                          {Object.entries(item.selectedCutlery).length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500">Sztućce:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {Object.entries(item.selectedCutlery).map(([id, count]) => {
+                                  const cutlery = item.cutlerySelection?.options.find(
+                                    (option) => option.details.id === id,
+                                  )
+
+                                  if (cutlery && count > 0) {
+                                    return (
+                                      <Badge key={id} variant="outline" className="text-xs">
+                                        {cutlery.details.name} x{count}
+                                      </Badge>
+                                    )
+                                  }
+                                  return null
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Cross-sale selections */}
+                          {item.crossSaleGroups && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500">Dodatki:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {item.crossSaleGroups.map((group) =>
+                                  group.items.map((crossSaleItem) => {
+                                    const count = item.crossSaleItems?.[crossSaleItem.id] || 0
+                                    if (count > 0) {
+                                      return (
+                                        <Badge key={crossSaleItem.id} variant="outline" className="text-xs">
+                                          {crossSaleItem.name} x{count}
+                                        </Badge>
+                                      )
+                                    }
+                                    return null
+                                  }),
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -180,7 +211,7 @@ export function CartPopup({
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="w-6 text-center font-medium">{item.quantity}</span>
+                          <span className="w-6 text-center font-medium text-gray-900">{item.quantity}</span>
                           <Button
                             size="icon"
                             variant="outline"
@@ -235,16 +266,16 @@ export function CartPopup({
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Suma częściowa</span>
-                <span>{totalPrice.toFixed(2)} zł</span>
+                <span className="text-gray-900">{totalPrice.toFixed(2)} zł</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Dostawa</span>
-                <span>0.00 zł</span>
+                <span className="text-gray-900">0.00 zł</span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-medium text-lg">
-                <span>Razem</span>
-                <span>{totalPrice.toFixed(2)} zł</span>
+                <span className="text-gray-900">Razem</span>
+                <span className="text-gray-900">{totalPrice.toFixed(2)} zł</span>
               </div>
             </div>
 

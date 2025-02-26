@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
@@ -30,9 +29,7 @@ export default function CartPage() {
 
   const handleOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send the order data to your backend
     console.log("Order submitted:", { items, totalPrice, ...orderFormData })
-    // Reset cart and form
     items.forEach((item) => removeFromCart(item.id, item.selectedIngredients, item.selectedCutlery, item.selectedSize))
     setOrderFormData({
       name: "",
@@ -41,7 +38,6 @@ export default function CartPage() {
       address: "",
       notes: "",
     })
-    // Redirect to a thank you page
     router.push("/order-success")
   }
 
@@ -140,6 +136,7 @@ export default function CartPage() {
                             </p>
                           )}
 
+                          {/* Ingredient selections */}
                           {Object.entries(item.selectedIngredients).length > 0 && (
                             <div className="mt-2">
                               <p className="text-xs text-gray-500">Składniki:</p>
@@ -158,6 +155,51 @@ export default function CartPage() {
                                   }
                                   return null
                                 })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Cutlery selections */}
+                          {Object.entries(item.selectedCutlery).length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500">Sztućce:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {Object.entries(item.selectedCutlery).map(([id, count]) => {
+                                  const cutlery = item.cutlerySelection?.options.find(
+                                    (option) => option.details.id === id,
+                                  )
+
+                                  if (cutlery && count > 0) {
+                                    return (
+                                      <Badge key={id} variant="outline" className="text-xs">
+                                        {cutlery.details.name} x{count}
+                                      </Badge>
+                                    )
+                                  }
+                                  return null
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Cross-sale selections */}
+                          {item.crossSaleGroups && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500">Dodatki:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {item.crossSaleGroups.map((group) =>
+                                  group.items.map((crossSaleItem) => {
+                                    const count = item.crossSaleItems?.[crossSaleItem.id] || 0
+                                    if (count > 0) {
+                                      return (
+                                        <Badge key={crossSaleItem.id} variant="outline" className="text-xs">
+                                          {crossSaleItem.name} x{count}
+                                        </Badge>
+                                      )
+                                    }
+                                    return null
+                                  }),
+                                )}
                               </div>
                             </div>
                           )}

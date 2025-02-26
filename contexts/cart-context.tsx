@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useCallback } from "react"
+import menu from "@/data/scheme"
 
 interface IngredientSelectionGroup {
   name: string
@@ -21,7 +22,7 @@ export interface CartItem {
   id: number
   name: string
   price: number
-  basePrice: number // Add basePrice to track original price
+  basePrice: number
   quantity: number
   selectedIngredients: Record<string, number>
   selectedCutlery: Record<string, number>
@@ -31,6 +32,8 @@ export interface CartItem {
   cutlerySelection?: CutlerySelection
   variants: { itemId: string; type: string; price: number }[]
   oos: boolean
+  ingredientSelectionGroups?: any[]
+  crossSaleItems?: Record<string, number>
 }
 
 interface CartContextType {
@@ -59,6 +62,16 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+const areItemsEqual = (item1: CartItem, item2: CartItem) => {
+  return (
+    item1.id === item2.id &&
+    item1.selectedSize === item2.selectedSize &&
+    JSON.stringify(item1.selectedIngredients) === JSON.stringify(item2.selectedIngredients) &&
+    JSON.stringify(item1.selectedCutlery) === JSON.stringify(item2.selectedCutlery) &&
+    JSON.stringify(item1.crossSaleItems) === JSON.stringify(item2.crossSaleItems)
+  )
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
 
@@ -69,13 +82,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     setItems((currentItems) => {
-      const existingItemIndex = currentItems.findIndex(
-        (item) =>
-          item.id === product.id &&
-          item.selectedSize === product.selectedSize &&
-          JSON.stringify(item.selectedIngredients) === JSON.stringify(product.selectedIngredients) &&
-          JSON.stringify(item.selectedCutlery) === JSON.stringify(product.selectedCutlery),
-      )
+      const existingItemIndex = currentItems.findIndex((item) => areItemsEqual(item, product))
 
       if (existingItemIndex > -1) {
         return currentItems.map((item, index) =>
@@ -97,12 +104,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems((currentItems) =>
         currentItems.filter(
           (item) =>
-            !(
-              item.id === id &&
-              item.selectedSize === selectedSize &&
-              JSON.stringify(item.selectedIngredients) === JSON.stringify(selectedIngredients) &&
-              JSON.stringify(item.selectedCutlery) === JSON.stringify(selectedCutlery)
-            ),
+            !areItemsEqual(item, {
+              ...item,
+              id,
+              selectedIngredients,
+              selectedCutlery,
+              selectedSize,
+            }),
         ),
       )
     },
@@ -120,10 +128,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems((currentItems) =>
         currentItems
           .map((item) =>
-            item.id === id &&
-            item.selectedSize === selectedSize &&
-            JSON.stringify(item.selectedIngredients) === JSON.stringify(selectedIngredients) &&
-            JSON.stringify(item.selectedCutlery) === JSON.stringify(selectedCutlery)
+            areItemsEqual(item, {
+              ...item,
+              id,
+              selectedIngredients,
+              selectedCutlery,
+              selectedSize,
+            })
               ? { ...item, quantity: Math.max(0, quantity) }
               : item,
           )
@@ -135,13 +146,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addOrUpdateCartItem = useCallback((updatedItem: CartItem) => {
     setItems((currentItems) => {
-      const existingItemIndex = currentItems.findIndex(
-        (item) =>
-          item.id === updatedItem.id &&
-          item.selectedSize === updatedItem.selectedSize &&
-          JSON.stringify(item.selectedIngredients) === JSON.stringify(updatedItem.selectedIngredients) &&
-          JSON.stringify(item.selectedCutlery) === JSON.stringify(updatedItem.selectedCutlery),
-      )
+      const existingItemIndex = currentItems.findIndex((item) => areItemsEqual(item, updatedItem))
 
       if (existingItemIndex > -1) {
         return currentItems.map((item, index) =>
@@ -154,29 +159,75 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const editCartItem = useCallback((updatedItem: CartItem) => {
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === updatedItem.id &&
-        item.selectedSize === updatedItem.selectedSize &&
-        JSON.stringify(item.selectedIngredients) === JSON.stringify(updatedItem.selectedIngredients) &&
-        JSON.stringify(item.selectedCutlery) === JSON.stringify(updatedItem.selectedCutlery)
-          ? updatedItem
-          : item,
-      ),
-    )
+    setItems((currentItems) => currentItems.map((item) => (areItemsEqual(item, updatedItem) ? updatedItem : item)))
   }, [])
 
   const updateCartItem = useCallback((updatedItem: CartItem) => {
     setItems((currentItems) => {
-      // Remove the old item with the same ID
-      const filteredItems = currentItems.filter((item) => item.id !== updatedItem.id)
+      // Find the old item to get its quantity
+      const oldItem = currentItems.find((item) => item.id === updatedItem.id)
+      const quantity = oldItem?.quantity || 1
 
-      // Add the updated item
+      // Filter out the old version of this specific item
+      const filteredItems = currentItems.filter((item) => !areItemsEqual(item, oldItem))
+
+      // Get the original product from menu data
+      const originalProduct = menu[0].products.find((p) => p.id === updatedItem.id)
+      if (!originalProduct) return currentItems
+
+      // Calculate the total price
+      let basePrice = originalProduct.price
+
+      // Update base price if variant is selected
+      if (updatedItem.selectedSize && originalProduct.variants) {
+        const selectedVariant = originalProduct.variants.find((v) => v.itemId === updatedItem.selectedSize)
+        if (selectedVariant?.price) {
+          basePrice = selectedVariant.price
+        }
+      }
+
+      // Add ingredient prices
+      let additionalCost = 0
+      if (originalProduct.ingredientSelectionGroups) {
+        originalProduct.ingredientSelectionGroups.forEach((group) => {
+          group.ingredientSelections.forEach((selection) => {
+            const count = updatedItem.selectedIngredients[selection.details.id] || 0
+            additionalCost += count * selection.details.price
+          })
+        })
+      }
+
+      // Add cutlery costs (only for items exceeding free count)
+      if (originalProduct.cutlerySelection) {
+        originalProduct.cutlerySelection.options.forEach((option) => {
+          const count = updatedItem.selectedCutlery[option.details.id] || 0
+          const extraCount = Math.max(0, count - option.maxFreeCount)
+          if (extraCount > 0) {
+            additionalCost += extraCount * option.details.price
+          }
+        })
+      }
+
+      // Add cross-sale item costs
+      if (originalProduct.crossSaleGroups) {
+        originalProduct.crossSaleGroups.forEach((group) => {
+          group.items.forEach((item) => {
+            const count = updatedItem.crossSaleItems?.[item.id] || 0
+            if (count > 0) {
+              additionalCost += count * item.price
+            }
+          })
+        })
+      }
+
+      // Add the new item with updated configuration
       return [
         ...filteredItems,
         {
           ...updatedItem,
-          basePrice: updatedItem.basePrice || updatedItem.price,
+          basePrice: basePrice,
+          price: basePrice + additionalCost,
+          quantity: quantity,
         },
       ]
     })
