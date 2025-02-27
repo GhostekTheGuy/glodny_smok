@@ -12,9 +12,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
+import { CartItemDetails } from "@/components/CartItemDetails"
 
 export default function CartPage() {
   const router = useRouter()
@@ -93,14 +93,7 @@ export default function CartPage() {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <div className="flex items-center gap-2 mb-6">
                 <ShoppingBag className="h-6 w-6" />
-                <h1 className="text-2xl font-semibold">
-                  Twój koszyk
-                  {totalItems > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {totalItems}
-                    </Badge>
-                  )}
-                </h1>
+                <h1 className="text-2xl font-semibold">Twój koszyk ({totalItems})</h1>
               </div>
 
               <ScrollArea className="h-[calc(100vh-400px)]">
@@ -136,73 +129,7 @@ export default function CartPage() {
                             </p>
                           )}
 
-                          {/* Ingredient selections */}
-                          {Object.entries(item.selectedIngredients).length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500">Składniki:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {Object.entries(item.selectedIngredients).map(([id, count]) => {
-                                  const ingredient = item.ingredientSelectionGroups
-                                    ?.flatMap((group) => group.ingredientSelections)
-                                    .find((selection) => selection.details.id === id)
-
-                                  if (ingredient && count > 0) {
-                                    return (
-                                      <Badge key={id} variant="outline" className="text-xs">
-                                        {ingredient.details.name} x{count}
-                                      </Badge>
-                                    )
-                                  }
-                                  return null
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Cutlery selections */}
-                          {Object.entries(item.selectedCutlery).length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500">Sztućce:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {Object.entries(item.selectedCutlery).map(([id, count]) => {
-                                  const cutlery = item.cutlerySelection?.options.find(
-                                    (option) => option.details.id === id,
-                                  )
-
-                                  if (cutlery && count > 0) {
-                                    return (
-                                      <Badge key={id} variant="outline" className="text-xs">
-                                        {cutlery.details.name} x{count}
-                                      </Badge>
-                                    )
-                                  }
-                                  return null
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Cross-sale selections */}
-                          {item.crossSaleGroups && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500">Dodatki:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {item.crossSaleGroups.map((group) =>
-                                  group.items.map((crossSaleItem) => {
-                                    const count = item.crossSaleItems?.[crossSaleItem.id] || 0
-                                    if (count > 0) {
-                                      return (
-                                        <Badge key={crossSaleItem.id} variant="outline" className="text-xs">
-                                          {crossSaleItem.name} x{count}
-                                        </Badge>
-                                      )
-                                    }
-                                    return null
-                                  }),
-                                )}
-                              </div>
-                            </div>
-                          )}
+                          <CartItemDetails item={item} className="mt-2" />
                         </div>
                       </div>
 

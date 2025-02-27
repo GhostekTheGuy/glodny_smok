@@ -9,9 +9,9 @@ import { Trash2, Pencil, Plus, Minus, ShoppingBag } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { CartItemDetails } from "./CartItemDetails"
 
 export function CartPopup({
   children,
@@ -122,73 +122,7 @@ export function CartPopup({
                             </p>
                           )}
 
-                          {/* Ingredient selections */}
-                          {Object.entries(item.selectedIngredients).length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500">Składniki:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {Object.entries(item.selectedIngredients).map(([id, count]) => {
-                                  const ingredient = item.ingredientSelectionGroups
-                                    ?.flatMap((group) => group.ingredientSelections)
-                                    .find((selection) => selection.details.id === id)
-
-                                  if (ingredient && count > 0) {
-                                    return (
-                                      <Badge key={id} variant="outline" className="text-xs">
-                                        {ingredient.details.name} x{count}
-                                      </Badge>
-                                    )
-                                  }
-                                  return null
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Cutlery selections */}
-                          {Object.entries(item.selectedCutlery).length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500">Sztućce:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {Object.entries(item.selectedCutlery).map(([id, count]) => {
-                                  const cutlery = item.cutlerySelection?.options.find(
-                                    (option) => option.details.id === id,
-                                  )
-
-                                  if (cutlery && count > 0) {
-                                    return (
-                                      <Badge key={id} variant="outline" className="text-xs">
-                                        {cutlery.details.name} x{count}
-                                      </Badge>
-                                    )
-                                  }
-                                  return null
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Cross-sale selections */}
-                          {item.crossSaleGroups && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500">Dodatki:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {item.crossSaleGroups.map((group) =>
-                                  group.items.map((crossSaleItem) => {
-                                    const count = item.crossSaleItems?.[crossSaleItem.id] || 0
-                                    if (count > 0) {
-                                      return (
-                                        <Badge key={crossSaleItem.id} variant="outline" className="text-xs">
-                                          {crossSaleItem.name} x{count}
-                                        </Badge>
-                                      )
-                                    }
-                                    return null
-                                  }),
-                                )}
-                              </div>
-                            </div>
-                          )}
+                          <CartItemDetails item={item} className="mt-2" />
                         </div>
                       </div>
 
