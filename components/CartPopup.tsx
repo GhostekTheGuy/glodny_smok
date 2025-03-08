@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type React from "react";
-import { useCart } from "@/contexts/cart-context";
+import { CartItem, CartMeal, useCart } from "@/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Trash2, Pencil, Plus, Minus, ShoppingBag } from "lucide-react";
@@ -11,7 +11,10 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { CartItemDetails } from "./CartItemDetails";
+import { CartProductDetails } from "./CartItemDetails";
+import { NNSdk } from "@/lib/sdk";
+import { CartItemSubItem, CartProduct } from "@/jsrepo-blocks/types/types";
+import { Quando } from "next/font/google";
 
 export function CartPopup({
   children,
@@ -23,37 +26,59 @@ export function CartPopup({
   isMenuPage?: boolean;
 }) {
   const router = useRouter();
-  const { items, removeFromCart, updateQuantity, totalItems, totalPrice } =
-    useCart();
+  const {
+    items,
+    meals,
+    products,
+    removeFromCart,
+    updateQuantity,
+    totalItems,
+    totalPrice,
+  } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [, forceUpdate] = useState({});
+  // useEffect(() => {
+  //   fetchItems();
 
-  useEffect(() => {
-    forceUpdate({});
-    if (onItemAdded) {
-      onItemAdded();
-    }
-  }, [onItemAdded]);
+  //   const handleStorageChange = () => {
+  //     fetchItems();
+  //   };
 
-  const handleEditItem = (itemId: number) => {
+  //   window.addEventListener("cart-update", handleStorageChange);
+
+  //   return () => {
+  //     window.removeEventListener("cart-update", handleStorageChange);
+  //   };
+  // }, []);
+
+  // const [products, setProducts] = useState<CartProduct[]>([]);
+  // const [meals, setMeals] = useState<CartMeal[]>([]);
+  // const [totalItems, setTotalItems] = useState<number>(0);
+  // const [items, setItems] = useState<CartItemSubItem[]>([]);
+  // const fetchItems = () => {
+  //   const products = NNSdk.getProductsFromCart();
+  //   const meals = NNSdk.getMealsFromCart();
+  //   setProducts(products);
+  //   setMeals(meals);
+  //   setTotalItems(products.length + meals.length);
+  // };
+  // console.log(totalItems);
+  // const calculateTotalPrice = (items: { price: number; quantity: number }[]) =>
+  //   items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  // const productPrice = calculateTotalPrice(products);
+  // const mealsPrice = calculateTotalPrice(meals);
+  // const totalPrice = productPrice + mealsPrice;
+  const handleEditItem = (itemId: string) => {
     setIsOpen(false);
     router.push(`/edit-product/${itemId}`);
   };
 
-  const handleQuantityChange = (
-    itemId: number,
-    selectedIngredients: Record<string, number>,
-    selectedCutlery: Record<string, number>,
-    selectedSize: string,
-    newQuantity: number
-  ) => {
-    updateQuantity(
-      itemId,
-      selectedIngredients,
-      selectedCutlery,
-      selectedSize,
-      newQuantity
-    );
+  // const removeFromCart = (itemId: string) => {
+  //   NNSdk.removeItemFromCart(itemId);
+  // };
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
+    updateQuantity(itemId, newQuantity);
   };
 
   return (
@@ -80,7 +105,7 @@ export function CartPopup({
 
         <ScrollArea className="flex-grow px-6">
           <div className="py-6">
-            {items.length === 0 ? (
+            {totalItems == 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="bg-gray-100 p-6 rounded-full mb-4">
                   <ShoppingBag className="h-12 w-12 text-gray-400" />
@@ -104,9 +129,9 @@ export function CartPopup({
             ) : (
               <AnimatePresence initial={false}>
                 <div className="space-y-6">
-                  {items.map((item, idx) => (
+                  {products.map((product, idx) => (
                     <motion.div
-                      key={`${item.id}-${idx}`}
+                      key={`${product.cartItemId}-${idx}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{
@@ -122,10 +147,10 @@ export function CartPopup({
                         <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
                           <Image
                             src={
-                              item.photoUrl ||
+                              product.photoUrl ||
                               "/placeholder.svg?height=80&width=80"
                             }
-                            alt={item.name}
+                            alt={product.name}
                             fill
                             className="object-cover"
                           />
@@ -133,23 +158,26 @@ export function CartPopup({
                         <div className="ml-4 flex-1">
                           <div className="flex justify-between">
                             <h3 className="font-medium text-gray-900">
-                              {item.name}
+                              {product.name}
                             </h3>
                             <p className="font-medium text-gray-900">
-                              {(item.price * item.quantity).toFixed(2)} zł
+                              {(product.price * product.quantity).toFixed(2)} zł
                             </p>
                           </div>
 
-                          {item.selectedSize && (
+                          {/* {product.selectedSize && (
                             <p className="text-sm text-gray-500 mt-1">
                               Rozmiar:{" "}
-                              {item.variants.find(
+                              {product.variants.find(
                                 (v) => v.itemId === item.selectedSize
                               )?.type || item.selectedSize}
                             </p>
-                          )}
+                          )} */}
 
-                          <CartItemDetails item={item} className="mt-2" />
+                          <CartProductDetails
+                            product={product}
+                            className="mt-2"
+                          />
                         </div>
                       </div>
 
@@ -161,19 +189,16 @@ export function CartPopup({
                             className="h-8 w-8 rounded-full"
                             onClick={() =>
                               handleQuantityChange(
-                                item.id,
-                                item.selectedIngredients,
-                                item.selectedCutlery,
-                                item.selectedSize,
-                                item.quantity - 1
+                                product.cartItemId,
+                                product.quantity - 1
                               )
                             }
-                            disabled={item.quantity <= 1}
+                            disabled={product.quantity <= 1}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
                           <span className="w-6 text-center font-medium text-gray-900">
-                            {item.quantity}
+                            {product.quantity}
                           </span>
                           <Button
                             size="icon"
@@ -181,11 +206,8 @@ export function CartPopup({
                             className="h-8 w-8 rounded-full"
                             onClick={() =>
                               handleQuantityChange(
-                                item.id,
-                                item.selectedIngredients,
-                                item.selectedCutlery,
-                                item.selectedSize,
-                                item.quantity + 1
+                                product.cartItemId,
+                                product.quantity + 1
                               )
                             }
                           >
@@ -198,7 +220,7 @@ export function CartPopup({
                             size="sm"
                             variant="ghost"
                             className="h-8 px-2 text-gray-500 hover:text-gray-700"
-                            onClick={() => handleEditItem(item.id)}
+                            onClick={() => handleEditItem(product.cartItemId)}
                           >
                             <Pencil className="h-4 w-4 mr-1" />
                             <span className="text-xs">Edytuj</span>
@@ -207,14 +229,7 @@ export function CartPopup({
                             size="sm"
                             variant="ghost"
                             className="h-8 px-2 text-gray-500 hover:text-red-600"
-                            onClick={() =>
-                              removeFromCart(
-                                item.id,
-                                item.selectedIngredients,
-                                item.selectedCutlery,
-                                item.selectedSize
-                              )
-                            }
+                            onClick={() => removeFromCart(product.cartItemId)}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             <span className="text-xs">Usuń</span>
@@ -229,7 +244,7 @@ export function CartPopup({
           </div>
         </ScrollArea>
 
-        {items.length > 0 && (
+        {totalItems > 0 && (
           <div className="border-t p-6 space-y-4 bg-gray-50">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">

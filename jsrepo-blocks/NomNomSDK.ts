@@ -1,7 +1,5 @@
 /*
-	jsrepo 1.41.3
 	Installed from github/BarSwi/NomNomFrontSDK
-	5.03.2025
 */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
@@ -137,19 +135,23 @@ export class NomNomSDK extends Utils {
    * cart.editProductInCart("cartItemId123", updatedCartProduct);
    */
 
-  editProductInCart(cartItemId: string, cartProduct: CartProduct) {
+  updateItemInCart(cartItemId: string, cartItem: CartItem) {
     let storedData = JSON.parse(localStorage.getItem(this.localStorageKey));
     if (!storedData) return;
 
     const itemIndex = storedData.items.findIndex(
-      (item: CartProduct) => item.cartItemId === cartItemId
+      (item: CartItem) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
-      storedData.items[itemIndex] = cartProduct;
+      storedData.items[itemIndex] = cartItem;
       storedData.timestamp = new Date().toISOString();
       localStorage.setItem(this.localStorageKey, JSON.stringify(storedData));
     }
+    //@ts-ignore
+    window.dispatchEvent(new Event("cart-update"));
+
+    return storedData;
   }
 
   /**
@@ -171,6 +173,8 @@ export class NomNomSDK extends Utils {
 
     storedData.timestamp = new Date().toISOString();
     localStorage.setItem(this.localStorageKey, JSON.stringify(storedData));
+    //@ts-ignore
+    window.dispatchEvent(new Event("cart-update"));
   }
 
   /**
@@ -184,7 +188,7 @@ export class NomNomSDK extends Utils {
    */
   getMealsFromCart() {
     const items = this.getItemsFromCart();
-    return items.filter((item) => item.type === ItemType.MEAL);
+    return items.filter((item) => item.type === ItemType.MEAL) as CartMeal[];
   }
 
   /**
@@ -198,7 +202,9 @@ export class NomNomSDK extends Utils {
    */
   getProductsFromCart() {
     const items = this.getItemsFromCart();
-    return items.filter((item) => item.type === ItemType.PRODUCT);
+    return items.filter(
+      (item) => item.type === ItemType.PRODUCT
+    ) as CartProduct[];
   }
 
   /**
@@ -239,6 +245,8 @@ export class NomNomSDK extends Utils {
       storedData.timestamp = new Date().toISOString();
       localStorage.setItem(this.localStorageKey, JSON.stringify(storedData));
     }
+    //@ts-ignore
+    window.dispatchEvent(new Event("cart-update"));
   }
 
   async createOrder(restaurandId: string, cartStorage: CartStorage = null) {

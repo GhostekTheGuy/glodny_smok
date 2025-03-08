@@ -1,7 +1,5 @@
 /*
-	jsrepo 1.41.3
 	Installed from github/BarSwi/NomNomFrontSDK
-	5.03.2025
 */
 
 // Ingredient details
@@ -135,14 +133,14 @@ export interface CartItem {
   basePrice: number;
   quantity: number;
   photoUrl: string;
-  selectedCutlery?: CartItemSubItem[];
-  crossSaleItems?: CartItemSubItem[];
+  selectedCutlery: CartItemSubItem[];
+  crossSaleItems: CartItemSubItem[];
   // oos: boolean;
   type?: "PRODUCT" | "MEAL";
 }
 export interface CartProduct extends CartItem {
   productId: string;
-  selectedIngredients?: CartItemSubItem[];
+  selectedIngredients: CartItemSubItem[];
 }
 export interface CartMeal extends CartItem {
   mealId: string;

@@ -15,7 +15,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addProductToCart } = useCart();
 
   const handleClick = () => {
     document.body.style.opacity = "0";
@@ -94,7 +94,7 @@ export function ProductCard({ product }: ProductCardProps) {
     }
 
     // No cross-sale items by default
-    const defaultCrossSaleItems: Record<string, number> = {};
+    const defaultCrossSaleItems: CartItemSubItem[] = [];
 
     return {
       selectedSize: defaultSize,
@@ -109,11 +109,13 @@ export function ProductCard({ product }: ProductCardProps) {
     if (!product.oos) {
       const defaultConfig = getDefaultConfiguration();
 
-      NNSdk.addProductToCart({
+      addProductToCart({
         productId: product.id,
         name: product.name,
         price: product.price,
         selectedIngredients: defaultConfig.selectedIngredients,
+        selectedCutlery: defaultConfig.selectedCutlery,
+        crossSaleItems: defaultConfig.crossSaleItems,
         quantity: 1,
         basePrice: product.price,
         photoUrl: product.photoUrl,

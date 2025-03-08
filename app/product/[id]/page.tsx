@@ -58,7 +58,7 @@ function AnimatedPrice({ price }: { price: number }) {
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addProductToCart } = useCart();
   const [selectedIngredients, setSelectedIngredients] = useState<
     Record<string, CartItemSubItem>
   >({});
@@ -250,7 +250,7 @@ export default function ProductPage() {
     );
     const price = calculateTotalPrice();
 
-    NNSdk.addProductToCart({
+    addProductToCart({
       productId: product.id,
       name: product.name,
       price,

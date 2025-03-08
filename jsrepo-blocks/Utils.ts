@@ -1,11 +1,15 @@
 /*
-	jsrepo 1.41.3
 	Installed from github/BarSwi/NomNomFrontSDK
-	5.03.2025
 */
 
 import { OrderRequestGroupKey } from "./types/enums";
-import { CartItem, CartProduct, Menu, Product } from "./types/types";
+import {
+  CartItem,
+  CartItemSubItem,
+  CartProduct,
+  Menu,
+  Product,
+} from "./types/types";
 
 export class Utils {
   protected populateCrossSaleItems(menus: Menu[]) {
@@ -74,9 +78,10 @@ export class Utils {
     };
   }
 
-  private groupItems<
-    T extends { groupName: string; id: string; count: number },
-  >(items: T[] | undefined, key: OrderRequestGroupKey) {
+  private groupItems<T extends CartItemSubItem>(
+    items: T[] | undefined,
+    key: OrderRequestGroupKey,
+  ) {
     if (!items || items.length === 0) return [];
 
     const groups: Record<
