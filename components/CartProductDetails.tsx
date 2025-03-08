@@ -53,54 +53,60 @@ export function CartProductDetails({
           >
             <div className="space-y-3 px-2 py-3 bg-gray-50 rounded-md text-sm">
               {/* Ingredients */}
-              {Object.entries(product.selectedIngredients).length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-1">
-                    Składniki:
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {product.selectedIngredients.map((ingredient) => {
-                      if (ingredient && ingredient.count > 0) {
-                        return (
-                          <Badge
-                            key={ingredient.id}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {ingredient.name} x{ingredient.count}
-                          </Badge>
-                        );
-                      }
-                      return null;
-                    })}
+              {product.selectedIngredients &&
+                Object.values(product.selectedIngredients).some(
+                  (ingredient) => ingredient.count > 0
+                ) && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 mb-1">
+                      Składniki:
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {product.selectedIngredients.map((ingredient) => {
+                        if (ingredient && ingredient.count > 0) {
+                          return (
+                            <Badge
+                              key={ingredient.id}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {ingredient.name} x{ingredient.count}
+                            </Badge>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Cutlery */}
-              {product.selectedCutlery.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-1">
-                    Sztućce:
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {product.selectedCutlery.map((cutlery) => {
-                      if (cutlery && cutlery.count > 0) {
-                        return (
-                          <Badge
-                            key={cutlery.id}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {cutlery.name} x{cutlery.count}
-                          </Badge>
-                        );
-                      }
-                      return null;
-                    })}
+              {product.selectedCutlery &&
+                Object.values(product.selectedCutlery).some(
+                  (cutlery) => cutlery.count > 0
+                ) && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 mb-1">
+                      Sztućce:
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {product.selectedCutlery.map((cutlery) => {
+                        if (cutlery && cutlery.count > 0) {
+                          return (
+                            <Badge
+                              key={cutlery.id}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {cutlery.name} x{cutlery.count}
+                            </Badge>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Cross-sale items */}
               {product.crossSaleItems &&
