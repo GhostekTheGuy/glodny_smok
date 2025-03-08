@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/cart-context";
@@ -58,7 +58,10 @@ function AnimatedPrice({ price }: { price: number }) {
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();
-  const { addProductToCart } = useCart();
+  const searchParams = useSearchParams();
+  const type = searchParams.get("type");
+
+  const { addProductToCart, updateCartItem } = useCart();
   const [selectedIngredients, setSelectedIngredients] = useState<
     Record<string, CartItemSubItem>
   >({});
@@ -78,8 +81,23 @@ export default function ProductPage() {
   >({});
 
   const [isLoading, setIsLoading] = useState(true);
-
-  const product = menu[0].products.find((p) => p.id === params.id) || null;
+  const isEditing = type === "edit";
+  if (isEditing) {
+    var dataToEdit = NNSdk.getProductsFromCart().find(
+      (item) => item.cartItemId === params.id
+    );
+  }
+  function findProductById(productId: string) {
+    var product = null;
+    menu.forEach((menu) => {
+      product = menu.products.find((p) => p.id === productId);
+      if (product) return;
+    });
+    return product;
+  }
+  const product = isEditing
+    ? findProductById(dataToEdit?.productId)
+    : findProductById(params.id as string);
   useEffect(() => {
     if (!product) return;
     document.body.style.opacity = "1";
@@ -104,6 +122,13 @@ export default function ProductPage() {
         });
       });
 
+      if (isEditing && dataToEdit) {
+        dataToEdit.selectedIngredients.forEach((ingredient) => {
+          initialIngredients[ingredient.id] = {
+            ...ingredient,
+          };
+        });
+      }
       setSelectedIngredients(initialIngredients);
     }
 
@@ -118,6 +143,13 @@ export default function ProductPage() {
           price: option.details.price,
         };
       });
+      if (isEditing && dataToEdit) {
+        dataToEdit.selectedCutlery.forEach((cutlery) => {
+          initialCutlery[cutlery.id] = {
+            ...cutlery,
+          };
+        });
+      }
       setSelectedCutlery(initialCutlery);
     }
 
@@ -134,11 +166,20 @@ export default function ProductPage() {
           };
         });
       });
+      if (isEditing && dataToEdit) {
+        dataToEdit.crossSaleItems.forEach((crossSaleItem) => {
+          initialCrossSale[crossSaleItem.id] = {
+            ...crossSaleItem,
+          };
+        });
+      }
       setSelectedCrossSaleItems(initialCrossSale);
     }
     setIsLoading(false);
   }, [product]);
-
+  if (isEditing && !dataToEdit) {
+    router.push("/");
+  }
   if (!product) {
     return <div className="container mx-auto px-4 py-8">Product not found</div>;
   }
@@ -191,11 +232,10 @@ export default function ProductPage() {
 
   const calculateTotalPrice = () => {
     // Get the original product from menu data
-    const originalProduct = menu[0].products.find((p) => p.id === params.id);
-    if (!originalProduct) return 0;
+    if (!product) return 0;
 
     // Start with base price
-    let total = originalProduct.price;
+    let total = product.price;
 
     // Add variant price if selected
     // if (selectedSize && originalProduct.variants) {
@@ -206,8 +246,8 @@ export default function ProductPage() {
     // }
 
     // Add ingredient prices
-    if (originalProduct.ingredientSelectionGroups) {
-      originalProduct.ingredientSelectionGroups.forEach((group) => {
+    if (product.ingredientSelectionGroups) {
+      product.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
           const count = selectedIngredients[selection.details.id].count || 0;
           if (count > selection.defaultCount)
@@ -217,8 +257,8 @@ export default function ProductPage() {
     }
 
     // Add cutlery prices (only for items exceeding free count)
-    if (originalProduct.cutlerySelection) {
-      originalProduct.cutlerySelection.options.forEach((option) => {
+    if (product.cutlerySelection) {
+      product.cutlerySelection.options.forEach((option) => {
         const count = selectedCutlery[option.details.id].count || 0;
         const extraCount = Math.max(0, count - option.maxFreeCount);
         if (extraCount > 0) {
@@ -228,8 +268,8 @@ export default function ProductPage() {
     }
 
     // Add cross-sale items prices
-    if (originalProduct.crossSaleGroups) {
-      originalProduct.crossSaleGroups.forEach((group) => {
+    if (product.crossSaleGroups) {
+      product.crossSaleGroups.forEach((group) => {
         group.items.forEach((item) => {
           const count = selectedCrossSaleItems[item.id].count || 0;
           if (count > 0) {
@@ -242,15 +282,14 @@ export default function ProductPage() {
     return total;
   };
 
-  const handleAddToCart = () => {
+  const handleAddOrUpdate = () => {
     if (buttonState !== "neutral" || product.oos) return;
 
     const selectedVariant = product.variants?.find(
       (v) => v.itemId === selectedSize
     );
     const price = calculateTotalPrice();
-
-    addProductToCart({
+    const productObject = {
       productId: product.id,
       name: product.name,
       price,
@@ -260,7 +299,10 @@ export default function ProductPage() {
       selectedIngredients: Object.values(selectedIngredients),
       selectedCutlery: Object.values(selectedCutlery),
       crossSaleItems: Object.values(selectedCrossSaleItems),
-    });
+    };
+    isEditing
+      ? updateCartItem(params.id as string, productObject)
+      : addProductToCart(productObject);
 
     setButtonState("success");
     setTimeout(() => {
@@ -630,7 +672,7 @@ export default function ProductPage() {
             <motion.button
               layout
               disabled={buttonState !== "neutral" || product.oos}
-              onClick={handleAddToCart}
+              onClick={handleAddOrUpdate}
               className={`relative w-full rounded-md px-4 py-2 font-medium text-white transition-all ${
                 product.oos
                   ? "bg-gray-400 cursor-not-allowed"
@@ -646,12 +688,16 @@ export default function ProductPage() {
                 }}
                 className="inline-block"
               >
-                {product.oos ? "Produkt niedostępny" : "Dodaj do koszyka"}
+                {product.oos
+                  ? "Produkt niedostępny"
+                  : isEditing
+                  ? "Zaktualizauj"
+                  : "Dodaj do koszyka"}
               </motion.span>
               <IconOverlay
                 Icon={Check}
                 visible={buttonState === "success"}
-                text="Dodano do koszyka"
+                text={isEditing ? "Zaktualizowano" : "Dodano do koszyka"}
               />
             </motion.button>
 

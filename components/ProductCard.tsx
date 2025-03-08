@@ -21,7 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
     document.body.style.opacity = "0";
     document.body.style.transition = "opacity 0.5s";
     setTimeout(() => {
-      router.push(`/product/${product.id}`);
+      router.push(`/product/${product.id}?type=add`);
     }, 500);
   };
 

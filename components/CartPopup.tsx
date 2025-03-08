@@ -11,7 +11,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { CartProductDetails } from "./CartItemDetails";
+import { CartProductDetails } from "./CartProductDetails";
 import { NNSdk } from "@/lib/sdk";
 import { CartItemSubItem, CartProduct } from "@/jsrepo-blocks/types/types";
 import { Quando } from "next/font/google";
@@ -71,7 +71,7 @@ export function CartPopup({
   // const totalPrice = productPrice + mealsPrice;
   const handleEditItem = (itemId: string) => {
     setIsOpen(false);
-    router.push(`/edit-product/${itemId}`);
+    router.push(`/product/${itemId}?type=edit`);
   };
 
   // const removeFromCart = (itemId: string) => {
