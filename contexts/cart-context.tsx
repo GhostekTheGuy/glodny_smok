@@ -58,25 +58,10 @@ interface CartContextType {
   totalItems: number;
   totalPrice: number;
   goToCart: () => void;
-  // editCartItem: (updatedItem: CartItem) => void;
-  // addOrUpdateCartItem: (updatedItem: CartItem) => void;
   updateCartItem: (itemId: string, updatedItem: CartItem) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-
-// const areItemsEqual = (item1: CartItem, item2: CartItem) => {
-//   return (
-//     item1.id === item2.id &&
-//     item1.selectedSize === item2.selectedSize &&
-//     JSON.stringify(item1.selectedIngredients) ===
-//       JSON.stringify(item2.selectedIngredients) &&
-//     JSON.stringify(item1.selectedCutlery) ===
-//       JSON.stringify(item2.selectedCutlery) &&
-//     JSON.stringify(item1.crossSaleItems) ===
-//       JSON.stringify(item2.crossSaleItems)
-//   );
-// };
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -118,13 +103,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
     setMeals(items.filter((item): item is CartMeal => item.type === "MEAL"));
   }, [items]);
-  // const editCartItem = useCallback((updatedItem: CartItem) => {
-  //   setItems((currentItems) =>
-  //     currentItems.map((item) =>
-  //       areItemsEqual(item, updatedItem) ? updatedItem : item
-  //     )
-  //   );
-  // }, []);
 
   const updateCartItem = useCallback(
     (itemId: string, updatedItem: CartItem) => {
@@ -157,9 +135,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         totalItems,
         totalPrice,
         goToCart,
-        // editCartItem,
-        // addOrUpdateCartItem,
-        // updateCartItem,
       }}
     >
       {children}

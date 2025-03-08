@@ -348,7 +348,7 @@ export default function ProductPage() {
           <ScrollArea className="flex-1 mb-[200px] md:mb-[180px]">
             <div className="space-y-6 pr-4 rounded-lg pb-4">
               <Accordion type="multiple" className="space-y-4">
-                {/* Variants */}
+                {/* Variants
                 {product.variants && product.variants.length > 0 && (
                   <AccordionItem
                     value="variants"
@@ -385,7 +385,7 @@ export default function ProductPage() {
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                )}
+                )} */}
 
                 {/* All Ingredients in one accordion */}
                 {product.ingredientSelectionGroups &&

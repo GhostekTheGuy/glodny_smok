@@ -36,47 +36,11 @@ export function CartPopup({
     totalPrice,
   } = useCart();
   const [isOpen, setIsOpen] = useState(false);
-  const [, forceUpdate] = useState({});
-  // useEffect(() => {
-  //   fetchItems();
-
-  //   const handleStorageChange = () => {
-  //     fetchItems();
-  //   };
-
-  //   window.addEventListener("cart-update", handleStorageChange);
-
-  //   return () => {
-  //     window.removeEventListener("cart-update", handleStorageChange);
-  //   };
-  // }, []);
-
-  // const [products, setProducts] = useState<CartProduct[]>([]);
-  // const [meals, setMeals] = useState<CartMeal[]>([]);
-  // const [totalItems, setTotalItems] = useState<number>(0);
-  // const [items, setItems] = useState<CartItemSubItem[]>([]);
-  // const fetchItems = () => {
-  //   const products = NNSdk.getProductsFromCart();
-  //   const meals = NNSdk.getMealsFromCart();
-  //   setProducts(products);
-  //   setMeals(meals);
-  //   setTotalItems(products.length + meals.length);
-  // };
-  // console.log(totalItems);
-  // const calculateTotalPrice = (items: { price: number; quantity: number }[]) =>
-  //   items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  // const productPrice = calculateTotalPrice(products);
-  // const mealsPrice = calculateTotalPrice(meals);
-  // const totalPrice = productPrice + mealsPrice;
   const handleEditItem = (itemId: string) => {
     setIsOpen(false);
     router.push(`/product/${itemId}?type=edit`);
   };
 
-  // const removeFromCart = (itemId: string) => {
-  //   NNSdk.removeItemFromCart(itemId);
-  // };
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     updateQuantity(itemId, newQuantity);
   };
@@ -164,15 +128,6 @@ export function CartPopup({
                               {(product.price * product.quantity).toFixed(2)} zł
                             </p>
                           </div>
-
-                          {/* {product.selectedSize && (
-                            <p className="text-sm text-gray-500 mt-1">
-                              Rozmiar:{" "}
-                              {product.variants.find(
-                                (v) => v.itemId === item.selectedSize
-                              )?.type || item.selectedSize}
-                            </p>
-                          )} */}
 
                           <CartProductDetails
                             product={product}
