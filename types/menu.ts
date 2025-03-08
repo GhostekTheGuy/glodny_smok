@@ -1,16 +1,14 @@
-export interface Bundle {
-  note: string;
-  price: number;
-  value: number;
-}
+// export interface Bundle {
+//   note: string;
+// }
 
 export interface IngredientDetails {
   id: string;
   name: string;
-  note: string;
   photo_url: string;
   uom: string;
-  bundles: Bundle[];
+  price: number;
+  value: number;
 }
 
 export interface IngredientSelection {
@@ -32,7 +30,6 @@ export interface CutleryOption {
   details: {
     id: string;
     name: string;
-    note: string;
     price: number;
   };
 }
@@ -46,13 +43,12 @@ export interface Variant {
 export interface CrossSaleProduct {
   id: string;
   name: string;
-  note: string;
   photoUrl: string;
   description: string;
   standalone: boolean;
   oos: boolean;
   price: number;
-  temperature: "HOT" | "COLD";
+  temperature: string;
   dietetaryAttributes: string[];
   variants?: Variant[];
   cutlerySelection?: {
@@ -69,7 +65,6 @@ export interface CrossSaleItem {
 export interface CrossSaleGroup {
   id: string;
   name: string;
-  note: string | null;
   maxCount: number;
   items: CrossSaleItem[];
 }
