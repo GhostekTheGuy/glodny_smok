@@ -12,15 +12,15 @@ import {
 } from "./types/types";
 
 export class Utils {
-  protected populateCrossSaleItems(menus: Menu[]) {
-    const crossSaleProducts = this.createProductsHashMap(menus);
+  protected populateProductsDetails(menus: Menu[]) {
+    const additionalProducts = this.createProductsHashMap(menus);
     menus.forEach((menu) => {
       menu.products?.forEach((product) => {
         product.crossSaleGroups?.forEach((csg) => {
           csg.items?.forEach((item) => {
             if (!item.item) return;
             const { itemId: id } = item?.item;
-            const product = crossSaleProducts?.get(id);
+            const product = additionalProducts?.get(id);
             if (id && product) {
               const { crossSaleGroups, categories, ...mappedProduct } = product;
 
@@ -28,6 +28,23 @@ export class Utils {
               delete item.item;
             }
           });
+        });
+
+        //TODO: Leave only neccessary fields
+        product.variants?.forEach((variant) => {
+          const product = additionalProducts?.get(variant.itemId);
+
+          if (product) {
+            Object.assign(variant, {
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              description: product.description,
+              photoUrl: product.photoUrl,
+              itemId: undefined,
+              type: undefined,
+            });
+          }
         });
       });
     });
