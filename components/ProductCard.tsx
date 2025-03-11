@@ -1,109 +1,127 @@
-"use client"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { useCart } from "@/contexts/cart-context"
-import type React from "react"
-import type { Product } from "../data/interfaces"
+"use client";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { useCart } from "@/contexts/cart-context";
+import type React from "react";
+import type { Product } from "../data/interfaces";
+import { CartItemSubItem } from "@/types/menu";
+import { NomNomSDK } from "@/jsrepo-blocks";
+import { NNSdk } from "@/lib/sdk";
 
 interface ProductCardProps {
-  product: Product
+  product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const router = useRouter()
-  const { addToCart } = useCart()
+  const router = useRouter();
+  const { addProductToCart } = useCart();
 
   const handleClick = () => {
-    document.body.style.opacity = "0"
-    document.body.style.transition = "opacity 0.5s"
+    document.body.style.opacity = "0";
+    document.body.style.transition = "opacity 0.5s";
     setTimeout(() => {
-      router.push(`/product/${product.id}`)
-    }, 500)
-  }
+      router.push(`/product/${product.id}?type=add`);
+    }, 500);
+  };
 
-  const calculateDefaultPrice = () => {
-    // Start with base price or default variant price
-    let totalPrice = product.price
-    if (product.variants && product.variants.length > 0) {
-      totalPrice = product.variants[0].price || product.price
-    }
+  // const calculateDefaultPrice = () => {
+  //   // Start with base price or default variant price
+  //   let totalPrice = product.price;
+  //   // Add default ingredient prices
+  //   if (product.ingredientSelectionGroups) {
+  //     product.ingredientSelectionGroups.forEach((group) => {
+  //       group.ingredientSelections.forEach((selection) => {
+  //         if (selection.defaultCount > 0) {
+  //           totalPrice += selection.details.price * selection.defaultCount;
+  //         }
+  //       });
+  //     });
+  //   }
 
-    // Add default ingredient prices
-    if (product.ingredientSelectionGroups) {
-      product.ingredientSelectionGroups.forEach((group) => {
-        group.ingredientSelections.forEach((selection) => {
-          if (selection.defaultCount > 0) {
-            totalPrice += selection.details.price * selection.defaultCount
-          }
-        })
-      })
-    }
+  //   // Add default cutlery prices (only for items exceeding free count)
+  //   if (product.cutlerySelection) {
+  //     product.cutlerySelection.options.forEach((option) => {
+  //       const defaultCount = option.maxFreeCount || 0;
+  //       const extraCount = Math.max(0, defaultCount - option.maxFreeCount);
+  //       if (extraCount > 0) {
+  //         totalPrice += extraCount * option.details.price;
+  //       }
+  //     });
+  //   }
 
-    // Add default cutlery prices (only for items exceeding free count)
-    if (product.cutlerySelection) {
-      product.cutlerySelection.options.forEach((option) => {
-        const defaultCount = option.maxFreeCount || 0
-        const extraCount = Math.max(0, defaultCount - option.maxFreeCount)
-        if (extraCount > 0) {
-          totalPrice += extraCount * option.details.price
-        }
-      })
-    }
-
-    return totalPrice
-  }
+  //   return totalPrice;
+  // };
 
   const getDefaultConfiguration = () => {
     // Get default variant
-    const defaultSize = product.variants && product.variants.length > 0 ? product.variants[0].itemId : ""
+    const defaultSize =
+      product.variants && product.variants.length > 0
+        ? product.variants[0].itemId
+        : "";
 
     // Get default ingredients
-    const defaultIngredients: Record<string, number> = {}
-    if (product.ingredientSelectionGroups) {
-      product.ingredientSelectionGroups.forEach((group) => {
-        group.ingredientSelections.forEach((selection) => {
-          defaultIngredients[selection.details.id] = selection.defaultCount
-        })
-      })
-    }
+    const defaultIngredients: CartItemSubItem[] = [];
+    // const defaultIngredients: Record<string, CartItemSubItem> = {};
+    product.ingredientSelection?.forEach((selection) => {
+      selection.ingredientSelections.forEach((specifiedSelection) => {
+        defaultIngredients.push({
+          id: specifiedSelection.details.id,
+          groupName: selection.name,
+          price: specifiedSelection.details.price,
+          name: specifiedSelection.details.name,
+          count: specifiedSelection.defaultCount,
+          defaultCount: specifiedSelection.defaultCount,
+        });
+      });
+    });
 
     // Get default cutlery
-    const defaultCutlery: Record<string, number> = {}
+    const defaultCutlery: CartItemSubItem[] = [];
+
     if (product.cutlerySelection) {
-      product.cutlerySelection.options.forEach((option) => {
-        defaultCutlery[option.details.id] = option.maxFreeCount
-      })
+      product.cutlerySelection.forEach((selection) => {
+        defaultCutlery.push({
+          id: selection.details.id,
+          name: selection.details.name,
+          price: selection.details.price,
+          count: selection.maxFreeCount,
+          defaultCount: selection.maxFreeCount,
+        });
+      });
     }
 
     // No cross-sale items by default
-    const defaultCrossSaleItems: Record<string, number> = {}
+    const defaultCrossSaleItems: CartItemSubItem[] = [];
 
     return {
       selectedSize: defaultSize,
       selectedIngredients: defaultIngredients,
       selectedCutlery: defaultCutlery,
       crossSaleItems: defaultCrossSaleItems,
-    }
-  }
+    };
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (!product.oos) {
-      const defaultConfig = getDefaultConfiguration()
-      const defaultPrice = calculateDefaultPrice()
+      const defaultConfig = getDefaultConfiguration();
 
-      addToCart({
-        ...product,
-        price: defaultPrice,
-        basePrice: product.price,
-        ...defaultConfig,
+      addProductToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        selectedIngredients: defaultConfig.selectedIngredients,
+        selectedCutlery: defaultConfig.selectedCutlery,
+        crossSaleItems: defaultConfig.crossSaleItems,
         quantity: 1,
-      })
+        basePrice: product.price,
+        photoUrl: product.photoUrl,
+      });
     }
-  }
+  };
 
-  const displayPrice = calculateDefaultPrice().toFixed(2)
+  const displayPrice = product.price;
 
   return (
     <motion.div
@@ -111,17 +129,19 @@ export function ProductCard({ product }: ProductCardProps) {
       className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-[420px] flex flex-col cursor-pointer relative"
       onClick={handleClick}
     >
-      {product.note && (
+      {/* {product.note && (
         <div className="absolute top-0 left-0 right-0 z-10">
           <div className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-4 py-2 rounded-t-lg font-medium text-sm flex items-center justify-center shadow-sm">
             <span className="mr-2">🌟</span>
             {product.note}
           </div>
         </div>
-      )}
+      )} */}
       {product.oos && (
         <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
-          <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-lg">Niedostępny</div>
+          <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-lg">
+            Niedostępny
+          </div>
         </div>
       )}
       <div className="flex flex-col h-full">
@@ -139,18 +159,31 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </motion.div>
         <motion.div layout className="flex flex-col flex-1">
-          <motion.h3 layout className="font-bold text-gray-900 text-lg mb-2 line-clamp-2">
+          <motion.h3
+            layout
+            className="font-bold text-gray-900 text-lg mb-2 line-clamp-2"
+          >
             {product.name}
           </motion.h3>
-          <motion.p layout className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3">
+          <motion.p
+            layout
+            className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3"
+          >
             {product.description}
           </motion.p>
-          <motion.div layout className="flex items-center justify-between gap-4 mt-auto">
-            <span className="text-lg font-bold text-gray-900">{displayPrice} zł</span>
+          <motion.div
+            layout
+            className="flex items-center justify-between gap-4 mt-auto"
+          >
+            <span className="text-lg font-bold text-gray-900">
+              {displayPrice} zł
+            </span>
             <button
               onClick={handleAddToCart}
               className={`bg-red-600 hover:bg-black text-white px-4 py-2 rounded-full text-sm transition-colors duration-300 ${
-                product.oos ? "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400" : ""
+                product.oos
+                  ? "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400"
+                  : ""
               }`}
               disabled={product.oos}
             >
@@ -160,8 +193,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </motion.div>
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default ProductCard
-
+export default ProductCard;

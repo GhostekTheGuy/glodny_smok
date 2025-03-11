@@ -1,59 +1,72 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import ProductCard from "./ProductCard"
-import { motion, AnimatePresence } from "framer-motion"
-import type { Menu, Product } from "../data/interfaces"
+import { useMemo } from "react";
+import ProductCard from "./ProductCard";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Menu, Product } from "../data/interfaces";
 
 interface ProductGridProps {
-  menu: Menu[]
-  selectedCategory: string
-  sortOrder: string
+  menu: Menu[];
+  selectedCategory: string;
+  sortOrder: string;
 }
 
-export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridProps) {
+export function ProductGrid({
+  menu,
+  selectedCategory,
+  sortOrder,
+}: ProductGridProps) {
   const filteredAndSortedProducts = useMemo(() => {
-    let result: Product[] = []
+    let result: Product[] = [];
 
     if (selectedCategory === "Wszystkie") {
-      result = menu[0].products
+      result = menu[0].products;
     } else {
       result = menu[0].products.filter((product) =>
-        product.categories.some((category) => category.name === selectedCategory),
-      )
+        product.categories?.some(
+          (category) => category.name === selectedCategory
+        )
+      );
     }
 
+    result = result.filter((product) => {
+      return product.standalone === true;
+    });
+
     // First, sort products with notes to the beginning
-    result.sort((a, b) => {
-      if (a.note && !b.note) return -1
-      if (!a.note && b.note) return 1
-      return 0
-    })
+    // result.sort((a, b) => {
+    //   if (a.note && !b.note) return -1
+    //   if (!a.note && b.note) return 1
+    //   return 0
+    // })
 
     // Then apply the user-selected sorting
     switch (sortOrder) {
       case "name-asc":
-        result.sort((a, b) => a.name.localeCompare(b.name))
-        break
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
       case "name-desc":
-        result.sort((a, b) => b.name.localeCompare(a.name))
-        break
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
       case "price-asc":
-        result.sort((a, b) => a.price - b.price)
-        break
+        result.sort((a, b) => a.price - b.price);
+        break;
       case "price-desc":
-        result.sort((a, b) => b.price - a.price)
-        break
+        result.sort((a, b) => b.price - a.price);
+        break;
       default:
         // If no specific sort order is selected, keep the notes-first sorting
-        break
+        break;
     }
 
-    return result
-  }, [menu, selectedCategory, sortOrder])
+    return result;
+  }, [menu, selectedCategory, sortOrder]);
 
   // Calculate minimum grid height based on the number of products
-  const minGridHeight = Math.max(Math.ceil(filteredAndSortedProducts.length / 4) * 440, 880)
+  const minGridHeight = Math.max(
+    Math.ceil(filteredAndSortedProducts.length / 4) * 440,
+    880
+  );
 
   return (
     <motion.div
@@ -77,8 +90,7 @@ export function ProductGrid({ menu, selectedCategory, sortOrder }: ProductGridPr
         ))}
       </AnimatePresence>
     </motion.div>
-  )
+  );
 }
 
-export default ProductGrid
-
+export default ProductGrid;
