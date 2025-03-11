@@ -16,9 +16,7 @@ interface VariantModalProps {
 
 export function VariantModal({ isOpen, onClose, product, onVariantSelect }: VariantModalProps) {
   const { addProductToCart } = useCart()
-  // Remove the useState for hoveredVariant:
-  // const [hoveredVariant, setHoveredVariant] = useState<string | null>(null)
-
+  
   const handleVariantSelect = (variant: any) => {
     onVariantSelect(variant)
     addProductToCart({
@@ -39,12 +37,9 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden bg-white rounded-xl">
         <div className="relative">
-          {/* Background header image with overlay */}
-          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-red-600/90 to-red-700/80 overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-red-600 to-red-700 overflow-hidden">
             <div className="absolute inset-0 bg-[url('/placeholder.svg?height=200&width=900')] bg-cover bg-center opacity-20 mix-blend-overlay" />
           </div>
-
-          {/* Close button */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-colors"
@@ -74,9 +69,6 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
                   transition={{ duration: 0.2 }}
                   className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col cursor-pointer relative group"
                   onClick={() => handleVariantSelect(variant)}
-                  // Remove the onMouseEnter and onMouseLeave handlers from the variant card div:
-                  // onMouseEnter={() => setHoveredVariant(variant.itemId)}
-                  // onMouseLeave={() => setHoveredVariant(null)}
                 >
                   <div className="flex flex-col h-full">
                     <div className="relative w-full h-52 overflow-hidden">
@@ -101,7 +93,6 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
                       <div className="flex items-center justify-between gap-4 mt-auto pt-3 border-t border-gray-100">
                         <span className="text-xl font-bold text-gray-900">{variant.price} zł</span>
 
-                        {/* Update the button to use group-hover instead of the hoveredVariant state: */}
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-gray-100 text-gray-800 group-hover:bg-red-600 group-hover:text-white"
