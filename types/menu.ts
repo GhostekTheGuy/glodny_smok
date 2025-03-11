@@ -5,7 +5,7 @@
 export interface IngredientDetails {
   id: string;
   name: string;
-  photo_url: string;
+  photoUrl: string;
   uom: string;
   price: number;
   value: number;
@@ -23,6 +23,12 @@ export interface IngredientSelectionGroup {
   maxCount: number;
   partable: boolean;
 }
+export type PackagingSelectionOption = {
+  packagingId: string;
+  maxCount: number;
+  maxFreeCount: number;
+  isDefault: boolean;
+};
 
 export interface CutleryOption {
   maxCount: number;
@@ -37,7 +43,6 @@ export interface CutleryOption {
 export interface Variant {
   itemId: string;
   type: string;
-  price: number;
 }
 
 export interface CrossSaleProduct {
@@ -75,9 +80,43 @@ export interface Category {
   note: string;
 }
 
-export interface Product extends CrossSaleProduct {
+export type CutleryDetails = {
+  id: string;
+  name: string;
+  note: string;
+  price: number;
+};
+
+export type CutlerySelectionOption = {
+  maxCount: number;
+  maxFreeCount: number;
+  details: CutleryDetails;
+  isDefault: boolean;
+};
+
+export type IngredientSelectionOption = {
+  ingredientSelections: IngredientSelection[];
+  maxCount: number;
+  name: string;
+  partable: boolean;
+};
+export interface Product {
+  id: string;
+  name: string;
+  note: string;
+  photoUrl: string;
+  description: string;
+  standalone: boolean;
+  oos: boolean;
+  price: number;
+  temperature: string;
+  dietetaryAttributes: string[];
+  variants: Variant[];
+  cutlerySelection: CutlerySelectionOption[];
+  ingredientSelection: IngredientSelectionOption[];
+  packagingSelection: PackagingSelectionOption[];
+  crossSaleGroups: CrossSaleGroup[];
   categories: Category[];
-  crossSaleGroups?: CrossSaleGroup[];
 }
 
 export interface MenuHours {

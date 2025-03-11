@@ -23,11 +23,15 @@ export function ProductGrid({
       result = menu[0].products;
     } else {
       result = menu[0].products.filter((product) =>
-        product.categories.some(
+        product.categories?.some(
           (category) => category.name === selectedCategory
         )
       );
     }
+
+    result = result.filter((product) => {
+      return product.standalone === true;
+    });
 
     // First, sort products with notes to the beginning
     // result.sort((a, b) => {

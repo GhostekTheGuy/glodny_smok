@@ -63,32 +63,30 @@ export function ProductCard({ product }: ProductCardProps) {
     // Get default ingredients
     const defaultIngredients: CartItemSubItem[] = [];
     // const defaultIngredients: Record<string, CartItemSubItem> = {};
-    if (product.ingredientSelectionGroups) {
-      product.ingredientSelectionGroups.forEach((group) => {
-        group.ingredientSelections.forEach((selection) => {
-          defaultIngredients.push({
-            id: selection.details.id,
-            groupName: group.name,
-            price: selection.details.price,
-            name: selection.details.name,
-            count: selection.defaultCount,
-            defaultCount: selection.defaultCount,
-          });
+    product.ingredientSelection?.forEach((selection) => {
+      selection.ingredientSelections.forEach((specifiedSelection) => {
+        defaultIngredients.push({
+          id: specifiedSelection.details.id,
+          groupName: selection.name,
+          price: specifiedSelection.details.price,
+          name: specifiedSelection.details.name,
+          count: specifiedSelection.defaultCount,
+          defaultCount: specifiedSelection.defaultCount,
         });
       });
-    }
+    });
 
     // Get default cutlery
     const defaultCutlery: CartItemSubItem[] = [];
 
     if (product.cutlerySelection) {
-      product.cutlerySelection.options.forEach((option) => {
+      product.cutlerySelection.forEach((selection) => {
         defaultCutlery.push({
-          id: option.details.id,
-          name: option.details.name,
-          price: option.details.price,
-          count: option.maxFreeCount,
-          defaultCount: option.maxFreeCount,
+          id: selection.details.id,
+          name: selection.details.name,
+          price: selection.details.price,
+          count: selection.maxFreeCount,
+          defaultCount: selection.maxFreeCount,
         });
       });
     }
@@ -123,7 +121,7 @@ export function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  const displayPrice = product.price.toFixed(2);
+  const displayPrice = product.price;
 
   return (
     <motion.div

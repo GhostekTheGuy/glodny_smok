@@ -6,11 +6,11 @@
 export type IngredientDetails = {
   id: string;
   name: string;
-  note: string;
   photoUrl: string;
   uom: string;
   price: number;
   value: number;
+  ingredientId: string;
 };
 
 // Ingredient selection
@@ -21,7 +21,7 @@ export type IngredientSelection = {
 };
 
 // Ingredient selection group
-export type IngredientSelectionGroup = {
+export type IngredientSelectionOption = {
   ingredientSelections: IngredientSelection[];
   maxCount: number;
   name: string;
@@ -41,7 +41,6 @@ export type CrossSaleItem = {
 export type CrossSaleGroup = {
   id: string;
   name: string | null;
-  note: string | null;
   maxCount: number;
   items: CrossSaleItem[];
 };
@@ -50,20 +49,15 @@ export type CrossSaleGroup = {
 export type CutleryDetails = {
   id: string;
   name: string;
-  note: string;
   price: number;
 };
 
 // Cutlery option
-export type CutleryOption = {
+export type CutlerySelectionOption = {
   maxCount: number;
   maxFreeCount: number;
   details: CutleryDetails;
-};
-
-// Cutlery selection
-export type CutlerySelection = {
-  options: CutleryOption[];
+  isDefault: boolean;
 };
 
 // Product variant
@@ -71,12 +65,17 @@ export type Variant = {
   itemId: string;
   type: string;
 };
-
+//Packaging selection
+export type PackagingSelectionOption = {
+  packagingId: string;
+  maxCount: number;
+  maxFreeCount: number;
+  isDefault: boolean;
+};
 // Product
 export type Product = {
   id: string;
   name: string;
-  note: string;
   photoUrl: string;
   description: string;
   standalone: boolean;
@@ -85,8 +84,9 @@ export type Product = {
   temperature: string;
   dietetaryAttributes: string[];
   variants: Variant[];
-  cutlerySelection: CutlerySelection;
-  ingredientSelectionGroups: IngredientSelectionGroup[];
+  cutlerySelection: CutlerySelectionOption[];
+  ingredientSelection: IngredientSelectionOption[];
+  packagingSelection: PackagingSelectionOption[];
   crossSaleGroups: CrossSaleGroup[];
   categories: Category[];
 };
@@ -95,7 +95,6 @@ export type Product = {
 export type Category = {
   id: string;
   name: string;
-  note: string | null;
 };
 
 // Hours
@@ -116,7 +115,6 @@ export type Hours = {
 export type Menu = {
   id: string;
   name: string;
-  note: string;
   hours: Hours[];
   products: Product[];
 };

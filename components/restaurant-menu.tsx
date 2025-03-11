@@ -1,30 +1,36 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { MenuHeader } from "./MenuHeader"
-import { ProductGrid } from "./ProductGrid"
-import menu from "../data/scheme"
-import { CategoryDisplay } from "./CategoryDisplay"
-import { motion, useAnimation, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { ShoppingCart } from "lucide-react"
-import { useCart } from "@/contexts/cart-context"
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { MenuHeader } from "./MenuHeader";
+import { ProductGrid } from "./ProductGrid";
+import { menu } from "@/data/menu-data";
+import { CategoryDisplay } from "./CategoryDisplay";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/cart-context";
 
 export default function RestaurantMenu() {
-  const [selectedCategory, setSelectedCategory] = useState("Wszystkie")
-  const [sortOrder, setSortOrder] = useState("default")
-  const [showScrollIndicator, setShowScrollIndicator] = useState(true)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const controls = useAnimation()
-  const { totalItems } = useCart()
-  const router = useRouter()
+  const [selectedCategory, setSelectedCategory] = useState("Wszystkie");
+  const [sortOrder, setSortOrder] = useState("default");
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const controls = useAnimation();
+  const { totalItems } = useCart();
+  const router = useRouter();
 
   const categories = [
     "Wszystkie",
-    ...new Set(menu[0].products.flatMap((product) => product.categories.map((category) => category.name))),
-  ]
+    ...Array.from(
+      new Set(
+        menu[0].products.flatMap((product) =>
+          product.categories?.map((category) => category.name)
+        )
+      )
+    ),
+  ];
 
   useEffect(() => {
     const animateArrow = async () => {
@@ -37,33 +43,33 @@ export default function RestaurantMenu() {
           repeat: Number.POSITIVE_INFINITY,
           repeatDelay: 1,
         },
-      })
-    }
-    animateArrow()
+      });
+    };
+    animateArrow();
 
     const handleScroll = () => {
       if (scrollContainerRef.current) {
         if (scrollContainerRef.current.scrollLeft > 0) {
-          setShowScrollIndicator(false)
+          setShowScrollIndicator(false);
         }
       }
-    }
+    };
 
-    const scrollContainer = scrollContainerRef.current
+    const scrollContainer = scrollContainerRef.current;
     if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll)
+      scrollContainer.addEventListener("scroll", handleScroll);
     }
 
     return () => {
       if (scrollContainer) {
-        scrollContainer.removeEventListener("scroll", handleScroll)
+        scrollContainer.removeEventListener("scroll", handleScroll);
       }
-    }
-  }, [controls])
+    };
+  }, [controls]);
 
   const handleCartClick = () => {
-    router.push("/cart")
-  }
+    router.push("/cart");
+  };
 
   return (
     <div id="menu" ref={menuRef} className="relative bg-white pt-16">
@@ -73,7 +79,10 @@ export default function RestaurantMenu() {
 
         {/* Mobile Categories (with scroll) */}
         <div className="relative mb-6 md:hidden">
-          <div ref={scrollContainerRef} className="overflow-x-auto scrollbar-hide scroll-smooth">
+          <div
+            ref={scrollContainerRef}
+            className="overflow-x-auto scrollbar-hide scroll-smooth"
+          >
             <div className="flex space-x-2 py-4">
               {categories.map((category) => (
                 <button
@@ -100,7 +109,9 @@ export default function RestaurantMenu() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <span className="text-red-600 text-sm">Przesuń, aby wybrać kategorię</span>
+                <span className="text-red-600 text-sm">
+                  Przesuń, aby wybrać kategorię
+                </span>
                 <motion.svg
                   width="40"
                   height="12"
@@ -110,7 +121,11 @@ export default function RestaurantMenu() {
                   animate={controls}
                   initial={{ x: 0 }}
                 >
-                  <path d="M0 6H38M38 6L33 1M38 6L33 11" stroke="#E83419" strokeWidth="2" />
+                  <path
+                    d="M0 6H38M38 6L33 1M38 6L33 11"
+                    stroke="#E83419"
+                    strokeWidth="2"
+                  />
                 </motion.svg>
               </motion.div>
             )}
@@ -134,7 +149,11 @@ export default function RestaurantMenu() {
           ))}
         </div>
 
-        <ProductGrid menu={menu} selectedCategory={selectedCategory} sortOrder={sortOrder} />
+        <ProductGrid
+          menu={menu}
+          selectedCategory={selectedCategory}
+          sortOrder={sortOrder}
+        />
 
         {/* Cart Button */}
         <AnimatePresence>
@@ -166,6 +185,5 @@ export default function RestaurantMenu() {
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }
-

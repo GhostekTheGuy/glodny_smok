@@ -1,4 +1,3 @@
-import { localMenuData } from "@/data/menu-data";
 import { NomNomSDK } from "@/jsrepo-blocks";
 
 const API_URL = "https://nomnom-backend-dbsv.onrender.com/api";

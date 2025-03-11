@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/cart-context";
-import menu from "@/data/scheme";
+import { menu } from "@/data/menu-data";
 import {
   motion,
   AnimatePresence,
@@ -34,6 +34,7 @@ import {
   IngredientSelection,
 } from "@/types/menu";
 import { NNSdk } from "@/lib/sdk";
+import { Product } from "@/data/interfaces";
 
 interface SelectedBundle {
   ingredientId: string;
@@ -43,7 +44,6 @@ interface SelectedBundle {
 function AnimatedPrice({ price }: { price: number }) {
   const count = useMotionValue(0);
   const rounded = useTransform(count, (latest) => latest.toFixed(2));
-
   useEffect(() => {
     const animation = animate(count, price, {
       duration: 0.3,
@@ -95,7 +95,7 @@ export default function ProductPage() {
     });
     return product;
   }
-  const product = isEditing
+  const product: Product = isEditing
     ? findProductById(dataToEdit?.productId)
     : findProductById(params.id as string);
   useEffect(() => {
@@ -109,15 +109,15 @@ export default function ProductPage() {
     }
 
     // Initialize ingredient selections with default counts
-    if (product.ingredientSelectionGroups) {
+    if (product.ingredientSelection) {
       const initialIngredients: Record<string, CartItemSubItem> = {};
-      product.ingredientSelectionGroups.forEach((group) => {
-        group.ingredientSelections.forEach((selection) => {
-          initialIngredients[selection.details.id] = {
-            count: selection.defaultCount,
-            id: selection.details.id,
-            name: selection.details.name,
-            price: selection.details.price,
+      product.ingredientSelection.forEach((selection) => {
+        selection.ingredientSelections.forEach((specifiedSelection) => {
+          initialIngredients[specifiedSelection.details.id] = {
+            count: specifiedSelection.defaultCount,
+            id: specifiedSelection.details.id,
+            name: specifiedSelection.details.name,
+            price: specifiedSelection.details.price,
           };
         });
       });
@@ -135,7 +135,8 @@ export default function ProductPage() {
     // Initialize cutlery with default free counts
     if (product.cutlerySelection) {
       const initialCutlery: Record<string, CartItemSubItem> = {};
-      product.cutlerySelection.options.forEach((option) => {
+      product.cutlerySelection.forEach((option) => {
+        console.log(option);
         initialCutlery[option.details.id] = {
           count: option.maxFreeCount,
           id: option.details.id,
@@ -143,6 +144,7 @@ export default function ProductPage() {
           price: option.details.price,
         };
       });
+
       if (isEditing && dataToEdit) {
         dataToEdit.selectedCutlery.forEach((cutlery) => {
           initialCutlery[cutlery.id] = {
@@ -230,7 +232,7 @@ export default function ProductPage() {
     }));
   };
 
-  const calculateTotalPrice = () => {
+  const calculateTotalPrice = (): number => {
     // Get the original product from menu data
     if (!product) return 0;
 
@@ -246,8 +248,8 @@ export default function ProductPage() {
     // }
 
     // Add ingredient prices
-    if (product.ingredientSelectionGroups) {
-      product.ingredientSelectionGroups.forEach((group) => {
+    if (product.ingredientSelection) {
+      product.ingredientSelection.forEach((group) => {
         group.ingredientSelections.forEach((selection) => {
           const count = selectedIngredients[selection.details.id].count || 0;
           if (count > selection.defaultCount)
@@ -258,7 +260,7 @@ export default function ProductPage() {
 
     // Add cutlery prices (only for items exceeding free count)
     if (product.cutlerySelection) {
-      product.cutlerySelection.options.forEach((option) => {
+      product.cutlerySelection.forEach((option) => {
         const count = selectedCutlery[option.details.id].count || 0;
         const extraCount = Math.max(0, count - option.maxFreeCount);
         if (extraCount > 0) {
@@ -278,7 +280,6 @@ export default function ProductPage() {
         });
       });
     }
-
     return total;
   };
 
@@ -388,8 +389,8 @@ export default function ProductPage() {
                 )} */}
 
                 {/* All Ingredients in one accordion */}
-                {product.ingredientSelectionGroups &&
-                  product.ingredientSelectionGroups.length > 0 && (
+                {product.ingredientSelection &&
+                  product.ingredientSelection.length > 0 && (
                     <AccordionItem
                       value="ingredients"
                       className="border border-gray-100 rounded-lg bg-gray-50/50"
@@ -399,7 +400,7 @@ export default function ProductPage() {
                       </AccordionTrigger>
                       <AccordionContent className="px-4">
                         <div className="space-y-6">
-                          {product.ingredientSelectionGroups.map(
+                          {product.ingredientSelection.map(
                             (group, groupIndex) => (
                               <div key={groupIndex} className="space-y-4">
                                 <div className="border-b pb-2 text-gray-800 text-base">
@@ -416,8 +417,7 @@ export default function ProductPage() {
                                           {selection.details.name}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                          {selection.details.price.toFixed(2)}{" "}
-                                          zł za porcję
+                                          {selection.details.price} zł za porcję
                                         </p>
                                       </div>
                                       <div className="flex items-center gap-2">
@@ -492,73 +492,68 @@ export default function ProductPage() {
                     </AccordionTrigger>
                     <AccordionContent className="px-4">
                       <div className="space-y-4">
-                        {product.cutlerySelection.options.map(
-                          (option, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
-                            >
-                              <div className="flex-1">
-                                <p className="font-medium">
-                                  {option.details.name}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {option.maxFreeCount > 0 &&
-                                    `${option.maxFreeCount} szt. gratis, `}
-                                  {option.details.price > 0 &&
-                                    `${option.details.price.toFixed(
-                                      2
-                                    )} zł za dodatkową sztukę`}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleCutleryChange(
-                                      option,
-                                      (selectedCutlery[option.details.id]
-                                        .count || 0) - 1
-                                    )
-                                  }
-                                  disabled={
-                                    (selectedCutlery[option.details.id].count ||
-                                      0) <= 0
-                                  }
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="w-8 text-center">
-                                  {selectedCutlery[option.details.id].count ||
-                                    0}
-                                  {option.maxFreeCount > 0 && (
-                                    <span className="text-xs text-gray-500 block">
-                                      ({option.maxFreeCount})
-                                    </span>
-                                  )}
-                                </span>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleCutleryChange(
-                                      option,
-                                      (selectedCutlery[option.details.id]
-                                        .count || 0) + 1
-                                    )
-                                  }
-                                  disabled={
-                                    (selectedCutlery[option.details.id].count ||
-                                      0) >= option.maxCount
-                                  }
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
+                        {product.cutlerySelection.map((option, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 hover:bg-white rounded-md transition-colors"
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium">
+                                {option.details.name}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {option.maxFreeCount > 0 &&
+                                  `${option.maxFreeCount} szt. gratis, `}
+                                {option.details.price > 0 &&
+                                  `${option.details.price} zł za dodatkową sztukę`}
+                              </p>
                             </div>
-                          )
-                        )}
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleCutleryChange(
+                                    option,
+                                    (selectedCutlery[option.details.id].count ||
+                                      0) - 1
+                                  )
+                                }
+                                disabled={
+                                  (selectedCutlery[option.details.id].count ||
+                                    0) <= 0
+                                }
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="w-8 text-center">
+                                {selectedCutlery[option.details.id].count || 0}
+                                {option.maxFreeCount > 0 && (
+                                  <span className="text-xs text-gray-500 block">
+                                    ({option.maxFreeCount})
+                                  </span>
+                                )}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleCutleryChange(
+                                    option,
+                                    (selectedCutlery[option.details.id].count ||
+                                      0) + 1
+                                  )
+                                }
+                                disabled={
+                                  (selectedCutlery[option.details.id].count ||
+                                    0) >= option.maxCount
+                                }
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -590,8 +585,7 @@ export default function ProductPage() {
                                     <p className="font-medium">{item.name}</p>
                                     <p className="text-sm text-gray-500">
                                       {item.description}
-                                      {item.price > 0 &&
-                                        ` - ${item.price.toFixed(2)} zł`}
+                                      {item.price > 0 && ` - ${item.price} zł`}
                                     </p>
                                   </div>
                                   <div className="flex items-center gap-2">
