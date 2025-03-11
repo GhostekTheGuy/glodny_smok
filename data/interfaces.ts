@@ -44,7 +44,8 @@ export interface CutlerySelection {
 
 export interface Variant {
   itemId: string;
-  type: string;
+  name: string;
+  price: number;
 }
 
 export interface CrossSaleItem {
@@ -95,7 +96,7 @@ export interface Product {
   price: number;
   temperature: string;
   dietetaryAttributes: string[];
-  variants: Variant[];
+  variants?: Variant[];
   cutlerySelection: CutlerySelectionOption[];
   ingredientSelection: IngredientSelectionOption[];
   packagingSelection: PackagingSelectionOption[];
