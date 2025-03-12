@@ -25,7 +25,7 @@ export default function RestaurantMenu() {
     "Wszystkie",
     ...Array.from(
       new Set(
-        menu[0].products?.flatMap((product) =>
+        menu[0]?.products?.flatMap((product) =>
           product.categories?.map((category) => category.name)
         )
       )
