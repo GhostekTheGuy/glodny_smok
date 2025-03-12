@@ -61,7 +61,7 @@ export class NomNomSDK extends Utils {
   async getCurrentMenus(restaurandId: string): Promise<PopulatedMenu[]> {
     try {
       const response: AxiosResponse<MenuResponse> = await this.client.get(
-        `/menus/current?store=${restaurandId}`,
+        `/menus/current?store=${restaurandId}`
       );
       this.fetchedMenus = this.populateProductsDetails(response.data.menus);
       this.productsMap = this.createProductsHashMap(this.fetchedMenus);
@@ -102,7 +102,7 @@ export class NomNomSDK extends Utils {
     if (!storedData) return;
 
     const existingItemIndex = storedData.items.findIndex((item) =>
-      this.areProductsEqual(item, cartProduct),
+      this.areProductsEqual(item, cartProduct)
     );
 
     if (existingItemIndex > -1) {
@@ -145,7 +145,7 @@ export class NomNomSDK extends Utils {
     if (!storedData) return;
 
     const itemIndex = storedData.items.findIndex(
-      (item: CartItem) => item.cartItemId === cartItemId,
+      (item: CartItem) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
@@ -180,7 +180,7 @@ export class NomNomSDK extends Utils {
     if (!storedData) return;
 
     storedData.items = storedData.items.filter(
-      (item: CartProduct) => item.cartItemId !== cartItemId,
+      (item: CartProduct) => item.cartItemId !== cartItemId
     );
 
     storedData.timestamp = new Date().toISOString();
@@ -215,7 +215,7 @@ export class NomNomSDK extends Utils {
   getProductsFromCart() {
     const items = this.getItemsFromCart();
     return items.filter(
-      (item) => item.type === ItemType.PRODUCT,
+      (item) => item.type === ItemType.PRODUCT
     ) as CartProduct[];
   }
 
@@ -249,7 +249,7 @@ export class NomNomSDK extends Utils {
     if (!storedData) return;
 
     const itemIndex = storedData.items.findIndex(
-      (item: CartProduct) => item.cartItemId === cartItemId,
+      (item: CartProduct) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
@@ -274,7 +274,7 @@ export class NomNomSDK extends Utils {
       if (cartItem.type == ItemType.PRODUCT) {
         //meals[0] is hardcoded index of meals that contains standalone produuctss
         requestData.meals[0].products.push(
-          this.transformCartProduct(cartItem as CartProduct),
+          this.transformCartProduct(cartItem as CartProduct)
         );
       }
     });

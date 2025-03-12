@@ -89,7 +89,6 @@ export default function ProductPage() {
   }
   function findProductById(productId: string) {
     var product = null;
-    console.log(menu);
     menu.forEach((menu) => {
       product = menu.products.find((p) => p.id === productId);
       if (product) return;
@@ -592,6 +591,7 @@ export default function ProductPage() {
                                       variant="outline"
                                       onClick={() =>
                                         handleCrossSaleChange(
+                                          //@ts-expect-error
                                           item,
                                           (selectedCrossSaleItems[item.id]
                                             .count || 0) - 1,
@@ -614,6 +614,7 @@ export default function ProductPage() {
                                       variant="outline"
                                       onClick={() =>
                                         handleCrossSaleChange(
+                                          //@ts-expect-error
                                           item,
                                           (selectedCrossSaleItems[item.id]
                                             .count || 0) + 1,

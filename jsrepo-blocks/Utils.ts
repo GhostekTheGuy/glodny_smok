@@ -51,10 +51,11 @@ export class Utils {
       });
     });
 
+    //@ts-ignore
     return menus as PopulatedMenu[];
   }
   protected createProductsHashMap<
-    T extends UnpopulatedProduct | PopulatedProduct,
+    T extends UnpopulatedProduct | PopulatedProduct
   >(menus: { products?: T[] }[]): Map<string, T> {
     const hashMap = new Map<string, T>();
 
@@ -69,7 +70,7 @@ export class Utils {
 
   protected areProductsEqual(
     firstProduct: CartProduct,
-    secondProduct: CartProduct,
+    secondProduct: CartProduct
   ) {
     return (
       firstProduct.productId === secondProduct.productId &&
@@ -87,22 +88,22 @@ export class Utils {
       id: cartProduct.productId,
       ingredientsGroups: this.groupItems(
         cartProduct.selectedIngredients,
-        OrderRequestGroupKey.Ingredients,
+        OrderRequestGroupKey.Ingredients
       ),
       cutleryGroups: this.groupItems(
         cartProduct.selectedCutlery,
-        OrderRequestGroupKey.Cutlery,
+        OrderRequestGroupKey.Cutlery
       ),
       crossSaleGroups: this.groupItems(
         cartProduct.crossSaleItems,
-        OrderRequestGroupKey.Products,
+        OrderRequestGroupKey.Products
       ),
     };
   }
 
   private groupItems<T extends CartItemSubItem>(
     items: T[] | undefined,
-    key: OrderRequestGroupKey,
+    key: OrderRequestGroupKey
   ) {
     if (!items || items.length === 0) return [];
 

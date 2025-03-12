@@ -76,7 +76,6 @@ export default function RestaurantMenu() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <MenuHeader />
         <CategoryDisplay category={selectedCategory} />
-
         {/* Mobile Categories (with scroll) */}
         <div className="relative mb-6 md:hidden">
           <div
@@ -131,7 +130,6 @@ export default function RestaurantMenu() {
             )}
           </AnimatePresence>
         </div>
-
         {/* Desktop Categories (grid) */}
         <div className="hidden md:grid grid-cols-4 lg:grid-cols-6 gap-2 mb-6">
           {categories.map((category) => (
@@ -148,13 +146,12 @@ export default function RestaurantMenu() {
             </button>
           ))}
         </div>
-
         <ProductGrid
+          //@ts-ignore
           menu={menu}
           selectedCategory={selectedCategory}
           sortOrder={sortOrder}
         />
-
         {/* Cart Button */}
         <AnimatePresence>
           {totalItems > 0 && (
