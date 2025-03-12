@@ -41,8 +41,11 @@ export interface CutleryOption {
 }
 
 export interface Variant {
-  itemId: string;
-  type: string;
+  id: string;
+  name: string;
+  photoUrl: string;
+  description: string;
+  price: number;
 }
 
 export interface CrossSaleProduct {
@@ -56,10 +59,8 @@ export interface CrossSaleProduct {
   temperature: string;
   dietetaryAttributes: string[];
   variants?: Variant[];
-  cutlerySelection?: {
-    options: CutleryOption[];
-  };
-  ingredientSelectionGroups?: IngredientSelectionGroup[];
+  cutlerySelection: CutlerySelectionOption[];
+  ingredientSelection?: IngredientSelectionOption[];
 }
 
 export interface CrossSaleItem {

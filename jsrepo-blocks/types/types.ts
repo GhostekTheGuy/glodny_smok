@@ -1,7 +1,3 @@
-/*
-	Installed from github/BarSwi/NomNomFrontSDK
-*/
-
 // Ingredient details
 export type IngredientDetails = {
   id: string;
@@ -29,6 +25,18 @@ export type IngredientSelectionOption = {
 };
 
 // Cross-sale item
+export type UnpopulatedCrossSaleItem = {
+  item: {
+    itemId: string;
+    type: string;
+  };
+  price: number;
+};
+export type PopulatedCrossSaleItem = {
+  item: CrossSaleProduct;
+  price: number;
+};
+
 export type CrossSaleItem = {
   item: {
     itemId: string;
@@ -38,32 +46,51 @@ export type CrossSaleItem = {
 };
 
 // Cross-sale group
-export type CrossSaleGroup = {
+export interface CrossSaleGroup {
   id: string;
   name: string | null;
   maxCount: number;
-  items: CrossSaleItem[];
-};
+}
+export interface UnpopulatedCrossSaleGroup extends CrossSaleGroup {
+  items: UnpopulatedCrossSaleItem[];
+}
+export interface PopulatedCrossSaleGroup extends CrossSaleGroup {
+  items: PopulatedCrossSaleItem[];
+}
 
-// Cutlery details
-export type CutleryDetails = {
-  id: string;
-  name: string;
-  price: number;
-};
+export interface CutleryOption {
+  maxCount: number;
+  maxFreeCount: number;
+  details: {
+    id: string;
+    name: string;
+    price: number;
+  };
+}
 
 // Cutlery option
 export type CutlerySelectionOption = {
   maxCount: number;
   maxFreeCount: number;
-  details: CutleryDetails;
-  isDefault: boolean;
+  details: {
+    id: string;
+    name: string;
+    price: number;
+  };
 };
 
 // Product variant
-export type Variant = {
+export type UnpopulatedVariant = {
   itemId: string;
   type: string;
+};
+
+export type PopulatedVariant = {
+  id: string;
+  name: string;
+  photoUrl: string;
+  description: string;
+  price: number;
 };
 //Packaging selection
 export type PackagingSelectionOption = {
@@ -73,7 +100,7 @@ export type PackagingSelectionOption = {
   isDefault: boolean;
 };
 // Product
-export type Product = {
+interface Product {
   id: string;
   name: string;
   photoUrl: string;
@@ -83,14 +110,35 @@ export type Product = {
   price: number;
   temperature: string;
   dietetaryAttributes: string[];
-  variants: Variant[];
+  categories: Category[];
   cutlerySelection: CutlerySelectionOption[];
   ingredientSelection: IngredientSelectionOption[];
   packagingSelection: PackagingSelectionOption[];
-  crossSaleGroups: CrossSaleGroup[];
-  categories: Category[];
-};
+}
 
+type CrossSaleProduct = {
+  id: string;
+  name: string;
+  photoUrl: string;
+  description: string;
+  standalone: boolean;
+  oos: boolean;
+  price: number;
+  temperature: string;
+  dietetaryAttributes: string[];
+  variants?: UnpopulatedVariant[];
+  cutlerySelection: CutlerySelectionOption[];
+  ingredientSelection?: IngredientSelectionOption[];
+};
+export interface UnpopulatedProduct extends Product {
+  variants: UnpopulatedVariant[];
+  crossSaleGroups: UnpopulatedCrossSaleGroup[];
+}
+
+export interface PopulatedProduct extends Product {
+  variants: PopulatedVariant[];
+  crossSaleGroups: PopulatedCrossSaleGroup[];
+}
 // Category
 export type Category = {
   id: string;
@@ -112,16 +160,29 @@ export type Hours = {
 };
 
 // Menu
-export type Menu = {
+export interface Menu {
   id: string;
   name: string;
   hours: Hours[];
   products: Product[];
-};
+}
+export interface PopulatedMenu {
+  id: string;
+  name: string;
+  hours: Hours[];
+  products: PopulatedProduct[];
+}
+
+export interface UnpopulatedMenu {
+  id: string;
+  name: string;
+  hours: Hours[];
+  products: UnpopulatedProduct[];
+}
 
 // Root structure
 export type MenuResponse = {
-  menus: Menu[];
+  menus: UnpopulatedMenu[];
 };
 //TODO: Change CartItem structure into CartProduct. CartMeal should be a combination of CartProducts?
 export interface CartItem {

@@ -11,12 +11,16 @@ import {
   CartStorage,
   Menu,
   MenuResponse,
+  PopulatedMenu,
+  PopulatedProduct,
+  UnpopulatedMenu,
 } from "./types/types";
 import { ItemType } from "./types/enums";
 
 export class NomNomSDK extends Utils {
   private client: AxiosInstance;
-  private fetchedMenus: Menu[];
+  private fetchedMenus: PopulatedMenu[];
+  private productsMap: Map<string, PopulatedProduct>;
   private localStorageKey: string = "currentCart";
   constructor(baseURL: string = "http://localhost:8000/api") {
     super();
@@ -54,12 +58,13 @@ export class NomNomSDK extends Utils {
    *     console.error("Error fetching current menus:", error);
    *   });
    */
-  async getCurrentMenus(restaurandId: string): Promise<Menu[]> {
+  async getCurrentMenus(restaurandId: string): Promise<PopulatedMenu[]> {
     try {
       const response: AxiosResponse<MenuResponse> = await this.client.get(
         `/menus/current?store=${restaurandId}`,
       );
       this.fetchedMenus = this.populateProductsDetails(response.data.menus);
+      this.productsMap = this.createProductsHashMap(this.fetchedMenus);
       return this.fetchedMenus;
     } catch (error) {
       this.handleError(error);
@@ -273,6 +278,10 @@ export class NomNomSDK extends Utils {
         );
       }
     });
+  }
+
+  getProductById(productId: string) {
+    return this.productsMap.get(productId);
   }
 
   /**

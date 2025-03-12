@@ -1,26 +1,36 @@
-"use client"
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import type { Product } from "@/data/interfaces"
-import { useCart } from "@/contexts/cart-context"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { X } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { Product } from "@/data/interfaces";
+import { useCart } from "@/contexts/cart-context";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 interface VariantModalProps {
-  isOpen: boolean
-  onClose: () => void
-  product: Product
-  onVariantSelect: (variant: any) => void
+  isOpen: boolean;
+  onClose: () => void;
+  product: Product;
+  onVariantSelect: (variant: any) => void;
 }
 
-export function VariantModal({ isOpen, onClose, product, onVariantSelect }: VariantModalProps) {
-  const { addProductToCart } = useCart()
-  
+export function VariantModal({
+  isOpen,
+  onClose,
+  product,
+  onVariantSelect,
+}: VariantModalProps) {
+  const { addProductToCart } = useCart();
+
   const handleVariantSelect = (variant: any) => {
-    onVariantSelect(variant)
-    onClose()
-  }
+    onVariantSelect(variant);
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -39,7 +49,7 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
 
           <DialogHeader className="relative z-[1] pt-10 px-6 pb-6">
             <DialogTitle className="text-3xl font-bold text-center text-white drop-shadow-sm">
-              Wybierz wariant {product.name}
+              Wybierz wariant produktu {product.name}
             </DialogTitle>
           </DialogHeader>
         </div>
@@ -49,7 +59,7 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
             <AnimatePresence>
               {product.variants?.map((variant) => (
                 <motion.div
-                  key={variant.itemId}
+                  key={variant.id}
                   layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -62,7 +72,10 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
                   <div className="flex flex-col h-full">
                     <div className="relative w-full h-52 overflow-hidden">
                       <Image
-                        src={product.photoUrl || "/placeholder.svg?height=300&width=400"}
+                        src={
+                          product.photoUrl ||
+                          "/placeholder.svg?height=300&width=400"
+                        }
                         alt={`${product.name} - ${variant.name}`}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -77,17 +90,21 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
                         {variant.name}
                       </h3>
 
-                      <p className="text-sm text-gray-600 mb-4 flex-1 line-clamp-3">{product.description}</p>
+                      <p className="text-sm text-gray-600 mb-4 flex-1 line-clamp-3">
+                        {product.description}
+                      </p>
 
                       <div className="flex items-center justify-between gap-4 mt-auto pt-3 border-t border-gray-100">
-                        <span className="text-xl font-bold text-gray-900">{variant.price} zł</span>
+                        <span className="text-xl font-bold text-gray-900">
+                          {variant.price} zł
+                        </span>
 
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-gray-100 text-gray-800 group-hover:bg-red-600 group-hover:text-white"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            handleVariantSelect(variant)
+                            e.stopPropagation();
+                            handleVariantSelect(variant);
                           }}
                         >
                           Wybierz
@@ -102,6 +119,5 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

@@ -7,12 +7,14 @@ import {
   CartItem,
   CartItemSubItem,
   CartProduct,
-  Menu,
-  Product,
+  PopulatedMenu,
+  PopulatedProduct,
+  UnpopulatedMenu,
+  UnpopulatedProduct,
 } from "./types/types";
 
 export class Utils {
-  protected populateProductsDetails(menus: Menu[]) {
+  protected populateProductsDetails(menus: UnpopulatedMenu[]): PopulatedMenu[] {
     const additionalProducts = this.createProductsHashMap(menus);
     menus.forEach((menu) => {
       menu.products?.forEach((product) => {
@@ -49,10 +51,13 @@ export class Utils {
       });
     });
 
-    return menus;
+    return menus as PopulatedMenu[];
   }
-  protected createProductsHashMap(menus: Menu[]) {
-    var hashMap = new Map<string, Product>();
+  protected createProductsHashMap<
+    T extends UnpopulatedProduct | PopulatedProduct,
+  >(menus: { products?: T[] }[]): Map<string, T> {
+    const hashMap = new Map<string, T>();
+
     menus?.forEach((menu) => {
       menu.products?.forEach((product) => {
         hashMap.set(product.id, product);

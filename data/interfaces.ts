@@ -26,25 +26,21 @@ export interface IngredientSelectionGroup {
   partable: boolean;
 }
 
-export interface CutleryDetails {
-  id: string;
-  name: string;
-  price: number;
-}
-
 export interface CutleryOption {
   maxCount: number;
   maxFreeCount: number;
-  details: CutleryDetails;
-}
-
-export interface CutlerySelection {
-  options: CutleryOption[];
+  details: {
+    id: string;
+    name: string;
+    price: number;
+  };
 }
 
 export interface Variant {
-  itemId: string;
+  id: string;
   name: string;
+  photoUrl: string;
+  description: string;
   price: number;
 }
 
@@ -59,7 +55,7 @@ export interface CrossSaleItem {
   temperature: string;
   dietetaryAttributes: string[];
   variants: Variant[] | null;
-  cutlerySelection: CutlerySelection | null;
+  cutlerySelection: CutlerySelectionOption[] | null;
   ingredientSelectionGroups: IngredientSelectionGroup[] | null;
 }
 
@@ -83,8 +79,11 @@ export interface IngredientSelectionOption {
 export interface CutlerySelectionOption {
   maxCount: number;
   maxFreeCount: number;
-  details: CutleryDetails;
-  isDefault: boolean;
+  details: {
+    id: string;
+    name: string;
+    price: number;
+  };
 }
 export interface Product {
   id: string;

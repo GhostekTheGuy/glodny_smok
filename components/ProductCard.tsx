@@ -19,28 +19,33 @@ export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const { addProductToCart } = useCart();
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
-  const [isAddToCartVariantSelection, setIsAddToCartVariantSelection] = useState(false);
+  const [isAddToCartVariantSelection, setIsAddToCartVariantSelection] =
+    useState(false);
 
   const handleVariantSelect = (variant: any) => {
     if (isAddToCartVariantSelection) {
-      const defaultConfig = getDefaultConfiguration();
+      const defaultConfig = getDefaultConfiguration(
+        //TODO: FIX TYPES
+        //@ts-ignore
+        NNSdk.getProductById(variant.id)
+      );
       addProductToCart({
-        productId: product.id,
-        name: `${product.name} - ${variant.name}`,
+        productId: variant.id,
+        name: `${variant.name}`,
         price: variant.price,
         selectedIngredients: defaultConfig.selectedIngredients,
         selectedCutlery: defaultConfig.selectedCutlery,
         crossSaleItems: defaultConfig.crossSaleItems,
         quantity: 1,
         basePrice: variant.price,
-        photoUrl: product.photoUrl,
+        photoUrl: variant.photoUrl,
       });
       setIsVariantModalOpen(false);
     } else {
       document.body.style.opacity = "0";
       document.body.style.transition = "opacity 0.5s";
       setTimeout(() => {
-        router.push(`/product/${product.id}?type=add&variantId=${variant.itemId}`);
+        router.push(`/product/${variant.id}?type=add`);
       }, 500);
     }
   };
@@ -61,14 +66,14 @@ export function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  const getDefaultConfiguration = () => {
-    const defaultSize =
-      product.variants && product.variants.length > 0
-        ? product.variants[0].itemId
-        : "";
+  const getDefaultConfiguration = (item: Product = product) => {
+    // const defaultSize =
+    //   product.variants && product.variants.length > 0
+    //     ? product.variants[0].id
+    //     : "";
 
     const defaultIngredients: CartItemSubItem[] = [];
-    product.ingredientSelection?.forEach((selection) => {
+    item.ingredientSelection?.forEach((selection) => {
       selection.ingredientSelections.forEach((specifiedSelection) => {
         defaultIngredients.push({
           id: specifiedSelection.details.id,
@@ -83,8 +88,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
     const defaultCutlery: CartItemSubItem[] = [];
 
-    if (Array.isArray(product.cutlerySelection) && product.cutlerySelection.length > 0) {
-      product.cutlerySelection.forEach((selection) => {
+    if (
+      Array.isArray(item.cutlerySelection) &&
+      item.cutlerySelection.length > 0
+    ) {
+      item.cutlerySelection.forEach((selection) => {
         defaultCutlery.push({
           id: selection.details.id,
           name: selection.details.name,
@@ -98,7 +106,7 @@ export function ProductCard({ product }: ProductCardProps) {
     const defaultCrossSaleItems: CartItemSubItem[] = [];
 
     return {
-      selectedSize: defaultSize,
+      // selectedSize: defaultSize,
       selectedIngredients: defaultIngredients,
       selectedCutlery: defaultCutlery,
       crossSaleItems: defaultCrossSaleItems,
@@ -193,7 +201,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </motion.div>
         </div>
       </motion.div>
-      
+
       <VariantModal
         isOpen={isVariantModalOpen}
         onClose={() => setIsVariantModalOpen(false)}

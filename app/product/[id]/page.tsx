@@ -89,6 +89,7 @@ export default function ProductPage() {
   }
   function findProductById(productId: string) {
     var product = null;
+    console.log(menu);
     menu.forEach((menu) => {
       product = menu.products.find((p) => p.id === productId);
       if (product) return;
@@ -104,9 +105,9 @@ export default function ProductPage() {
     document.body.style.transition = "opacity 0.5s";
     setIsVisible(true);
     // Initialize variants
-    if (product.variants && product.variants.length > 0) {
-      setSelectedSize(product.variants[0].itemId);
-    }
+    // if (product.variants && product.variants.length > 0) {
+    //   setSelectedSize(product.variants[0].itemId);
+    // }
 
     // Initialize ingredient selections with default counts
     if (product.ingredientSelection) {
@@ -286,9 +287,6 @@ export default function ProductPage() {
   const handleAddOrUpdate = () => {
     if (buttonState !== "neutral" || product.oos) return;
 
-    const selectedVariant = product.variants?.find(
-      (v) => v.itemId === selectedSize
-    );
     const price = calculateTotalPrice();
     const productObject = {
       productId: product.id,
