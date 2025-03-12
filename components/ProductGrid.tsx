@@ -18,7 +18,7 @@ export function ProductGrid({
 }: ProductGridProps) {
   const filteredAndSortedProducts = useMemo(() => {
     let result: Product[] = [];
-
+    if (menu.length == 0) return;
     if (selectedCategory === "Wszystkie") {
       result = menu[0].products;
     } else {
@@ -64,7 +64,7 @@ export function ProductGrid({
 
   // Calculate minimum grid height based on the number of products
   const minGridHeight = Math.max(
-    Math.ceil(filteredAndSortedProducts.length / 4) * 440,
+    Math.ceil(filteredAndSortedProducts?.length / 4) * 440,
     880
   );
 
@@ -75,7 +75,7 @@ export function ProductGrid({
       style={{ minHeight: minGridHeight }}
     >
       <AnimatePresence>
-        {filteredAndSortedProducts.map((product) => (
+        {filteredAndSortedProducts?.map((product) => (
           <motion.div
             key={product.id}
             layout
