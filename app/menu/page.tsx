@@ -27,7 +27,7 @@ export default function MenuPage() {
 
   const categories = [
     "Wszystkie",
-    ...new Set(menu[0].products.flatMap((product) => product.categories.map((category) => category.name))),
+    ...Array.from(new Set(menu[0].products.flatMap((product) => product.categories.map((category) => category.name)))),
   ]
 
   useEffect(() => {
@@ -82,8 +82,6 @@ export default function MenuPage() {
                 />
               </Link>
             </div>
-
-            <MenuHeader />
             <CategoryDisplay category={selectedCategory} />
 
             {/* Mobile Categories (with scroll) */}

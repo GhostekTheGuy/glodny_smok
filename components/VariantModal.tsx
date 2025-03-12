@@ -19,17 +19,6 @@ export function VariantModal({ isOpen, onClose, product, onVariantSelect }: Vari
   
   const handleVariantSelect = (variant: any) => {
     onVariantSelect(variant)
-    addProductToCart({
-      productId: product.id,
-      name: `${product.name} - ${variant.name}`,
-      price: variant.price,
-      selectedIngredients: [],
-      selectedCutlery: [],
-      crossSaleItems: [],
-      quantity: 1,
-      basePrice: variant.price,
-      photoUrl: product.photoUrl,
-    })
     onClose()
   }
 

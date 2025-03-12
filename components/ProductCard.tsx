@@ -19,19 +19,37 @@ export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const { addProductToCart } = useCart();
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
+  const [isAddToCartVariantSelection, setIsAddToCartVariantSelection] = useState(false);
 
   const handleVariantSelect = (variant: any) => {
-    document.body.style.opacity = "0";
-    document.body.style.transition = "opacity 0.5s";
-    setTimeout(() => {
-      router.push(`/product/${product.id}?type=add&variantId=${variant.itemId}`);
-    }, 500);
+    if (isAddToCartVariantSelection) {
+      const defaultConfig = getDefaultConfiguration();
+      addProductToCart({
+        productId: product.id,
+        name: `${product.name} - ${variant.name}`,
+        price: variant.price,
+        selectedIngredients: defaultConfig.selectedIngredients,
+        selectedCutlery: defaultConfig.selectedCutlery,
+        crossSaleItems: defaultConfig.crossSaleItems,
+        quantity: 1,
+        basePrice: variant.price,
+        photoUrl: product.photoUrl,
+      });
+      setIsVariantModalOpen(false);
+    } else {
+      document.body.style.opacity = "0";
+      document.body.style.transition = "opacity 0.5s";
+      setTimeout(() => {
+        router.push(`/product/${product.id}?type=add&variantId=${variant.itemId}`);
+      }, 500);
+    }
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!product.oos) {
       if (product.variants && product.variants.length > 0) {
+        setIsAddToCartVariantSelection(false);
         setIsVariantModalOpen(true);
       } else {
         document.body.style.opacity = "0";
@@ -44,15 +62,12 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const getDefaultConfiguration = () => {
-    // Get default variant
     const defaultSize =
       product.variants && product.variants.length > 0
         ? product.variants[0].itemId
         : "";
 
-    // Get default ingredients
     const defaultIngredients: CartItemSubItem[] = [];
-    // const defaultIngredients: Record<string, CartItemSubItem> = {};
     product.ingredientSelection?.forEach((selection) => {
       selection.ingredientSelections.forEach((specifiedSelection) => {
         defaultIngredients.push({
@@ -66,10 +81,9 @@ export function ProductCard({ product }: ProductCardProps) {
       });
     });
 
-    // Get default cutlery
     const defaultCutlery: CartItemSubItem[] = [];
 
-    if (product.cutlerySelection) {
+    if (Array.isArray(product.cutlerySelection) && product.cutlerySelection.length > 0) {
       product.cutlerySelection.forEach((selection) => {
         defaultCutlery.push({
           id: selection.details.id,
@@ -81,7 +95,6 @@ export function ProductCard({ product }: ProductCardProps) {
       });
     }
 
-    // No cross-sale items by default
     const defaultCrossSaleItems: CartItemSubItem[] = [];
 
     return {
@@ -96,6 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
     e.stopPropagation();
     if (!product.oos) {
       if (product.variants && product.variants.length > 0) {
+        setIsAddToCartVariantSelection(true);
         setIsVariantModalOpen(true);
       } else {
         const defaultConfig = getDefaultConfiguration();
@@ -123,14 +137,6 @@ export function ProductCard({ product }: ProductCardProps) {
         className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-[420px] flex flex-col cursor-pointer relative"
         onClick={handleCardClick}
       >
-        {/* {product.note && (
-          <div className="absolute top-0 left-0 right-0 z-10">
-            <div className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-4 py-2 rounded-t-lg font-medium text-sm flex items-center justify-center shadow-sm">
-              <span className="mr-2">🌟</span>
-              {product.note}
-            </div>
-          </div>
-        )} */}
         {product.oos && (
           <div className="absolute top-0 left-0 right-0 bottom-0 z-20 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
             <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-lg">
