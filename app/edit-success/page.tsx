@@ -28,7 +28,7 @@ export default function EditSuccessPage() {
           <Link href="/cart">
             <Button className="w-full bg-red-600 hover:bg-red-700">Przejdź do koszyka</Button>
           </Link>
-          <Link href="/menu">
+          <Link href="/">
             <Button variant="outline" className="w-full">
               Kontynuuj zakupy
             </Button>

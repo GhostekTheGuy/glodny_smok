@@ -235,10 +235,10 @@ export function CartPopup({
                 className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-800"
                 onClick={() => {
                   setIsOpen(false);
-                  router.push(isMenuPage ? "/" : "/menu");
+                  router.push("/");
                 }}
               >
-                {isMenuPage ? "Powrót do strony głównej" : "Kontynuuj zakupy"}
+                Powrót do strony głównej
               </Button>
             </div>
           </div>
