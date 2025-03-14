@@ -5,6 +5,7 @@
 import { OrderRequestGroupKey } from "./types/enums";
 import {
   CartItem,
+  CartItemCutlery,
   CartItemSubItem,
   CartProduct,
   PopulatedMenu,
@@ -91,20 +92,21 @@ export class Utils {
   }
 
   protected transformCartProduct(cartProduct: CartProduct) {
+    const cutleryOptions = cartProduct.selectedCutlery.map(
+      ({ name, defaultCount, price, ...rest }) => rest,
+    );
+
     return {
       id: cartProduct.productId,
       ingredientsGroups: this.groupItems(
         cartProduct.selectedIngredients,
         OrderRequestGroupKey.Ingredients,
       ),
-      cutleryGroups: this.groupItems(
-        cartProduct.selectedCutlery,
-        OrderRequestGroupKey.Cutlery,
-      ),
       crossSaleGroups: this.groupItems(
         cartProduct.crossSaleItems,
         OrderRequestGroupKey.Products,
       ),
+      cutleryOptions,
     };
   }
 
@@ -118,7 +120,6 @@ export class Utils {
       string,
       { groupId: string } & {
         [OrderRequestGroupKey.Ingredients]?: any[];
-        [OrderRequestGroupKey.Cutlery]?: any[];
         [OrderRequestGroupKey.Products]?: any[];
       }
     > = {};

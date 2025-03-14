@@ -225,6 +225,8 @@ export function CartPopup({
               <Button
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                 onClick={() => {
+                  NNSdk.createOrder("6c90ed83-a3f4-4836-a22a-40099491b047");
+                  console.log("ORDER");
                   setIsOpen(false);
                   router.push("/cart");
                 }}

@@ -286,6 +286,7 @@ export class NomNomSDK extends Utils {
         );
       }
     });
+    console.log(requestData);
   }
 
   getProductById(productId: string) {
