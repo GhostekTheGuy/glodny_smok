@@ -9,6 +9,7 @@ import {
   CartProduct,
   PopulatedMenu,
   PopulatedProduct,
+  UnpopulatedCrossSaleGroup,
   UnpopulatedMenu,
   UnpopulatedProduct,
 } from "./types/types";
@@ -17,17 +18,24 @@ export class Utils {
   protected populateProductsDetails(menus: UnpopulatedMenu[]): PopulatedMenu[] {
     const additionalProducts = this.createProductsHashMap(menus);
     menus.forEach((menu) => {
-      menu.products?.forEach((product) => {
-        product.crossSaleGroups?.forEach((csg) => {
+      menu.products?.forEach((product: UnpopulatedProduct) => {
+        product.crossSaleGroups?.forEach((csg: UnpopulatedCrossSaleGroup) => {
           csg.items?.forEach((item) => {
-            if (!item.item) return;
-            const { itemId: id } = item?.item;
-            const product = additionalProducts?.get(id);
-            if (id && product) {
-              const { crossSaleGroups, categories, ...mappedProduct } = product;
+            if (!item) return;
+            const product = additionalProducts?.get(item.id);
+            if (product) {
+              const {
+                crossSaleGroups,
+                categories,
+                price,
+                variants,
+                packagingSelection,
+                cutlerySelection,
+                ingredientSelectionGroups,
+                ...mappedProduct
+              } = product;
 
               Object.assign(item, mappedProduct);
-              delete item.item;
             }
           });
         });
@@ -51,11 +59,10 @@ export class Utils {
       });
     });
 
-    //@ts-ignore
-    return menus as PopulatedMenu[];
+    return menus as any as PopulatedMenu[];
   }
   protected createProductsHashMap<
-    T extends UnpopulatedProduct | PopulatedProduct
+    T extends UnpopulatedProduct | PopulatedProduct,
   >(menus: { products?: T[] }[]): Map<string, T> {
     const hashMap = new Map<string, T>();
 
@@ -70,7 +77,7 @@ export class Utils {
 
   protected areProductsEqual(
     firstProduct: CartProduct,
-    secondProduct: CartProduct
+    secondProduct: CartProduct,
   ) {
     return (
       firstProduct.productId === secondProduct.productId &&
@@ -88,28 +95,28 @@ export class Utils {
       id: cartProduct.productId,
       ingredientsGroups: this.groupItems(
         cartProduct.selectedIngredients,
-        OrderRequestGroupKey.Ingredients
+        OrderRequestGroupKey.Ingredients,
       ),
       cutleryGroups: this.groupItems(
         cartProduct.selectedCutlery,
-        OrderRequestGroupKey.Cutlery
+        OrderRequestGroupKey.Cutlery,
       ),
       crossSaleGroups: this.groupItems(
         cartProduct.crossSaleItems,
-        OrderRequestGroupKey.Products
+        OrderRequestGroupKey.Products,
       ),
     };
   }
 
   private groupItems<T extends CartItemSubItem>(
     items: T[] | undefined,
-    key: OrderRequestGroupKey
+    key: OrderRequestGroupKey,
   ) {
     if (!items || items.length === 0) return [];
 
     const groups: Record<
       string,
-      { groupName: string } & {
+      { groupId: string } & {
         [OrderRequestGroupKey.Ingredients]?: any[];
         [OrderRequestGroupKey.Cutlery]?: any[];
         [OrderRequestGroupKey.Products]?: any[];
@@ -117,11 +124,11 @@ export class Utils {
     > = {};
 
     for (const item of items) {
-      if (!groups[item.groupName]) {
-        groups[item.groupName] = { groupName: item.groupName, [key]: [] };
+      if (!groups[item.groupId]) {
+        groups[item.groupId] = { groupId: item.groupId, [key]: [] };
       }
 
-      (groups[item.groupName][key] as any[]).push({
+      (groups[item.groupId][key] as any[]).push({
         id: item.id,
         count: item.count,
         ...(key === OrderRequestGroupKey.Ingredients ? { part: 1 } : {}),

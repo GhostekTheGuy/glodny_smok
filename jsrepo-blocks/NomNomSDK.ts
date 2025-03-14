@@ -19,8 +19,8 @@ import { ItemType } from "./types/enums";
 
 export class NomNomSDK extends Utils {
   private client: AxiosInstance;
-  private fetchedMenus: PopulatedMenu[];
-  private productsMap: Map<string, PopulatedProduct>;
+  private fetchedMenus: PopulatedMenu[] = [];
+  private productsMap: Map<string, PopulatedProduct> = new Map();
   private localStorageKey: string = "currentCart";
   constructor(baseURL: string = "http://localhost:8000/api") {
     super();
@@ -58,10 +58,11 @@ export class NomNomSDK extends Utils {
    *     console.error("Error fetching current menus:", error);
    *   });
    */
+  //@ts-expect-error
   async getCurrentMenus(restaurandId: string): Promise<PopulatedMenu[]> {
     try {
       const response: AxiosResponse<MenuResponse> = await this.client.get(
-        `/menus/current?store=${restaurandId}`
+        `/menus/current?store=${restaurandId}`,
       );
       this.fetchedMenus = this.populateProductsDetails(response.data.menus);
       this.productsMap = this.createProductsHashMap(this.fetchedMenus);
@@ -95,14 +96,13 @@ export class NomNomSDK extends Utils {
    */
 
   addProductToCart(cartProduct: CartProduct) {
-    let storedData = JSON.parse(localStorage.getItem(this.localStorageKey)) || {
-      items: [],
-      timestamp: new Date().toISOString(),
-    };
+    let storedData = JSON.parse(
+      localStorage.getItem(this.localStorageKey) || "",
+    );
     if (!storedData) return;
 
     const existingItemIndex = storedData.items.findIndex((item) =>
-      this.areProductsEqual(item, cartProduct)
+      this.areProductsEqual(item, cartProduct),
     );
 
     if (existingItemIndex > -1) {
@@ -141,11 +141,13 @@ export class NomNomSDK extends Utils {
    */
 
   updateItemInCart(cartItemId: string, cartItem: CartItem) {
-    let storedData = JSON.parse(localStorage.getItem(this.localStorageKey));
+    let storedData = JSON.parse(
+      localStorage.getItem(this.localStorageKey) || "",
+    );
     if (!storedData) return;
 
     const itemIndex = storedData.items.findIndex(
-      (item: CartItem) => item.cartItemId === cartItemId
+      (item: CartItem) => item.cartItemId === cartItemId,
     );
 
     if (itemIndex !== -1) {
@@ -176,11 +178,13 @@ export class NomNomSDK extends Utils {
    * cart.removeItemFromCart("cartItemId123");
    */
   removeItemFromCart(cartItemId: string) {
-    let storedData = JSON.parse(localStorage.getItem(this.localStorageKey));
+    let storedData = JSON.parse(
+      localStorage.getItem(this.localStorageKey) || "",
+    );
     if (!storedData) return;
 
     storedData.items = storedData.items.filter(
-      (item: CartProduct) => item.cartItemId !== cartItemId
+      (item: CartProduct) => item.cartItemId !== cartItemId,
     );
 
     storedData.timestamp = new Date().toISOString();
@@ -215,7 +219,7 @@ export class NomNomSDK extends Utils {
   getProductsFromCart() {
     const items = this.getItemsFromCart();
     return items.filter(
-      (item) => item.type === ItemType.PRODUCT
+      (item) => item.type === ItemType.PRODUCT,
     ) as CartProduct[];
   }
 
@@ -229,7 +233,9 @@ export class NomNomSDK extends Utils {
    * console.log(items);
    */
   getItemsFromCart(): (CartProduct | CartMeal)[] {
-    let storedData = JSON.parse(localStorage.getItem(this.localStorageKey));
+    let storedData = JSON.parse(
+      localStorage.getItem(this.localStorageKey) || "",
+    );
     return storedData ? storedData.items : [];
   }
 
@@ -245,11 +251,13 @@ export class NomNomSDK extends Utils {
    * cart.updateItemQuantity("cartItemId123", 3);
    */
   updateItemQuantity(cartItemId: string, newQuantity: number) {
-    let storedData = JSON.parse(localStorage.getItem(this.localStorageKey));
+    let storedData = JSON.parse(
+      localStorage.getItem(this.localStorageKey) || "",
+    );
     if (!storedData) return;
 
     const itemIndex = storedData.items.findIndex(
-      (item: CartProduct) => item.cartItemId === cartItemId
+      (item: CartProduct) => item.cartItemId === cartItemId,
     );
 
     if (itemIndex !== -1) {
@@ -261,20 +269,20 @@ export class NomNomSDK extends Utils {
     window.dispatchEvent(new Event("cart-update"));
   }
 
-  async createOrder(restaurandId: string, cartStorage: CartStorage = null) {
+  async createOrder(restaurandId: string) {
     //TODO: Compare timestamps and perform additional frontend validation.
     if (!this.fetchedMenus)
       this.fetchedMenus = await this.getCurrentMenus(restaurandId);
+    const cartStorage = JSON.parse(
+      localStorage.getItem(this.localStorageKey) || "",
+    );
 
-    if (!cartStorage)
-      cartStorage = JSON.parse(localStorage.getItem(this.localStorageKey));
-
-    const requestData = { meals: [{ id: "ALONE", products: [] }] };
+    const requestData = { meals: [{ id: "ALONE", products: [] as any }] };
     cartStorage.items?.forEach((cartItem) => {
       if (cartItem.type == ItemType.PRODUCT) {
         //meals[0] is hardcoded index of meals that contains standalone produuctss
         requestData.meals[0].products.push(
-          this.transformCartProduct(cartItem as CartProduct)
+          this.transformCartProduct(cartItem as CartProduct),
         );
       }
     });

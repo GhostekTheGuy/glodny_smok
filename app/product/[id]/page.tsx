@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/cart-context";
+import { CartItemCutlery, useCart } from "@/contexts/cart-context";
 import { menu } from "@/data/menu-data";
 import {
   motion,
@@ -24,17 +24,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
+import { NNSdk } from "@/lib/sdk";
 import {
   CartItemSubItem,
   CrossSaleItem,
-  CrossSaleProduct,
+  IngredientSelectionOption,
+} from "@/types/interfaces";
+import {
   CutleryOption,
-  IngredientDetails,
-  IngredientSelection,
-} from "@/types/menu";
-import { NNSdk } from "@/lib/sdk";
-import { Product } from "@/data/interfaces";
+  CutlerySelectionOption,
+  Product,
+} from "@/types/interfaces";
+import { defaultConfig } from "next/dist/server/config-shared";
 
 interface SelectedBundle {
   ingredientId: string;
@@ -67,7 +68,7 @@ export default function ProductPage() {
   >({});
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedCutlery, setSelectedCutlery] = useState<
-    Record<string, CartItemSubItem>
+    Record<string, CartItemCutlery>
   >({});
   const [selectedCrossSaleItems, setSelectedCrossSaleItems] = useState<
     Record<string, CartItemSubItem>
@@ -109,14 +110,16 @@ export default function ProductPage() {
     // }
 
     // Initialize ingredient selections with default counts
-    if (product.ingredientSelection) {
+    if (product.ingredientSelectionGroups) {
       const initialIngredients: Record<string, CartItemSubItem> = {};
-      product.ingredientSelection.forEach((selection) => {
-        selection.ingredientSelections.forEach((specifiedSelection) => {
+      product.ingredientSelectionGroups.forEach((group) => {
+        group.ingredientSelectionOptions.forEach((specifiedSelection) => {
           initialIngredients[specifiedSelection.details.id] = {
             count: specifiedSelection.defaultCount,
-            id: specifiedSelection.details.id,
             name: specifiedSelection.details.name,
+            defaultCount: specifiedSelection.defaultCount,
+            id: specifiedSelection.details.id,
+            groupId: group.id,
             price: specifiedSelection.details.price,
           };
         });
@@ -134,13 +137,13 @@ export default function ProductPage() {
 
     // Initialize cutlery with default free counts
     if (product.cutlerySelection) {
-      const initialCutlery: Record<string, CartItemSubItem> = {};
+      const initialCutlery: Record<string, CartItemCutlery> = {};
       product.cutlerySelection.forEach((option) => {
-        console.log(option);
         initialCutlery[option.details.id] = {
           count: option.maxFreeCount,
           id: option.details.id,
           name: option.details.name,
+          defaultCount: option.maxFreeCount,
           price: option.details.price,
         };
       });
@@ -162,8 +165,10 @@ export default function ProductPage() {
         group.items.forEach((item) => {
           initialCrossSale[item.id] = {
             count: 0,
-            id: item.id,
             name: item.name,
+            defaultCount: 0,
+            id: item.id,
+            groupId: group.id,
             price: item.price,
           };
         });
@@ -190,13 +195,16 @@ export default function ProductPage() {
     return <p>TODO: implement loading mechanism</p>;
   }
   const handleIngredientChange = (
-    ingredient: IngredientSelection,
-    count: number
+    ingredient: IngredientSelectionOption,
+    count: number,
+    groupId: string
   ) => {
     setSelectedIngredients((prev) => ({
       ...prev,
       [ingredient.details.id]: {
         count: Math.min(Math.max(0, count), ingredient.maxCount),
+        groupId,
+        defaultCount: ingredient.defaultCount,
         name: ingredient.details.name,
         price: ingredient.details.price,
         id: ingredient.details.id,
@@ -204,27 +212,34 @@ export default function ProductPage() {
     }));
   };
 
-  const handleCutleryChange = (cutlery: CutleryOption, count: number) => {
+  const handleCutleryChange = (
+    cutlery: CutlerySelectionOption,
+    count: number
+  ) => {
     setSelectedCutlery((prev) => ({
       ...prev,
       [cutlery.details.id]: {
         count: Math.min(Math.max(0, count), cutlery.maxCount),
         name: cutlery.details.name,
         price: cutlery.details.price,
+        defaultCount: cutlery.maxFreeCount,
         id: cutlery.details.id,
       },
     }));
   };
 
   const handleCrossSaleChange = (
-    item: CrossSaleProduct,
+    item: CrossSaleItem,
     count: number,
-    maxCount: number
+    maxCount: number,
+    groupId: string
   ) => {
     setSelectedCrossSaleItems((prev) => ({
       ...prev,
       [item.id]: {
         count: Math.min(Math.max(0, count), maxCount),
+        groupId,
+        defaultCount: 0,
         name: item.name,
         price: item.price,
         id: item.id,
@@ -248,12 +263,12 @@ export default function ProductPage() {
     // }
 
     // Add ingredient prices
-    if (product.ingredientSelection) {
-      product.ingredientSelection.forEach((group) => {
-        group.ingredientSelections.forEach((selection) => {
-          const count = selectedIngredients[selection.details.id].count || 0;
-          if (count > selection.defaultCount)
-            total += (count - selection.defaultCount) * selection.details.price;
+    if (product.ingredientSelectionGroups) {
+      product.ingredientSelectionGroups.forEach((group) => {
+        group.ingredientSelectionOptions.forEach((option) => {
+          const count = selectedIngredients[option.details.id].count || 0;
+          if (count > option.defaultCount)
+            total += (count - option.defaultCount) * option.details.price;
         });
       });
     }
@@ -386,8 +401,8 @@ export default function ProductPage() {
                 )} */}
 
                 {/* All Ingredients in one accordion */}
-                {product.ingredientSelection &&
-                  product.ingredientSelection.length > 0 && (
+                {product.ingredientSelectionGroups &&
+                  product.ingredientSelectionGroups.length > 0 && (
                     <AccordionItem
                       value="ingredients"
                       className="border border-gray-100 rounded-lg bg-gray-50/50"
@@ -397,13 +412,13 @@ export default function ProductPage() {
                       </AccordionTrigger>
                       <AccordionContent className="px-4">
                         <div className="space-y-6">
-                          {product.ingredientSelection.map(
+                          {product.ingredientSelectionGroups.map(
                             (group, groupIndex) => (
                               <div key={groupIndex} className="space-y-4">
                                 <div className="border-b pb-2 text-gray-800 text-base">
                                   {group.name}
                                 </div>
-                                {group.ingredientSelections.map(
+                                {group.ingredientSelectionOptions.map(
                                   (selection, selectionIndex) => (
                                     <div
                                       key={selectionIndex}
@@ -426,7 +441,8 @@ export default function ProductPage() {
                                               selection,
                                               (selectedIngredients[
                                                 selection.details.id
-                                              ].count || 0) - 1
+                                              ].count || 0) - 1,
+                                              group.id
                                             )
                                           }
                                           disabled={
@@ -455,7 +471,8 @@ export default function ProductPage() {
                                               selection,
                                               (selectedIngredients[
                                                 selection.details.id
-                                              ].count || 0) + 1
+                                              ].count || 0) + 1,
+                                              group.id
                                             )
                                           }
                                           disabled={
@@ -591,11 +608,11 @@ export default function ProductPage() {
                                       variant="outline"
                                       onClick={() =>
                                         handleCrossSaleChange(
-                                          //@ts-expect-error
                                           item,
                                           (selectedCrossSaleItems[item.id]
                                             .count || 0) - 1,
-                                          group.maxCount
+                                          group.maxCount,
+                                          group.id
                                         )
                                       }
                                       disabled={
@@ -614,11 +631,11 @@ export default function ProductPage() {
                                       variant="outline"
                                       onClick={() =>
                                         handleCrossSaleChange(
-                                          //@ts-expect-error
                                           item,
                                           (selectedCrossSaleItems[item.id]
                                             .count || 0) + 1,
-                                          group.maxCount
+                                          group.maxCount,
+                                          group.id
                                         )
                                       }
                                       disabled={

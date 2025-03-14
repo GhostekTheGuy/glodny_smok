@@ -9,8 +9,9 @@ import {
   useEffect,
 } from "react";
 import menu from "@/data/scheme";
-import { CartItemSubItem } from "@/types/menu";
+
 import { NNSdk } from "@/lib/sdk";
+import { CartItemSubItem } from "@/types/interfaces";
 
 interface IngredientSelectionGroup {
   name: string;
@@ -34,10 +35,18 @@ export interface CartItem {
   basePrice: number;
   quantity: number;
   photoUrl: string;
-  selectedCutlery: CartItemSubItem[];
+  selectedCutlery: CartItemCutlery[];
   crossSaleItems: CartItemSubItem[];
   // oos: boolean;
   type?: "PRODUCT" | "MEAL";
+}
+
+export interface CartItemCutlery {
+  id: string;
+  defaultCount: number;
+  name: string;
+  price: number;
+  count: number;
 }
 export interface CartProduct extends CartItem {
   productId: string;

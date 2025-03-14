@@ -1,107 +1,14 @@
-export interface Bundle {
-  note: string;
-  price: number;
-  value: number;
-}
-
-export interface IngredientDetails {
-  id: string;
-  name: string;
-  note: string;
-  photo_url: string;
-  uom: string;
-  bundles: Bundle[];
-}
-
-export interface IngredientSelection {
-  defaultCount: number;
-  maxCount: number;
-  details: IngredientDetails;
-}
-
-export interface IngredientSelectionGroup {
-  ingredientSelections: IngredientSelection[];
-  maxCount: number;
-  name: string;
-  partable: boolean;
-}
-
-export interface CutleryDetails {
-  id: string;
-  name: string;
-  note: string;
-  price: number;
-}
-
 export interface CutleryOption {
-  maxCount: number;
-  maxFreeCount: number;
-  details: CutleryDetails;
-}
-
-export interface CutlerySelection {
-  options: CutleryOption[];
-}
-
-export interface Variant {
-  itemId: string;
-  type: string;
-}
-
-export interface Category {
   id: string;
   name: string;
-  note: string;
-}
-
-export interface CrossSaleProduct {
-  id: string;
-  name: string;
-  note?: string;
-  photoUrl: string;
-  description: string;
-  standalone: boolean;
-  oos: boolean;
-  price: number;
-  temperature: "HOT" | "COLD";
-  dietetaryAttributes: string[];
-  variants?: Variant[] | null;
-  cutlerySelection?: CutlerySelection | null;
-  ingredientSelectionGroups?: IngredientSelectionGroup[] | null;
-}
-
-export interface CrossSaleItem {
-  item: CrossSaleProduct;
-  price: number;
-}
-
-export interface CrossSaleGroup {
-  id: string;
-  name: string;
-  note: string | null;
-  maxCount: number;
-  items: CrossSaleItem[];
-}
-
-export interface CutleryDetails {
-  id: string;
-  name: string;
-  note: string;
   price: number;
 }
 
 export interface CutlerySelectionOption {
   maxCount: number;
   maxFreeCount: number;
-  details: CutleryDetails;
+  details: CutleryOption;
   isDefault: boolean;
-}
-
-export interface IngredientSelectionOption {
-  ingredientSelections: IngredientSelection[];
-  maxCount: number;
-  name: string;
-  partable: boolean;
 }
 
 export interface PackagingSelectionOption {
@@ -110,10 +17,38 @@ export interface PackagingSelectionOption {
   maxFreeCount: number;
   isDefault: boolean;
 }
-export interface Product {
+
+export interface IngredientSelectionGroup {
   id: string;
   name: string;
-  note: string;
+  maxCount: number;
+  partable: boolean;
+  ingredientSelectionOptions: IngredientSelectionOption[];
+}
+
+export interface IngredientSelectionOption {
+  maxCount: number;
+  defaultCount: number;
+  details: {
+    id: string;
+    name: string;
+    photoUrl: string;
+    uom: string;
+    value: number;
+    price: number;
+  };
+}
+
+export interface CrossSaleGroup {
+  id: string;
+  name: string | null;
+  maxCount: number;
+  items: CrossSaleItem[];
+}
+
+export interface CrossSaleItem {
+  id: string;
+  name: string;
   photoUrl: string;
   description: string;
   standalone: boolean;
@@ -121,15 +56,40 @@ export interface Product {
   price: number;
   temperature: string;
   dietetaryAttributes: string[];
-  variants: Variant[];
-  cutlerySelection: CutlerySelectionOption[];
-  ingredientSelection: IngredientSelectionOption[];
-  packagingSelection: PackagingSelectionOption[];
-  crossSaleGroups: CrossSaleGroup[];
-  categories: Category[];
 }
 
-export interface MenuHours {
+export interface Variant {
+  id: string;
+  name: string;
+  photoUrl: string;
+  description: string;
+  price: number;
+}
+//Product
+export interface Product {
+  id: string;
+  name: string;
+  photoUrl: string;
+  description: string;
+  standalone: boolean;
+  oos: boolean;
+  price: number;
+  temperature: string;
+  vatPercentage: number;
+  dietetaryAttributes: string[];
+  categories: Category[];
+  cutlerySelection: CutlerySelectionOption[];
+  packagingSelection: PackagingSelectionOption[];
+  ingredientSelectionGroups?: IngredientSelectionGroup[];
+  variants: Variant[];
+  crossSaleGroups: CrossSaleGroup[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+}
+export interface Hours {
   id: string;
   Mon: boolean;
   Tue: boolean;
@@ -141,11 +101,18 @@ export interface MenuHours {
   startTime: string;
   endTime: string;
 }
-
 export interface Menu {
   id: string;
   name: string;
-  note: string;
+  hours: Hours[];
   products: Product[];
-  hours: MenuHours[];
+}
+
+export interface CartItemSubItem {
+  id: string;
+  groupId: string;
+  name: string;
+  price: number;
+  count: number;
+  defaultCount: number;
 }

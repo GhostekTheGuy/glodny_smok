@@ -1,3 +1,7 @@
+/*
+	Installed from github/BarSwi/NomNomFrontSDK
+*/
+
 // Ingredient details
 export type IngredientDetails = {
   id: string;
@@ -10,30 +14,49 @@ export type IngredientDetails = {
 };
 
 // Ingredient selection
-export type IngredientSelection = {
-  defaultCount: number;
-  maxCount: number;
-  details: IngredientDetails;
-};
+// export type IngredientSelection = {
+//   defaultCount: number;
+//   maxCount: number;
+//   details: IngredientDetails;
+// };
 
 // Ingredient selection group
-export type IngredientSelectionOption = {
-  ingredientSelections: IngredientSelection[];
-  maxCount: number;
+export interface BaseIngredientSelectionGroup {
+  id: string;
   name: string;
+  maxCount: number;
   partable: boolean;
+  ingredientSelectionOptions: BaseIngredientSelectionOption[];
+}
+
+type BaseIngredientSelectionOption = {
+  maxCount: number;
+  defaultCount: number;
+  details: {
+    id: string;
+    name: string;
+    photoUrl: string;
+    uom: string;
+    value: number;
+    price: number;
+  };
+};
+// Cross-sale item
+type PopulatedCrossSaleItem = {
+  id: string;
+  name: string;
+  photoUrl: string;
+  description: string;
+  standalone: boolean;
+  oos: boolean;
+  price: number;
+  temperature: string;
+  dietetaryAttributes: string[];
 };
 
-// Cross-sale item
 export type UnpopulatedCrossSaleItem = {
-  item: {
-    itemId: string;
-    type: string;
-  };
-  price: number;
-};
-export type PopulatedCrossSaleItem = {
-  item: CrossSaleProduct;
+  id: string;
+  type: string;
   price: number;
 };
 
@@ -58,25 +81,18 @@ export interface PopulatedCrossSaleGroup extends CrossSaleGroup {
   items: PopulatedCrossSaleItem[];
 }
 
+// Cutlery option
 export interface CutleryOption {
-  maxCount: number;
-  maxFreeCount: number;
-  details: {
-    id: string;
-    name: string;
-    price: number;
-  };
+  id: string;
+  name: string;
+  price: number;
 }
 
-// Cutlery option
 export type CutlerySelectionOption = {
   maxCount: number;
   maxFreeCount: number;
-  details: {
-    id: string;
-    name: string;
-    price: number;
-  };
+  details: CutleryOption;
+  isDefault: boolean;
 };
 
 // Product variant
@@ -109,27 +125,13 @@ interface Product {
   oos: boolean;
   price: number;
   temperature: string;
+  vatPercentage: number;
   dietetaryAttributes: string[];
   categories: Category[];
   cutlerySelection: CutlerySelectionOption[];
-  ingredientSelection: IngredientSelectionOption[];
   packagingSelection: PackagingSelectionOption[];
+  ingredientSelectionGroups?: BaseIngredientSelectionGroup[];
 }
-
-type CrossSaleProduct = {
-  id: string;
-  name: string;
-  photoUrl: string;
-  description: string;
-  standalone: boolean;
-  oos: boolean;
-  price: number;
-  temperature: string;
-  dietetaryAttributes: string[];
-  variants?: UnpopulatedVariant[];
-  cutlerySelection: CutlerySelectionOption[];
-  ingredientSelection?: IngredientSelectionOption[];
-};
 export interface UnpopulatedProduct extends Product {
   variants: UnpopulatedVariant[];
   crossSaleGroups: UnpopulatedCrossSaleGroup[];
@@ -192,10 +194,18 @@ export interface CartItem {
   basePrice: number;
   quantity: number;
   photoUrl: string;
-  selectedCutlery: CartItemSubItem[];
+  selectedCutlery: CartItemCutlery[];
   crossSaleItems: CartItemSubItem[];
   // oos: boolean;
   type?: "PRODUCT" | "MEAL";
+}
+
+export interface CartItemCutlery {
+  id: string;
+  defaultCount: number;
+  name: string;
+  price: number;
+  count: number;
 }
 export interface CartProduct extends CartItem {
   productId: string;
@@ -208,12 +218,11 @@ export interface CartMeal extends CartItem {
 
 export type CartItemSubItem = {
   id: string;
-  //TODO: Change for groupId
-  groupName?: string;
+  groupId: string;
   name: string;
   price: number;
   count: number;
-  defaultCount?: number;
+  defaultCount: number;
 };
 
 export type CartStorage = {
