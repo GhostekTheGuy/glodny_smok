@@ -69,7 +69,7 @@ export default function CartPage() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <Link
-            href="/menu"
+            href="/#menu"
             className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-8"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -103,7 +103,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <Link
-          href="/menu"
+          href="/#menu"
           className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-8"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

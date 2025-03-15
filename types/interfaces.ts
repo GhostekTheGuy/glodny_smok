@@ -115,4 +115,6 @@ export interface CartItemSubItem {
   price: number;
   count: number;
   defaultCount: number;
+  uom: string;
+  value: number;
 }

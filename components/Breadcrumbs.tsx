@@ -8,25 +8,15 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ productName }: BreadcrumbsProps) {
   return (
-    <nav className="flex mb-4" aria-label="Breadcrumb">
-      <ol className="inline-flex items-center space-x-1 md:space-x-3">
-        <li className="inline-flex items-center">
-          <Link
-            href="/"
-            className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-red-600"
-          >
-            Menu
-          </Link>
-        </li>
-        <li>
-          <div className="flex items-center">
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-              {productName}
-            </span>
-          </div>
-        </li>
-      </ol>
+    <nav className="flex items-center space-x-2 text-sm mb-6">
+      <Link 
+        href="/#menu" 
+        className="text-gray-500 hover:text-gray-700 transition-colors"
+      >
+        Menu
+      </Link>
+      <span className="text-gray-400">/</span>
+      <span className="text-gray-900 font-medium">{productName}</span>
     </nav>
   );
 }

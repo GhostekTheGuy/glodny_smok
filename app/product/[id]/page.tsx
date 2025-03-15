@@ -121,6 +121,8 @@ export default function ProductPage() {
             id: specifiedSelection.details.id,
             groupId: group.id,
             price: specifiedSelection.details.price,
+            uom: specifiedSelection.details.uom,
+            value: specifiedSelection.details.value,
           };
         });
       });
@@ -129,6 +131,7 @@ export default function ProductPage() {
         dataToEdit.selectedIngredients.forEach((ingredient) => {
           initialIngredients[ingredient.id] = {
             ...ingredient,
+            uom: ingredient.uom,
           };
         });
       }
@@ -208,6 +211,8 @@ export default function ProductPage() {
         name: ingredient.details.name,
         price: ingredient.details.price,
         id: ingredient.details.id,
+        uom: ingredient.details.uom,
+        value: ingredient.details.value,
       },
     }));
   };
@@ -430,6 +435,11 @@ export default function ProductPage() {
                                         </p>
                                         <p className="text-sm text-gray-500">
                                           {selection.details.price} zł za porcję
+                                          {selection.details.value && selection.details.uom && (
+                                            <span className="ml-1">
+                                              ({selection.details.value} {selection.details.uom})
+                                            </span>
+                                          )}
                                         </p>
                                       </div>
                                       <div className="flex items-center gap-2">

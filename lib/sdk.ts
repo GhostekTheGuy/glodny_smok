@@ -1,6 +1,6 @@
 import { NomNomSDK } from "@/jsrepo-blocks";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "https://www.smartbizapps.pl/api";
 const STORE_ID = "6c90ed83-a3f4-4836-a22a-40099491b047";
 
 // export class MenuSDK {
