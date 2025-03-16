@@ -83,7 +83,7 @@ export function CartPopup({
                 <Button
                   onClick={() => {
                     setIsOpen(false);
-                    router.push("/menu");
+                    router.push("/#menu");
                   }}
                   className="bg-red-600 hover:bg-red-700"
                 >

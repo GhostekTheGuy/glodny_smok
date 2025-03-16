@@ -87,7 +87,7 @@ export default function CartPage() {
                 Dodaj produkty, aby rozpocząć zamówienie
               </p>
               <Button
-                onClick={() => router.push("/menu")}
+                onClick={() => router.push("/#menu")}
                 className="bg-red-600 hover:bg-red-700"
               >
                 Przejdź do menu
