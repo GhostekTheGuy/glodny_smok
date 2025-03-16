@@ -3,7 +3,7 @@
 */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { Utils } from "./Utils";
+import { sanitizeCartProduct, Utils } from "./Utils";
 import {
   CartItem,
   CartMeal,
@@ -62,7 +62,7 @@ export class NomNomSDK extends Utils {
   async getCurrentMenus(restaurandId: string): Promise<PopulatedMenu[]> {
     try {
       const response: AxiosResponse<MenuResponse> = await this.client.get(
-        `/menus/current?store=${restaurandId}`,
+        `/menus/current?store=${restaurandId}`
       );
       this.fetchedMenus = this.populateProductsDetails(response.data.menus);
       this.productsMap = this.createProductsHashMap(this.fetchedMenus);
@@ -97,20 +97,22 @@ export class NomNomSDK extends Utils {
 
   addProductToCart(cartProduct: CartProduct) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || "",
+      localStorage.getItem(this.localStorageKey) || ""
     );
     if (!storedData) return;
 
+    const sanitisedProduct = sanitizeCartProduct(cartProduct);
+
     const existingItemIndex = storedData.items.findIndex((item) =>
-      this.areProductsEqual(item, cartProduct),
+      this.areProductsEqual(item, sanitisedProduct)
     );
 
     if (existingItemIndex > -1) {
       storedData.items[existingItemIndex].quantity += 1;
     } else {
-      cartProduct.cartItemId = crypto.randomUUID();
-      cartProduct.type = ItemType.PRODUCT;
-      storedData.items.push(cartProduct);
+      sanitisedProduct.cartItemId = crypto.randomUUID();
+      sanitisedProduct.type = ItemType.PRODUCT;
+      storedData.items.push(sanitisedProduct);
     }
 
     storedData.timestamp = new Date().toISOString();
@@ -140,14 +142,16 @@ export class NomNomSDK extends Utils {
    * cart.editProductInCart("cartItemId123", updatedCartProduct);
    */
 
-  updateItemInCart(cartItemId: string, cartItem: CartItem) {
+  updateProductInCart(cartItemId: string, cartProduct: CartProduct) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || "",
+      localStorage.getItem(this.localStorageKey) || ""
     );
     if (!storedData) return;
 
+    const sanitisedProduct = sanitizeCartProduct(cartProduct);
+
     const itemIndex = storedData.items.findIndex(
-      (item: CartItem) => item.cartItemId === cartItemId,
+      (item: CartProduct) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
@@ -155,15 +159,13 @@ export class NomNomSDK extends Utils {
 
       storedData.items[itemIndex] = {
         ...itemToChange,
-        ...cartItem,
+        ...sanitisedProduct,
         cartItemId,
         quantity: itemToChange.quantity,
       };
       storedData.timestamp = new Date().toISOString();
       localStorage.setItem(this.localStorageKey, JSON.stringify(storedData));
     }
-    //@ts-ignore
-    window.dispatchEvent(new Event("cart-update"));
 
     return storedData.items;
   }
@@ -179,12 +181,12 @@ export class NomNomSDK extends Utils {
    */
   removeItemFromCart(cartItemId: string) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || "",
+      localStorage.getItem(this.localStorageKey) || ""
     );
     if (!storedData) return;
 
     storedData.items = storedData.items.filter(
-      (item: CartProduct) => item.cartItemId !== cartItemId,
+      (item: CartProduct) => item.cartItemId !== cartItemId
     );
 
     storedData.timestamp = new Date().toISOString();
@@ -219,7 +221,7 @@ export class NomNomSDK extends Utils {
   getProductsFromCart() {
     const items = this.getItemsFromCart();
     return items.filter(
-      (item) => item.type === ItemType.PRODUCT,
+      (item) => item.type === ItemType.PRODUCT
     ) as CartProduct[];
   }
 
@@ -234,7 +236,7 @@ export class NomNomSDK extends Utils {
    */
   getItemsFromCart(): (CartProduct | CartMeal)[] {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || "",
+      localStorage.getItem(this.localStorageKey) || ""
     );
     return storedData ? storedData.items : [];
   }
@@ -252,12 +254,12 @@ export class NomNomSDK extends Utils {
    */
   updateItemQuantity(cartItemId: string, newQuantity: number) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || "",
+      localStorage.getItem(this.localStorageKey) || ""
     );
     if (!storedData) return;
 
     const itemIndex = storedData.items.findIndex(
-      (item: CartProduct) => item.cartItemId === cartItemId,
+      (item: CartProduct) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
@@ -274,7 +276,7 @@ export class NomNomSDK extends Utils {
     if (!this.fetchedMenus)
       this.fetchedMenus = await this.getCurrentMenus(restaurandId);
     const cartStorage = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || "",
+      localStorage.getItem(this.localStorageKey) || ""
     );
 
     const requestData = { meals: [{ id: "ALONE", products: [] as any }] };
@@ -282,7 +284,7 @@ export class NomNomSDK extends Utils {
       if (cartItem.type == ItemType.PRODUCT) {
         //meals[0] is hardcoded index of meals that contains standalone produuctss
         requestData.meals[0].products.push(
-          this.transformCartProduct(cartItem as CartProduct),
+          this.transformCartProduct(cartItem as CartProduct)
         );
       }
     });

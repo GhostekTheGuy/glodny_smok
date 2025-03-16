@@ -4,12 +4,15 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useCart } from "@/contexts/cart-context";
 import type React from "react";
-import type { Product } from "../data/interfaces";
-import { CartItemSubItem } from "@/types/menu";
 import { NomNomSDK } from "@/jsrepo-blocks";
 import { NNSdk } from "@/lib/sdk";
 import { useState } from "react";
 import { VariantModal } from "@/components/VariantModal";
+import {
+  CartItemSubItem,
+  CartSelectedIngredients,
+  Product,
+} from "@/types/interfaces";
 
 interface ProductCardProps {
   product: Product;
@@ -72,16 +75,18 @@ export function ProductCard({ product }: ProductCardProps) {
     //     ? product.variants[0].id
     //     : "";
 
-    const defaultIngredients: CartItemSubItem[] = [];
-    item.ingredientSelection?.forEach((selection) => {
-      selection.ingredientSelections.forEach((specifiedSelection) => {
+    const defaultIngredients: CartSelectedIngredients[] = [];
+    item.ingredientSelectionGroups?.forEach((group) => {
+      group.ingredientSelectionOptions.forEach((specifiedSelection) => {
         defaultIngredients.push({
           id: specifiedSelection.details.id,
-          groupName: selection.name,
+          groupId: group.id,
           price: specifiedSelection.details.price,
           name: specifiedSelection.details.name,
           count: specifiedSelection.defaultCount,
           defaultCount: specifiedSelection.defaultCount,
+          uom: specifiedSelection.details.uom,
+          value: specifiedSelection.details.value,
         });
       });
     });

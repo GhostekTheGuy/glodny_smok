@@ -115,6 +115,8 @@ export interface CartItemSubItem {
   price: number;
   count: number;
   defaultCount: number;
+}
+export interface CartSelectedIngredients extends CartItemSubItem {
   uom: string;
   value: number;
 }

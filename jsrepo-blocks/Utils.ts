@@ -139,3 +139,27 @@ export class Utils {
     return Object.values(groups);
   }
 }
+
+export const sanitizeCartProduct = (cartProduct: CartProduct): CartProduct => {
+  return {
+    ...cartProduct,
+    selectedIngredients: cartProduct.selectedIngredients.filter(
+      (ingredient) => ingredient.defaultCount !== ingredient.count,
+    ),
+    selectedCutlery: cartProduct.selectedCutlery.filter(
+      (cutlery) => cutlery.defaultCount !== cutlery.count,
+    ),
+  };
+};
+
+// export const sanitizeCartItem = (cartItem: cartItem): CartProduct => {
+//   return {
+//     ...cartProduct,
+//     selectedIngredients: cartProduct.selectedIngredients.filter(
+//       (ingredient) => ingredient.defaultCount !== ingredient.count
+//     ),
+//     selectedCutlery: cartProduct.selectedCutlery.filter(
+//       (cutlery) => cutlery.defaultCount !== cutlery.count
+//     ),
+//   };
+// };

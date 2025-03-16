@@ -209,22 +209,25 @@ export interface CartItemCutlery {
 }
 export interface CartProduct extends CartItem {
   productId: string;
-  selectedIngredients: CartItemSubItem[];
+  selectedIngredients: CartSelectedIngredients[];
 }
 export interface CartMeal extends CartItem {
   mealId: string;
   products: CartProduct[];
 }
 
-export type CartItemSubItem = {
+export interface CartItemSubItem {
   id: string;
   groupId: string;
   name: string;
   price: number;
   count: number;
   defaultCount: number;
-};
-
+}
+export interface CartSelectedIngredients extends CartItemSubItem {
+  uom: string;
+  value: number;
+}
 export type CartStorage = {
   items: (CartProduct | CartMeal)[];
   timestamp: number;

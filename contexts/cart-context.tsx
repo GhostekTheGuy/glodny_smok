@@ -11,7 +11,7 @@ import {
 import menu from "@/data/scheme";
 
 import { NNSdk } from "@/lib/sdk";
-import { CartItemSubItem } from "@/types/interfaces";
+import { CartItemSubItem, CartSelectedIngredients } from "@/types/interfaces";
 
 interface IngredientSelectionGroup {
   name: string;
@@ -50,7 +50,7 @@ export interface CartItemCutlery {
 }
 export interface CartProduct extends CartItem {
   productId: string;
-  selectedIngredients: CartItemSubItem[];
+  selectedIngredients: CartSelectedIngredients[];
 }
 export interface CartMeal extends CartItem {
   mealId: string;
@@ -114,8 +114,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const updateCartItem = useCallback(
-    (itemId: string, updatedItem: CartItem) => {
-      setItems(NNSdk.updateItemInCart(itemId, updatedItem));
+    (itemId: string, updatedItem: CartProduct) => {
+      setItems(NNSdk.updateProductInCart(itemId, updatedItem));
     },
     []
   );

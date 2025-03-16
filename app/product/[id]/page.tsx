@@ -27,6 +27,7 @@ import {
 import { NNSdk } from "@/lib/sdk";
 import {
   CartItemSubItem,
+  CartSelectedIngredients,
   CrossSaleItem,
   IngredientSelectionOption,
 } from "@/types/interfaces";
@@ -64,7 +65,7 @@ export default function ProductPage() {
 
   const { addProductToCart, updateCartItem } = useCart();
   const [selectedIngredients, setSelectedIngredients] = useState<
-    Record<string, CartItemSubItem>
+    Record<string, CartSelectedIngredients>
   >({});
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedCutlery, setSelectedCutlery] = useState<
@@ -111,7 +112,7 @@ export default function ProductPage() {
 
     // Initialize ingredient selections with default counts
     if (product.ingredientSelectionGroups) {
-      const initialIngredients: Record<string, CartItemSubItem> = {};
+      const initialIngredients: Record<string, CartSelectedIngredients> = {};
       product.ingredientSelectionGroups.forEach((group) => {
         group.ingredientSelectionOptions.forEach((specifiedSelection) => {
           initialIngredients[specifiedSelection.details.id] = {
@@ -435,11 +436,13 @@ export default function ProductPage() {
                                         </p>
                                         <p className="text-sm text-gray-500">
                                           {selection.details.price} zł za porcję
-                                          {selection.details.value && selection.details.uom && (
-                                            <span className="ml-1">
-                                              ({selection.details.value} {selection.details.uom})
-                                            </span>
-                                          )}
+                                          {selection.details.value &&
+                                            selection.details.uom && (
+                                              <span className="ml-1">
+                                                ({selection.details.value}{" "}
+                                                {selection.details.uom})
+                                              </span>
+                                            )}
                                         </p>
                                       </div>
                                       <div className="flex items-center gap-2">

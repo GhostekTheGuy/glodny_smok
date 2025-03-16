@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import ProductCard from "./ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Menu, Product } from "../data/interfaces";
+import { Menu, Product } from "@/types/interfaces";
 
 interface ProductGridProps {
   menu: Menu[];
