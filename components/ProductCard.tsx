@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useCart } from "@/contexts/cart-context";
+import { CartItemCutlery, useCart } from "@/contexts/cart-context";
 import type React from "react";
 import { NomNomSDK } from "@/jsrepo-blocks";
 import { NNSdk } from "@/lib/sdk";
@@ -91,7 +91,7 @@ export function ProductCard({ product }: ProductCardProps) {
       });
     });
 
-    const defaultCutlery: CartItemSubItem[] = [];
+    const defaultCutlery: CartItemCutlery[] = [];
 
     if (
       Array.isArray(item.cutlerySelection) &&
