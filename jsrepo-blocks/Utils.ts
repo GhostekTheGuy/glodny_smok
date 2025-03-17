@@ -98,6 +98,7 @@ export class Utils {
 
     return {
       id: cartProduct.productId,
+      count: cartProduct.quantity,
       ingredientsGroups: this.groupItems(
         cartProduct.selectedIngredients,
         OrderRequestGroupKey.Ingredients,
