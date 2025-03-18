@@ -12,6 +12,7 @@ import {
   Minus,
   ShoppingBag,
   ArrowLeft,
+  CreditCard,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,7 @@ import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { CartProductDetails } from "@/components/CartProductDetails";
+import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 
 export default function CartPage() {
   const router = useRouter();
@@ -41,6 +43,11 @@ export default function CartPage() {
     address: "",
     notes: "",
   });
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  
+  // Konwersja ceny na grosze dla PayU
+  const amountInSmallestUnit = Math.round(totalPrice * 100);
 
   const handleOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +69,12 @@ export default function CartPage() {
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     updateQuantity(itemId, newQuantity);
+  };
+
+  const handlePaymentMethodSelect = (method) => {
+    setSelectedPaymentMethod(method);
+    console.log("Wybrano metodę płatności:", method.value);
+    // dodatkowe operacje po wybraniu metody płatności
   };
 
   if (items.length === 0) {
@@ -112,7 +125,7 @@ export default function CartPage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6 h-full flex flex-col">
               <div className="flex items-center gap-2 mb-6">
                 <ShoppingBag className="h-6 w-6" />
                 <h1 className="text-2xl font-semibold">
@@ -120,7 +133,7 @@ export default function CartPage() {
                 </h1>
               </div>
 
-              <ScrollArea className="h-[calc(100vh-400px)]">
+              <ScrollArea className="flex-grow overflow-y-auto">
                 <div className="space-y-6">
                   {products.map((product, idx) => (
                     <motion.div
@@ -329,9 +342,45 @@ export default function CartPage() {
                     className="mt-1"
                   />
                 </div>
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-4">Metoda płatności</h3>
+                  
+                  {selectedPaymentMethod ? (
+                    <div className="flex items-center justify-between border rounded-lg p-4 mb-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 relative flex-shrink-0">
+                          <Image
+                            src={selectedPaymentMethod.brandImageUrl}
+                            alt={selectedPaymentMethod.name}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                        <div className="ml-3">
+                          <p className="font-medium">{selectedPaymentMethod.name}</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setIsPaymentModalOpen(true)}
+                      >
+                        Zmień
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 py-6"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                    >
+                      <CreditCard className="w-5 h-5" />
+                      <span>Wybierz metodę płatności</span>
+                    </Button>
+                  )}
+                </div>
                 <Button
                   type="submit"
                   className="w-full bg-red-600 hover:bg-red-700"
+                  disabled={!selectedPaymentMethod}
                 >
                   Złóż zamówienie
                 </Button>
@@ -339,6 +388,13 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+        
+        <PaymentMethodsModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          amount={amountInSmallestUnit}
+          onMethodSelect={handlePaymentMethodSelect}
+        />
       </div>
     </div>
   );
