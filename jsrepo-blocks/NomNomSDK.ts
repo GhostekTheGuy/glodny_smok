@@ -291,11 +291,18 @@ export class NomNomSDK extends Utils {
         );
       }
     });
-    console.log(JSON.stringify(requestData));
   }
 
   getProductById(productId: string) {
     return this.productsMap.get(productId);
+  }
+
+  async getAvailablePaymentMethods(
+    storeId: string = "TODO dodac polaczenie z konkretnymi lokalami",
+  ) {
+    const response: AxiosResponse<any> = await this.client.get(`/paymethods`);
+
+    return response.data;
   }
 
   /**
