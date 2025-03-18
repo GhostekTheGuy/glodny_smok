@@ -21,6 +21,11 @@ export function ProductGrid({
     if (menu.length == 0) return;
     if (selectedCategory === "Wszystkie") {
       result = menu[0].products;
+    } else if (selectedCategory === "Inne") {
+      // Filtruj produkty bez kategorii lub z pustą tablicą kategorii
+      result = menu[0].products.filter((product) => 
+        !product.categories || product.categories.length === 0
+      );
     } else {
       result = menu[0].products.filter((product) =>
         product.categories?.some(

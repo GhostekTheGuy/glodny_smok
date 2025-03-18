@@ -14,7 +14,7 @@ import {
   animate,
 } from "framer-motion";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { ShoppingCart, Check, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Check, Plus, Minus, Loader2 } from "lucide-react";
 import { CartPopup } from "@/components/CartPopup";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -196,7 +196,14 @@ export default function ProductPage() {
   }
 
   if (isLoading) {
-    return <p>TODO: implement loading mechanism</p>;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-50">
+        <div className="flex flex-col items-center">
+          <Loader2 className="w-12 h-12 text-red-600 animate-spin mb-4" />
+          <p className="text-lg font-medium text-gray-700">Ładowanie produktu...</p>
+        </div>
+      </div>
+    );
   }
   const handleIngredientChange = (
     ingredient: IngredientSelectionOption,
