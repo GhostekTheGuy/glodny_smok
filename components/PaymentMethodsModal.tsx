@@ -115,6 +115,14 @@ const mockPaymentMethods: PaymentMethod[] = [
     status: "ENABLED",
     minAmount: 0,
     maxAmount: 99999999
+  },
+  {
+    value: "CASH",
+    brandImageUrl: "/cash.svg",
+    name: "Płatność gotówką",
+    status: "ENABLED",
+    minAmount: 0,
+    maxAmount: 99999999
   }
 ];
 
