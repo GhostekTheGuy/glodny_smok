@@ -24,6 +24,8 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { CartProductDetails } from "@/components/CartProductDetails";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
+import { NNSdk } from "@/lib/sdk";
+import { storeId } from "@/data/menu-data";
 
 export default function CartPage() {
   const router = useRouter();
@@ -40,58 +42,85 @@ export default function CartPage() {
     name: "",
     email: "",
     phone: "",
-    address: "",
+    city: "",
+    street: "",
+    streetNumber: "",
     notes: "",
   });
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [deliveryType, setDeliveryType] = useState("pickup");
-  
+
   // Minimalna wartość zamówienia dla dostawy (w zł)
-  const MIN_ORDER_VALUE_FOR_DELIVERY = 50.00;
+  const MIN_ORDER_VALUE_FOR_DELIVERY = 50.0;
   const isDeliveryAvailable = totalPrice >= MIN_ORDER_VALUE_FOR_DELIVERY;
-  
+
   // Zmiana typu dostawy na odbiór osobisty jeśli wartość zamówienia jest poniżej minimum
   useEffect(() => {
     if (deliveryType === "delivery" && !isDeliveryAvailable) {
       setDeliveryType("pickup");
     }
   }, [totalPrice, isDeliveryAvailable]);
-  
+
   // Konwersja ceny na grosze dla PayU
-  const amountInSmallestUnit = Math.round(totalPrice * 100);
+  // const amountInSmallestUnit = Math.round(totalPrice * 100);
 
   // Obliczenie kosztów dostawy
-  const deliveryCost = deliveryType === "delivery" ? 10.00 : 0.00;
+  const deliveryCost = deliveryType === "delivery" ? 10.0 : 0.0;
   // Całkowita kwota z dostawą
   const totalWithDelivery = totalPrice + deliveryCost;
 
   const handleOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Sprawdź czy adres jest wymagany i podany
-    if (deliveryType === "delivery" && !orderFormData.address.trim()) {
+    if (
+      deliveryType === "delivery" &&
+      (!orderFormData.city ||
+        !orderFormData.street ||
+        !orderFormData.streetNumber)
+    ) {
       alert("Proszę podać adres dostawy");
       return;
     }
-    
-    console.log("Order submitted:", { 
-      items, 
-      totalPrice, 
+
+    console.log("Order submitted:", {
+      items,
+      totalPrice,
       deliveryType,
       deliveryCost,
       totalWithDelivery,
-      ...orderFormData 
+      ...orderFormData,
     });
-    
+    const formattedPhoneNumber = orderFormData.phone.trim().startsWith("+")
+      ? orderFormData.phone.trim()
+      : `+48${orderFormData.phone.trim()}`;
+    NNSdk.placeOrder(
+      storeId,
+      {
+        city: orderFormData.city,
+        streetName: orderFormData.street,
+        streetNumber: orderFormData.streetNumber,
+        method: deliveryType.toUpperCase(),
+      },
+      {
+        firstName: orderFormData.name,
+        email: orderFormData.email,
+        phoneNumber: formattedPhoneNumber,
+      },
+      selectedPaymentMethod.value
+    );
     items.forEach((item) => removeFromCart(item.cartItemId));
     setOrderFormData({
       name: "",
       email: "",
       phone: "",
-      address: "",
+      city: "",
+      street: "",
+      streetNumber: "",
       notes: "",
     });
+
     router.push("/order-success");
   };
 
@@ -278,9 +307,7 @@ export default function CartPage() {
 
           <div className="md:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Sposób dostawy
-              </h2>
+              <h2 className="text-lg font-semibold mb-4">Sposób dostawy</h2>
               <div className="flex flex-col space-y-3 mb-6">
                 <div className="flex items-center space-x-3">
                   <input
@@ -293,14 +320,17 @@ export default function CartPage() {
                     disabled={!isDeliveryAvailable}
                     className="h-4 w-4 text-red-600 focus:ring-red-500 disabled:opacity-50"
                   />
-                  <label 
-                    htmlFor="delivery" 
-                    className={`font-medium ${!isDeliveryAvailable ? 'text-gray-400' : ''}`}
+                  <label
+                    htmlFor="delivery"
+                    className={`font-medium ${
+                      !isDeliveryAvailable ? "text-gray-400" : ""
+                    }`}
                   >
                     Dostawa pod wskazany adres (+10.00 zł)
                     {!isDeliveryAvailable && (
                       <span className="block text-sm text-red-500 mt-1">
-                        Wymagana minimalna wartość zamówienia: {MIN_ORDER_VALUE_FOR_DELIVERY.toFixed(2)} zł
+                        Wymagana minimalna wartość zamówienia:{" "}
+                        {MIN_ORDER_VALUE_FOR_DELIVERY.toFixed(2)} zł
                       </span>
                     )}
                   </label>
@@ -326,17 +356,43 @@ export default function CartPage() {
                 <div className="mb-6">
                   <h3 className="text-md font-medium mb-2">Adres dostawy</h3>
                   <div>
+                    <Label htmlFor="city">Miasto</Label>
                     <Input
-                      id="address"
-                      value={orderFormData.address}
+                      id="city"
+                      value={orderFormData.city}
                       onChange={(e) =>
                         setOrderFormData({
                           ...orderFormData,
-                          address: e.target.value,
+                          city: e.target.value,
                         })
                       }
                       required={deliveryType === "delivery"}
-                      placeholder="Ulica, numer domu/mieszkania, miasto, kod pocztowy"
+                      className="mt-1"
+                    />
+                    <Label htmlFor="city">Nazwa ulicy</Label>
+                    <Input
+                      id="street"
+                      value={orderFormData.street}
+                      onChange={(e) =>
+                        setOrderFormData({
+                          ...orderFormData,
+                          street: e.target.value,
+                        })
+                      }
+                      required={deliveryType === "delivery"}
+                      className="mt-1"
+                    />
+                    <Label htmlFor="city">Numer lokalu</Label>
+                    <Input
+                      id="streetNumber"
+                      value={orderFormData.streetNumber}
+                      onChange={(e) =>
+                        setOrderFormData({
+                          ...orderFormData,
+                          streetNumber: e.target.value,
+                        })
+                      }
+                      required={deliveryType === "delivery"}
                       className="mt-1"
                     />
                   </div>
@@ -355,7 +411,9 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Dostawa</span>
-                  <span className="text-gray-900">{deliveryCost.toFixed(2)} zł</span>
+                  <span className="text-gray-900">
+                    {deliveryCost.toFixed(2)} zł
+                  </span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between font-medium text-lg">
@@ -368,7 +426,7 @@ export default function CartPage() {
 
               <form onSubmit={handleOrderSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Imię i nazwisko</Label>
+                  <Label htmlFor="name">Imię</Label>
                   <Input
                     id="name"
                     value={orderFormData.name}
@@ -416,7 +474,7 @@ export default function CartPage() {
                 </div>
                 <div className="mt-8">
                   <h3 className="text-lg font-medium mb-4">Metoda płatności</h3>
-                  
+
                   {selectedPaymentMethod ? (
                     <div className="flex items-center justify-between border rounded-lg p-4 mb-4">
                       <div className="flex items-center">
@@ -429,10 +487,13 @@ export default function CartPage() {
                           />
                         </div>
                         <div className="ml-3">
-                          <p className="font-medium">{selectedPaymentMethod.name}</p>
+                          <p className="font-medium">
+                            {selectedPaymentMethod.name}
+                          </p>
                         </div>
                       </div>
-                      <Button 
+                      <Button
+                        type="button"
                         variant="outline"
                         onClick={() => setIsPaymentModalOpen(true)}
                       >
@@ -441,6 +502,7 @@ export default function CartPage() {
                     </div>
                   ) : (
                     <Button
+                      type="button"
                       className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 py-6"
                       onClick={() => setIsPaymentModalOpen(true)}
                     >
@@ -453,8 +515,11 @@ export default function CartPage() {
                   type="submit"
                   className="w-full bg-red-600 hover:bg-red-700"
                   disabled={
-                    !selectedPaymentMethod || 
-                    (deliveryType === "delivery" && !orderFormData.address.trim())
+                    !selectedPaymentMethod ||
+                    (deliveryType === "delivery" &&
+                      (!orderFormData.city ||
+                        !orderFormData.street ||
+                        !orderFormData.streetNumber))
                   }
                 >
                   Złóż zamówienie
@@ -463,11 +528,10 @@ export default function CartPage() {
             </div>
           </div>
         </div>
-        
+
         <PaymentMethodsModal
           isOpen={isPaymentModalOpen}
           onClose={() => setIsPaymentModalOpen(false)}
-          amount={amountInSmallestUnit}
           onMethodSelect={handlePaymentMethodSelect}
         />
       </div>

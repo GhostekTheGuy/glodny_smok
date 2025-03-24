@@ -2,10 +2,6 @@
 	Installed from github/BarSwi/NomNomFrontSDK
 */
 
-/*
-	Installed from github/BarSwi/NomNomFrontSDK
-*/
-
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { sanitizeCartProduct, Utils } from "./Utils";
 import {
@@ -13,6 +9,8 @@ import {
   CartMeal,
   CartProduct,
   CartStorage,
+  CustomerDetails,
+  DeliveryDetails,
   Menu,
   MenuResponse,
   PopulatedMenu,
@@ -24,6 +22,7 @@ import { ItemType } from "./types/enums";
 export class NomNomSDK extends Utils {
   private client: AxiosInstance;
   private fetchedMenus: PopulatedMenu[] = [];
+  private fetchedSettings = {};
   private productsMap: Map<string, PopulatedProduct> = new Map();
   private localStorageKey: string = "currentCart";
   constructor(baseURL: string = "http://localhost:8000/api") {
@@ -36,6 +35,19 @@ export class NomNomSDK extends Utils {
     });
   }
 
+  async getStoreSettingsAndStatus(restaurantId: string) {
+    if (Object.keys(this.fetchedSettings)?.length > 0)
+      return this.fetchedSettings;
+    try {
+      const response: AxiosResponse<MenuResponse> = await this.client.get(
+        `/store-settings-and-status?store=${restaurantId}`
+      );
+      this.fetchedSettings = response.data;
+      return this.fetchedSettings;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
   /**
    * Fetches the current menus for a specified restaurant.
    *
@@ -62,11 +74,12 @@ export class NomNomSDK extends Utils {
    *     console.error("Error fetching current menus:", error);
    *   });
    */
-  //@ts-expect-error
-  async getCurrentMenus(restaurandId: string): Promise<PopulatedMenu[]> {
+
+  async getCurrentMenus(restaurantId: string): Promise<PopulatedMenu[]> {
+    if (this.fetchedMenus?.length > 0) return this.fetchedMenus;
     try {
       const response: AxiosResponse<MenuResponse> = await this.client.get(
-        `/menus/current?store=${restaurandId}`,
+        `/menus/current?store=${restaurantId}`
       );
       this.fetchedMenus = this.populateProductsDetails(response.data.menus);
       this.productsMap = this.createProductsHashMap(this.fetchedMenus);
@@ -101,13 +114,14 @@ export class NomNomSDK extends Utils {
 
   addProductToCart(cartProduct: CartProduct) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || '{"items": []}',
+      localStorage.getItem(this.localStorageKey) || '{"items": []}'
     );
 
     const sanitisedProduct = sanitizeCartProduct(cartProduct);
 
+    console.log(sanitisedProduct);
     const existingItemIndex = storedData.items?.findIndex((item) =>
-      this.areProductsEqual(item, sanitisedProduct),
+      this.areProductsEqual(item, sanitisedProduct)
     );
 
     if (existingItemIndex > -1) {
@@ -147,14 +161,14 @@ export class NomNomSDK extends Utils {
 
   updateProductInCart(cartItemId: string, cartProduct: CartProduct) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || '{"items": []}',
+      localStorage.getItem(this.localStorageKey) || '{"items": []}'
     );
     if (!storedData) return;
 
     const sanitisedProduct = sanitizeCartProduct(cartProduct);
 
     const itemIndex = storedData.items?.findIndex(
-      (item: CartProduct) => item.cartItemId === cartItemId,
+      (item: CartProduct) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
@@ -184,12 +198,12 @@ export class NomNomSDK extends Utils {
    */
   removeItemFromCart(cartItemId: string) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || '{"items": []}',
+      localStorage.getItem(this.localStorageKey) || '{"items": []}'
     );
     if (!storedData) return;
 
     storedData.items = storedData.items.filter(
-      (item: CartProduct) => item.cartItemId !== cartItemId,
+      (item: CartProduct) => item.cartItemId !== cartItemId
     );
 
     storedData.timestamp = new Date().toISOString();
@@ -224,7 +238,7 @@ export class NomNomSDK extends Utils {
   getProductsFromCart() {
     const items = this.getItemsFromCart();
     return items?.filter(
-      (item) => item.type === ItemType.PRODUCT,
+      (item) => item.type === ItemType.PRODUCT
     ) as CartProduct[];
   }
 
@@ -239,7 +253,7 @@ export class NomNomSDK extends Utils {
    */
   getItemsFromCart(): (CartProduct | CartMeal)[] {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || '{"items": []}',
+      localStorage.getItem(this.localStorageKey) || '{"items": []}'
     );
     return storedData ? storedData.items : [];
   }
@@ -257,12 +271,12 @@ export class NomNomSDK extends Utils {
    */
   updateItemQuantity(cartItemId: string, newQuantity: number) {
     let storedData = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || '{"items": []}',
+      localStorage.getItem(this.localStorageKey) || '{"items": []}'
     );
     if (!storedData) return;
 
     const itemIndex = storedData.items?.findIndex(
-      (item: CartProduct) => item.cartItemId === cartItemId,
+      (item: CartProduct) => item.cartItemId === cartItemId
     );
 
     if (itemIndex !== -1) {
@@ -274,23 +288,42 @@ export class NomNomSDK extends Utils {
     window.dispatchEvent(new Event("cart-update"));
   }
 
-  async createOrder(restaurandId: string) {
+  async placeOrder(
+    restaurandId: string,
+    deliveryDetails: DeliveryDetails,
+    customerDetails: CustomerDetails,
+    paymentMethod: string
+  ) {
     //TODO: Compare timestamps and perform additional frontend validation.
     if (!this.fetchedMenus)
       this.fetchedMenus = await this.getCurrentMenus(restaurandId);
     const cartStorage = JSON.parse(
-      localStorage.getItem(this.localStorageKey) || '{"items": []}',
+      localStorage.getItem(this.localStorageKey) || '{"items": []}'
     );
+    if (cartStorage.items.length == 0) return;
 
     const requestData = { meals: [{ id: "ALONE", products: [] as any }] };
     cartStorage.items?.forEach((cartItem) => {
       if (cartItem.type == ItemType.PRODUCT) {
         //meals[0] is hardcoded index of meals that contains standalone produuctss
         requestData.meals[0].products.push(
-          this.transformCartProduct(cartItem as CartProduct),
+          this.transformCartProduct(cartItem as CartProduct)
         );
       }
     });
+
+    const response: AxiosResponse<MenuResponse> = await this.client.post(
+      `/create-order`,
+      {
+        ...requestData,
+        store: restaurandId,
+        deliveryDetails,
+        customerDetails,
+        paymentMethod,
+      }
+    );
+
+    console.log(response);
   }
 
   getProductById(productId: string) {
@@ -298,7 +331,7 @@ export class NomNomSDK extends Utils {
   }
 
   async getAvailablePaymentMethods(
-    storeId: string = "TODO dodac polaczenie z konkretnymi lokalami",
+    storeId: string = "TODO dodac polaczenie z konkretnymi lokalami"
   ) {
     const response: AxiosResponse<any> = await this.client.get(`/paymethods`);
 

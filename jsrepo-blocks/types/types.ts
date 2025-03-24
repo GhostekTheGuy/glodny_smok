@@ -232,3 +232,16 @@ export type CartStorage = {
   items: (CartProduct | CartMeal)[];
   timestamp: number;
 };
+
+export type CustomerDetails = {
+  firstName: string;
+  email: string;
+  phoneNumber: string;
+};
+
+export type DeliveryDetails = {
+  city: string;
+  streetName: string;
+  streetNumber: string;
+  method: string;
+};

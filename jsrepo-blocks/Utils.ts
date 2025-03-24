@@ -1,7 +1,3 @@
-/*
-	Installed from github/BarSwi/NomNomFrontSDK
-*/
-
 import { OrderRequestGroupKey } from "./types/enums";
 import {
   CartItem,
@@ -29,6 +25,7 @@ export class Utils {
                 crossSaleGroups,
                 categories,
                 price,
+                vatPercentage,
                 variants,
                 packagingSelection,
                 cutlerySelection,
@@ -36,6 +33,9 @@ export class Utils {
                 ...mappedProduct
               } = product;
 
+              const priceWithVAT =
+                item.price + (item.price * vatPercentage) / 100;
+              item.price = parseFloat(priceWithVAT.toFixed(2));
               Object.assign(item, mappedProduct);
             }
           });
@@ -63,7 +63,7 @@ export class Utils {
     return menus as any as PopulatedMenu[];
   }
   protected createProductsHashMap<
-    T extends UnpopulatedProduct | PopulatedProduct,
+    T extends UnpopulatedProduct | PopulatedProduct
   >(menus: { products?: T[] }[]): Map<string, T> {
     const hashMap = new Map<string, T>();
 
@@ -78,7 +78,7 @@ export class Utils {
 
   protected areProductsEqual(
     firstProduct: CartProduct,
-    secondProduct: CartProduct,
+    secondProduct: CartProduct
   ) {
     return (
       firstProduct.productId === secondProduct.productId &&
@@ -93,19 +93,19 @@ export class Utils {
 
   protected transformCartProduct(cartProduct: CartProduct) {
     const cutleryOptions = cartProduct.selectedCutlery.map(
-      ({ name, defaultCount, price, ...rest }) => rest,
+      ({ name, defaultCount, price, ...rest }) => rest
     );
 
     return {
       id: cartProduct.productId,
       count: cartProduct.quantity,
-      ingredientsGroups: this.groupItems(
+      ingredientGroups: this.groupItems(
         cartProduct.selectedIngredients,
-        OrderRequestGroupKey.Ingredients,
+        OrderRequestGroupKey.Ingredients
       ),
       crossSaleGroups: this.groupItems(
         cartProduct.crossSaleItems,
-        OrderRequestGroupKey.Products,
+        OrderRequestGroupKey.crossSaleItems
       ),
       cutleryOptions,
     };
@@ -113,7 +113,7 @@ export class Utils {
 
   private groupItems<T extends CartItemSubItem>(
     items: T[] | undefined,
-    key: OrderRequestGroupKey,
+    key: OrderRequestGroupKey
   ) {
     if (!items || items.length === 0) return [];
 
@@ -121,7 +121,7 @@ export class Utils {
       string,
       { groupId: string } & {
         [OrderRequestGroupKey.Ingredients]?: any[];
-        [OrderRequestGroupKey.Products]?: any[];
+        [OrderRequestGroupKey.crossSaleItems]?: any[];
       }
     > = {};
 
@@ -145,10 +145,11 @@ export const sanitizeCartProduct = (cartProduct: CartProduct): CartProduct => {
   return {
     ...cartProduct,
     selectedIngredients: cartProduct.selectedIngredients.filter(
-      (ingredient) => ingredient.defaultCount !== ingredient.count,
+      (ingredient) => ingredient.defaultCount !== ingredient.count
     ),
+    crossSaleItems: cartProduct.crossSaleItems.filter((csi) => csi.count > 0),
     selectedCutlery: cartProduct.selectedCutlery.filter(
-      (cutlery) => cutlery.defaultCount !== cutlery.count,
+      (cutlery) => cutlery.defaultCount !== cutlery.count
     ),
   };
 };
