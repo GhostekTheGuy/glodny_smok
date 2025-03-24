@@ -210,7 +210,10 @@ export function CartPopup({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Dostawa</span>
-                <span className="text-gray-900">0.00 zł</span>
+                <span className="text-gray-900">od 0.00 zł</span>
+              </div>
+              <div className="flex justify-between text-sm text-gray-500 text-xs italic">
+                <span>Min. wartość zamówienia dla dostawy: 50.00 zł</span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-medium text-lg">

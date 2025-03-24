@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +12,7 @@ import {
   Minus,
   ShoppingBag,
   ArrowLeft,
+  CreditCard,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,7 @@ import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { CartProductDetails } from "@/components/CartProductDetails";
+import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 
 export default function CartPage() {
   const router = useRouter();
@@ -41,10 +43,47 @@ export default function CartPage() {
     address: "",
     notes: "",
   });
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [deliveryType, setDeliveryType] = useState("pickup");
+  
+  // Minimalna wartość zamówienia dla dostawy (w zł)
+  const MIN_ORDER_VALUE_FOR_DELIVERY = 50.00;
+  const isDeliveryAvailable = totalPrice >= MIN_ORDER_VALUE_FOR_DELIVERY;
+  
+  // Zmiana typu dostawy na odbiór osobisty jeśli wartość zamówienia jest poniżej minimum
+  useEffect(() => {
+    if (deliveryType === "delivery" && !isDeliveryAvailable) {
+      setDeliveryType("pickup");
+    }
+  }, [totalPrice, isDeliveryAvailable]);
+  
+  // Konwersja ceny na grosze dla PayU
+  const amountInSmallestUnit = Math.round(totalPrice * 100);
+
+  // Obliczenie kosztów dostawy
+  const deliveryCost = deliveryType === "delivery" ? 10.00 : 0.00;
+  // Całkowita kwota z dostawą
+  const totalWithDelivery = totalPrice + deliveryCost;
 
   const handleOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Order submitted:", { items, totalPrice, ...orderFormData });
+    
+    // Sprawdź czy adres jest wymagany i podany
+    if (deliveryType === "delivery" && !orderFormData.address.trim()) {
+      alert("Proszę podać adres dostawy");
+      return;
+    }
+    
+    console.log("Order submitted:", { 
+      items, 
+      totalPrice, 
+      deliveryType,
+      deliveryCost,
+      totalWithDelivery,
+      ...orderFormData 
+    });
+    
     items.forEach((item) => removeFromCart(item.cartItemId));
     setOrderFormData({
       name: "",
@@ -62,6 +101,12 @@ export default function CartPage() {
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     updateQuantity(itemId, newQuantity);
+  };
+
+  const handlePaymentMethodSelect = (method) => {
+    setSelectedPaymentMethod(method);
+    console.log("Wybrano metodę płatności:", method.value);
+    // dodatkowe operacje po wybraniu metody płatności
   };
 
   if (items.length === 0) {
@@ -112,7 +157,7 @@ export default function CartPage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6 h-full flex flex-col">
               <div className="flex items-center gap-2 mb-6">
                 <ShoppingBag className="h-6 w-6" />
                 <h1 className="text-2xl font-semibold">
@@ -120,7 +165,7 @@ export default function CartPage() {
                 </h1>
               </div>
 
-              <ScrollArea className="h-[calc(100vh-400px)]">
+              <ScrollArea className="flex-grow overflow-y-auto">
                 <div className="space-y-6">
                   {products.map((product, idx) => (
                     <motion.div
@@ -234,21 +279,90 @@ export default function CartPage() {
           <div className="md:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
               <h2 className="text-lg font-semibold mb-4">
+                Sposób dostawy
+              </h2>
+              <div className="flex flex-col space-y-3 mb-6">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    id="delivery"
+                    name="deliveryType"
+                    value="delivery"
+                    checked={deliveryType === "delivery"}
+                    onChange={() => setDeliveryType("delivery")}
+                    disabled={!isDeliveryAvailable}
+                    className="h-4 w-4 text-red-600 focus:ring-red-500 disabled:opacity-50"
+                  />
+                  <label 
+                    htmlFor="delivery" 
+                    className={`font-medium ${!isDeliveryAvailable ? 'text-gray-400' : ''}`}
+                  >
+                    Dostawa pod wskazany adres (+10.00 zł)
+                    {!isDeliveryAvailable && (
+                      <span className="block text-sm text-red-500 mt-1">
+                        Wymagana minimalna wartość zamówienia: {MIN_ORDER_VALUE_FOR_DELIVERY.toFixed(2)} zł
+                      </span>
+                    )}
+                  </label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    id="pickup"
+                    name="deliveryType"
+                    value="pickup"
+                    checked={deliveryType === "pickup"}
+                    onChange={() => setDeliveryType("pickup")}
+                    className="h-4 w-4 text-red-600 focus:ring-red-500"
+                  />
+                  <label htmlFor="pickup" className="font-medium">
+                    Odbiór osobisty w restauracji (0.00 zł)
+                  </label>
+                </div>
+              </div>
+
+              {/* Adres dostawy - pokazuj tylko gdy wybrana jest dostawa */}
+              {deliveryType === "delivery" && (
+                <div className="mb-6">
+                  <h3 className="text-md font-medium mb-2">Adres dostawy</h3>
+                  <div>
+                    <Input
+                      id="address"
+                      value={orderFormData.address}
+                      onChange={(e) =>
+                        setOrderFormData({
+                          ...orderFormData,
+                          address: e.target.value,
+                        })
+                      }
+                      required={deliveryType === "delivery"}
+                      placeholder="Ulica, numer domu/mieszkania, miasto, kod pocztowy"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <h2 className="text-lg font-semibold mb-4">
                 Podsumowanie zamówienia
               </h2>
-              <div className="space-y-2 mb-6">
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Suma częściowa</span>
-                  <span>{totalPrice.toFixed(2)} zł</span>
+                  <span className="text-gray-900">
+                    {totalPrice.toFixed(2)} zł
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Dostawa</span>
-                  <span>0.00 zł</span>
+                  <span className="text-gray-900">{deliveryCost.toFixed(2)} zł</span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between font-medium text-lg">
-                  <span>Razem</span>
-                  <span>{totalPrice.toFixed(2)} zł</span>
+                  <span className="text-gray-900">Razem</span>
+                  <span className="text-gray-900">
+                    {totalWithDelivery.toFixed(2)} zł
+                  </span>
                 </div>
               </div>
 
@@ -300,38 +414,48 @@ export default function CartPage() {
                     className="mt-1"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="address">Adres dostawy</Label>
-                  <Textarea
-                    id="address"
-                    value={orderFormData.address}
-                    onChange={(e) =>
-                      setOrderFormData({
-                        ...orderFormData,
-                        address: e.target.value,
-                      })
-                    }
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="notes">Uwagi do zamówienia</Label>
-                  <Textarea
-                    id="notes"
-                    value={orderFormData.notes}
-                    onChange={(e) =>
-                      setOrderFormData({
-                        ...orderFormData,
-                        notes: e.target.value,
-                      })
-                    }
-                    className="mt-1"
-                  />
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-4">Metoda płatności</h3>
+                  
+                  {selectedPaymentMethod ? (
+                    <div className="flex items-center justify-between border rounded-lg p-4 mb-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 relative flex-shrink-0">
+                          <Image
+                            src={selectedPaymentMethod.brandImageUrl}
+                            alt={selectedPaymentMethod.name}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                        <div className="ml-3">
+                          <p className="font-medium">{selectedPaymentMethod.name}</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setIsPaymentModalOpen(true)}
+                      >
+                        Zmień
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 py-6"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                    >
+                      <CreditCard className="w-5 h-5" />
+                      <span>Wybierz metodę płatności</span>
+                    </Button>
+                  )}
                 </div>
                 <Button
                   type="submit"
                   className="w-full bg-red-600 hover:bg-red-700"
+                  disabled={
+                    !selectedPaymentMethod || 
+                    (deliveryType === "delivery" && !orderFormData.address.trim())
+                  }
                 >
                   Złóż zamówienie
                 </Button>
@@ -339,6 +463,13 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+        
+        <PaymentMethodsModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          amount={amountInSmallestUnit}
+          onMethodSelect={handlePaymentMethodSelect}
+        />
       </div>
     </div>
   );

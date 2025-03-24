@@ -4,6 +4,7 @@ const nextConfig = {
       "v0.blob.com",
       "hebbkx1anhila5yf.public.blob.vercel-storage.com",
       "example.com",
+      "static.payu.com",
     ],
   },
   eslint: {
