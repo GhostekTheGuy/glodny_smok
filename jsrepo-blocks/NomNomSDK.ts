@@ -330,6 +330,7 @@ export class NomNomSDK extends Utils {
           paymentMethod,
         }
       );
+      return response;
     } catch (error: any) {
       console.log("TEST", error.response?.data?.key);
       throwApiError(error.response?.data?.key, error.response?.data?.message);

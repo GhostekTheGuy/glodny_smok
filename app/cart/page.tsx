@@ -100,7 +100,7 @@ export default function CartPage() {
       : `+48${orderFormData.phone.trim()}`;
 
     try {
-      await NNSdk.placeOrder(
+      const res = await NNSdk.placeOrder(
         storeId,
         {
           city: orderFormData.city,
@@ -115,12 +115,19 @@ export default function CartPage() {
         },
         selectedPaymentMethod.value
       );
-    } catch (error) {
-      if (error instanceof SdkError && error.key === "DELIVERY_ADDRESS_OUT_OF_RANGE") {
-        setAddressError("Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego.");
-        return;
+      const paymentUrl = res.data.paymentDetails?.paymentUrl;
+      if (paymentUrl) {
+        window.open(paymentUrl, "_blank");
       }
-      alert(error.message);
+    } catch (error) {
+      if (
+        error instanceof SdkError &&
+        error.key === "DELIVERY_ADDRESS_OUT_OF_RANGE"
+      ) {
+        setAddressError(
+          "Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego."
+        );
+      }
       return;
     }
 
@@ -374,7 +381,10 @@ export default function CartPage() {
                       placeholder="Miasto"
                       value={orderFormData.city}
                       onChange={(e) =>
-                        setOrderFormData({ ...orderFormData, city: e.target.value })
+                        setOrderFormData({
+                          ...orderFormData,
+                          city: e.target.value,
+                        })
                       }
                       className={`w-full p-2 border rounded ${
                         addressError ? "border-red-500" : "border-gray-300"
@@ -387,7 +397,10 @@ export default function CartPage() {
                       placeholder="Ulica"
                       value={orderFormData.street}
                       onChange={(e) =>
-                        setOrderFormData({ ...orderFormData, street: e.target.value })
+                        setOrderFormData({
+                          ...orderFormData,
+                          street: e.target.value,
+                        })
                       }
                       className={`w-full p-2 border rounded ${
                         addressError ? "border-red-500" : "border-gray-300"
@@ -400,14 +413,17 @@ export default function CartPage() {
                       placeholder="Numer"
                       value={orderFormData.streetNumber}
                       onChange={(e) =>
-                        setOrderFormData({ ...orderFormData, streetNumber: e.target.value })
+                        setOrderFormData({
+                          ...orderFormData,
+                          streetNumber: e.target.value,
+                        })
                       }
                       className={`w-full p-2 border rounded ${
                         addressError ? "border-red-500" : "border-gray-300"
                       }`}
                     />
                   </div>
-                  
+
                   {addressError && (
                     <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
                       <p>{addressError}</p>
