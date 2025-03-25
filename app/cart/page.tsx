@@ -51,6 +51,7 @@ export default function CartPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [deliveryType, setDeliveryType] = useState("pickup");
+  const [addressError, setAddressError] = useState("");
 
   // Minimalna wartość zamówienia dla dostawy (w zł)
   const MIN_ORDER_VALUE_FOR_DELIVERY = 50.0;
@@ -73,6 +74,7 @@ export default function CartPage() {
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAddressError(""); // Reset błędu przy każdym submicie
 
     // Sprawdź czy adres jest wymagany i podany
     if (
@@ -97,7 +99,6 @@ export default function CartPage() {
       ? orderFormData.phone.trim()
       : `+48${orderFormData.phone.trim()}`;
 
-    //TODO: Think
     try {
       await NNSdk.placeOrder(
         storeId,
@@ -115,11 +116,12 @@ export default function CartPage() {
         selectedPaymentMethod.value
       );
     } catch (error) {
-      // {
-      //   "key":
-      //   "message":
-      // }
+      if (error instanceof SdkError && error.key === "DELIVERY_ADDRESS_OUT_OF_RANGE") {
+        setAddressError("Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego.");
+        return;
+      }
       alert(error.message);
+      return;
     }
 
     items.forEach((item) => removeFromCart(item.cartItemId));
@@ -365,49 +367,59 @@ export default function CartPage() {
 
               {/* Adres dostawy - pokazuj tylko gdy wybrana jest dostawa */}
               {deliveryType === "delivery" && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium mb-2">Adres dostawy</h3>
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="city">Miasto</Label>
-                    <Input
-                      id="city"
+                    <input
+                      type="text"
+                      placeholder="Miasto"
                       value={orderFormData.city}
                       onChange={(e) =>
-                        setOrderFormData({
-                          ...orderFormData,
-                          city: e.target.value,
-                        })
+                        setOrderFormData({ ...orderFormData, city: e.target.value })
                       }
-                      required={deliveryType === "delivery"}
-                      className="mt-1"
-                    />
-                    <Label htmlFor="city">Nazwa ulicy</Label>
-                    <Input
-                      id="street"
-                      value={orderFormData.street}
-                      onChange={(e) =>
-                        setOrderFormData({
-                          ...orderFormData,
-                          street: e.target.value,
-                        })
-                      }
-                      required={deliveryType === "delivery"}
-                      className="mt-1"
-                    />
-                    <Label htmlFor="city">Numer lokalu</Label>
-                    <Input
-                      id="streetNumber"
-                      value={orderFormData.streetNumber}
-                      onChange={(e) =>
-                        setOrderFormData({
-                          ...orderFormData,
-                          streetNumber: e.target.value,
-                        })
-                      }
-                      required={deliveryType === "delivery"}
-                      className="mt-1"
+                      className={`w-full p-2 border rounded ${
+                        addressError ? "border-red-500" : "border-gray-300"
+                      }`}
                     />
                   </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Ulica"
+                      value={orderFormData.street}
+                      onChange={(e) =>
+                        setOrderFormData({ ...orderFormData, street: e.target.value })
+                      }
+                      className={`w-full p-2 border rounded ${
+                        addressError ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Numer"
+                      value={orderFormData.streetNumber}
+                      onChange={(e) =>
+                        setOrderFormData({ ...orderFormData, streetNumber: e.target.value })
+                      }
+                      className={`w-full p-2 border rounded ${
+                        addressError ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                  </div>
+                  
+                  {addressError && (
+                    <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
+                      <p>{addressError}</p>
+                      <p className="mt-1">
+                        Możesz:
+                        <ul className="list-disc list-inside ml-2">
+                          <li>Wprowadzić inny adres dostawy</li>
+                          <li>Wybrać opcję odbioru osobistego</li>
+                        </ul>
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
