@@ -26,6 +26,7 @@ import { CartProductDetails } from "@/components/CartProductDetails";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { NNSdk } from "@/lib/sdk";
 import { storeId } from "@/data/menu-data";
+import { SdkError } from "@/jsrepo-blocks/errors";
 
 export default function CartPage() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function CartPage() {
   // Całkowita kwota z dostawą
   const totalWithDelivery = totalPrice + deliveryCost;
 
-  const handleOrderSubmit = (e: React.FormEvent) => {
+  const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Sprawdź czy adres jest wymagany i podany
@@ -95,21 +96,32 @@ export default function CartPage() {
     const formattedPhoneNumber = orderFormData.phone.trim().startsWith("+")
       ? orderFormData.phone.trim()
       : `+48${orderFormData.phone.trim()}`;
-    NNSdk.placeOrder(
-      storeId,
-      {
-        city: orderFormData.city,
-        streetName: orderFormData.street,
-        streetNumber: orderFormData.streetNumber,
-        method: deliveryType.toUpperCase(),
-      },
-      {
-        firstName: orderFormData.name,
-        email: orderFormData.email,
-        phoneNumber: formattedPhoneNumber,
-      },
-      selectedPaymentMethod.value
-    );
+
+    //TODO: Think
+    try {
+      await NNSdk.placeOrder(
+        storeId,
+        {
+          city: orderFormData.city,
+          streetName: orderFormData.street,
+          streetNumber: orderFormData.streetNumber,
+          method: deliveryType.toUpperCase(),
+        },
+        {
+          firstName: orderFormData.name,
+          email: orderFormData.email,
+          phoneNumber: formattedPhoneNumber,
+        },
+        selectedPaymentMethod.value
+      );
+    } catch (error) {
+      // {
+      //   "key":
+      //   "message":
+      // }
+      alert(error.message);
+    }
+
     items.forEach((item) => removeFromCart(item.cartItemId));
     setOrderFormData({
       name: "",
@@ -121,7 +133,7 @@ export default function CartPage() {
       notes: "",
     });
 
-    router.push("/order-success");
+    //router.push("/order-success");
   };
 
   const handleEditItem = (itemId: string) => {

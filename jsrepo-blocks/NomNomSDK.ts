@@ -2,8 +2,16 @@
 	Installed from github/BarSwi/NomNomFrontSDK
 */
 
+/*
+	Installed from github/BarSwi/NomNomFrontSDK
+*/
+
+/*
+	Installed from github/BarSwi/NomNomFrontSDK
+*/
+
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { sanitizeCartProduct, Utils } from "./Utils";
+import { sanitizeCartProduct, throwApiError, Utils } from "./Utils";
 import {
   CartItem,
   CartMeal,
@@ -74,7 +82,7 @@ export class NomNomSDK extends Utils {
    *     console.error("Error fetching current menus:", error);
    *   });
    */
-
+  //@ts-expect-error
   async getCurrentMenus(restaurantId: string): Promise<PopulatedMenu[]> {
     if (this.fetchedMenus?.length > 0) return this.fetchedMenus;
     try {
@@ -119,7 +127,6 @@ export class NomNomSDK extends Utils {
 
     const sanitisedProduct = sanitizeCartProduct(cartProduct);
 
-    console.log(sanitisedProduct);
     const existingItemIndex = storedData.items?.findIndex((item) =>
       this.areProductsEqual(item, sanitisedProduct)
     );
@@ -312,18 +319,21 @@ export class NomNomSDK extends Utils {
       }
     });
 
-    const response: AxiosResponse<MenuResponse> = await this.client.post(
-      `/create-order`,
-      {
-        ...requestData,
-        store: restaurandId,
-        deliveryDetails,
-        customerDetails,
-        paymentMethod,
-      }
-    );
-
-    console.log(response);
+    try {
+      const response: AxiosResponse<any> = await this.client.post(
+        `/create-order`,
+        {
+          ...requestData,
+          store: restaurandId,
+          deliveryDetails,
+          customerDetails,
+          paymentMethod,
+        }
+      );
+    } catch (error: any) {
+      console.log("TEST", error.response?.data?.key);
+      throwApiError(error.response?.data?.key, error.response?.data?.message);
+    }
   }
 
   getProductById(productId: string) {

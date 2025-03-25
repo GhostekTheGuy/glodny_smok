@@ -1,3 +1,8 @@
+/*
+	Installed from github/BarSwi/NomNomFrontSDK
+*/
+
+import { SdkError, SdkErrorKey } from "./errors";
 import { OrderRequestGroupKey } from "./types/enums";
 import {
   CartItem,
@@ -63,7 +68,7 @@ export class Utils {
     return menus as any as PopulatedMenu[];
   }
   protected createProductsHashMap<
-    T extends UnpopulatedProduct | PopulatedProduct
+    T extends UnpopulatedProduct | PopulatedProduct,
   >(menus: { products?: T[] }[]): Map<string, T> {
     const hashMap = new Map<string, T>();
 
@@ -78,7 +83,7 @@ export class Utils {
 
   protected areProductsEqual(
     firstProduct: CartProduct,
-    secondProduct: CartProduct
+    secondProduct: CartProduct,
   ) {
     return (
       firstProduct.productId === secondProduct.productId &&
@@ -93,7 +98,7 @@ export class Utils {
 
   protected transformCartProduct(cartProduct: CartProduct) {
     const cutleryOptions = cartProduct.selectedCutlery.map(
-      ({ name, defaultCount, price, ...rest }) => rest
+      ({ name, defaultCount, price, ...rest }) => rest,
     );
 
     return {
@@ -101,11 +106,11 @@ export class Utils {
       count: cartProduct.quantity,
       ingredientGroups: this.groupItems(
         cartProduct.selectedIngredients,
-        OrderRequestGroupKey.Ingredients
+        OrderRequestGroupKey.Ingredients,
       ),
       crossSaleGroups: this.groupItems(
         cartProduct.crossSaleItems,
-        OrderRequestGroupKey.crossSaleItems
+        OrderRequestGroupKey.crossSaleItems,
       ),
       cutleryOptions,
     };
@@ -113,7 +118,7 @@ export class Utils {
 
   private groupItems<T extends CartItemSubItem>(
     items: T[] | undefined,
-    key: OrderRequestGroupKey
+    key: OrderRequestGroupKey,
   ) {
     if (!items || items.length === 0) return [];
 
@@ -145,15 +150,22 @@ export const sanitizeCartProduct = (cartProduct: CartProduct): CartProduct => {
   return {
     ...cartProduct,
     selectedIngredients: cartProduct.selectedIngredients.filter(
-      (ingredient) => ingredient.defaultCount !== ingredient.count
+      (ingredient) => ingredient.defaultCount !== ingredient.count,
     ),
     crossSaleItems: cartProduct.crossSaleItems.filter((csi) => csi.count > 0),
     selectedCutlery: cartProduct.selectedCutlery.filter(
-      (cutlery) => cutlery.defaultCount !== cutlery.count
+      (cutlery) => cutlery.defaultCount !== cutlery.count,
     ),
   };
 };
 
+export const throwApiError = (key: string, message: string) => {
+  if (key === SdkErrorKey.DELIVERY_OUT_OF_RANGE) {
+    throw new SdkError(key, message);
+  } else {
+    throw new SdkError(SdkErrorKey.UNKNOWN_ERROR, "");
+  }
+};
 // export const sanitizeCartItem = (cartItem: cartItem): CartProduct => {
 //   return {
 //     ...cartProduct,

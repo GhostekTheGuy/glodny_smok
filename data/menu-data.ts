@@ -1,5 +1,6 @@
 import { NNSdk } from "@/lib/sdk";
-export const storeId = "6c90ed83-a3f4-4836-a22a-40099491b047";
+
+export const storeId = "90826388-12d7-4784-b337-bd47df6cdb65";
 export const menu = await (async () => {
   return await NNSdk.getCurrentMenus("6c90ed83-a3f4-4836-a22a-40099491b047");
 })();
