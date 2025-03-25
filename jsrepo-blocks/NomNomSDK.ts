@@ -82,7 +82,6 @@ export class NomNomSDK extends Utils {
    *     console.error("Error fetching current menus:", error);
    *   });
    */
-  //@ts-expect-error
   async getCurrentMenus(restaurantId: string): Promise<PopulatedMenu[]> {
     if (this.fetchedMenus?.length > 0) return this.fetchedMenus;
     try {

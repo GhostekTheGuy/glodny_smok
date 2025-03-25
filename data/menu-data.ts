@@ -4,6 +4,11 @@ export const storeId = "90826388-12d7-4784-b337-bd47df6cdb65";
 export const menu = await (async () => {
   return await NNSdk.getCurrentMenus("6c90ed83-a3f4-4836-a22a-40099491b047");
 })();
+export const storeInformatons = await (async () => {
+  return (await NNSdk.getStoreSettingsAndStatus(
+    "6c90ed83-a3f4-4836-a22a-40099491b047"
+  )) as any;
+})();
 // export const localMenuData = [
 //   {
 //     id: "98b56c5e-3b91-4542-9e03-d7be95675f9e",

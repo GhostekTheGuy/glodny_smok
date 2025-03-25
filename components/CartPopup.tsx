@@ -15,6 +15,7 @@ import { CartProductDetails } from "./CartProductDetails";
 import { NNSdk } from "@/lib/sdk";
 import { CartItemSubItem, CartProduct } from "@/jsrepo-blocks/types/types";
 import { Quando } from "next/font/google";
+import { storeInformatons } from "@/data/menu-data";
 
 export function CartPopup({
   children,
@@ -25,6 +26,12 @@ export function CartPopup({
   onItemAdded?: () => void;
   isMenuPage?: boolean;
 }) {
+  //TODO: Move those to context
+  const MIN_ORDER_VALUE_FOR_DELIVERY =
+    storeInformatons.storeSettings.deliverySettings.deliveryMinPriceOrder;
+  const DELIVERY_PRICE =
+    storeInformatons.storeSettings.deliverySettings.deliveryPrice;
+
   const router = useRouter();
   const {
     items,
@@ -210,10 +217,15 @@ export function CartPopup({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Dostawa</span>
-                <span className="text-gray-900">od 0.00 zł</span>
+                <span className="text-gray-900">
+                  od {DELIVERY_PRICE.toFixed(2)} zł
+                </span>
               </div>
               <div className="flex justify-between text-sm text-gray-500 text-xs italic">
-                <span>Min. wartość zamówienia dla dostawy: 50.00 zł</span>
+                <span>
+                  Min. wartość zamówienia dla dostawy:{" "}
+                  {MIN_ORDER_VALUE_FOR_DELIVERY.toFixed(2)}zł
+                </span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-medium text-lg">

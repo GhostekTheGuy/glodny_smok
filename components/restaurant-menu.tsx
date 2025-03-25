@@ -32,7 +32,7 @@ export default function RestaurantMenu() {
         menu[0]?.products?.flatMap((product) => {
           // Jeśli produkt ma kategorie, użyj ich
           if (product.categories && product.categories.length > 0) {
-            return product.categories.map(category => category.name);
+            return product.categories.map((category) => category.name);
           }
           // Jeśli produkt nie ma kategorii, przypisz go do "Inne"
           return ["Inne"];
@@ -84,23 +84,24 @@ export default function RestaurantMenu() {
     <section className="w-full max-w-7xl mx-auto px-4 py-8" ref={menuRef}>
       {!hasMenu ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Image 
-            src="/empty-menu.svg" 
-            alt="Puste menu" 
-            width={200} 
-            height={200} 
+          <Image
+            src="/empty-menu.svg"
+            alt="Puste menu"
+            width={200}
+            height={200}
             className="mb-6 opacity-70"
           />
           <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            Restauracja nie ma jeszcze menu
+            Nie ma aktualnie żadnego dostępnegu menu.
           </h2>
           <p className="text-gray-600 max-w-md">
-            Ta restauracja nie dodała jeszcze żadnych produktów do swojego menu. Prosimy spróbować ponownie później.
+            W tym momencie nie ma żadnego dostępnego menu. Prosimy spróbować w
+            godzinach pracy restauracji.
           </p>
         </div>
       ) : (
         <>
-          <MenuHeader sortOrder={sortOrder} setSortOrder={setSortOrder} />
+          <MenuHeader />
           <CategoryDisplay category={selectedCategory} />
           {/* Mobile Categories (with scroll) */}
           <div className="relative mb-6 md:hidden">

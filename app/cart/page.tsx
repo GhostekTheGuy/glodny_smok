@@ -25,10 +25,21 @@ import Link from "next/link";
 import { CartProductDetails } from "@/components/CartProductDetails";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { NNSdk } from "@/lib/sdk";
-import { storeId } from "@/data/menu-data";
-import { SdkError } from "@/jsrepo-blocks/errors";
+import { storeId, storeInformatons } from "@/data/menu-data";
+import { SdkError, SdkErrorKey } from "@/jsrepo-blocks/errors";
 
 export default function CartPage() {
+  //TODO: Move those to context
+  const minOrderValueForDelivery =
+    storeInformatons.storeSettings.deliverySettings.deliveryMinPriceOrder;
+  const deliveryPrice =
+    storeInformatons.storeSettings.deliverySettings.deliveryPrice;
+  const allowDelivery =
+    storeInformatons.storeSettings.allowInStore &&
+    storeInformatons.storeStatus.allowInStore;
+  const allowPickup =
+    storeInformatons.storeSettings.allowPickup &&
+    storeInformatons.storeStatus.allowPickup;
   const router = useRouter();
   const {
     items,
@@ -54,8 +65,8 @@ export default function CartPage() {
   const [addressError, setAddressError] = useState("");
 
   // Minimalna wartość zamówienia dla dostawy (w zł)
-  const MIN_ORDER_VALUE_FOR_DELIVERY = 50.0;
-  const isDeliveryAvailable = totalPrice >= MIN_ORDER_VALUE_FOR_DELIVERY;
+  const isDeliveryAvailable =
+    totalPrice >= minOrderValueForDelivery && allowDelivery;
 
   // Zmiana typu dostawy na odbiór osobisty jeśli wartość zamówienia jest poniżej minimum
   useEffect(() => {
@@ -87,14 +98,6 @@ export default function CartPage() {
       return;
     }
 
-    console.log("Order submitted:", {
-      items,
-      totalPrice,
-      deliveryType,
-      deliveryCost,
-      totalWithDelivery,
-      ...orderFormData,
-    });
     const formattedPhoneNumber = orderFormData.phone.trim().startsWith("+")
       ? orderFormData.phone.trim()
       : `+48${orderFormData.phone.trim()}`;
@@ -122,7 +125,7 @@ export default function CartPage() {
     } catch (error) {
       if (
         error instanceof SdkError &&
-        error.key === "DELIVERY_ADDRESS_OUT_OF_RANGE"
+        error.key === SdkErrorKey.DELIVERY_OUT_OF_RANGE
       ) {
         setAddressError(
           "Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego."
@@ -142,7 +145,7 @@ export default function CartPage() {
       notes: "",
     });
 
-    //router.push("/order-success");
+    router.push("/order-success");
   };
 
   const handleEditItem = (itemId: string) => {
@@ -155,7 +158,6 @@ export default function CartPage() {
 
   const handlePaymentMethodSelect = (method) => {
     setSelectedPaymentMethod(method);
-    console.log("Wybrano metodę płatności:", method.value);
     // dodatkowe operacje po wybraniu metody płatności
   };
 
@@ -347,11 +349,16 @@ export default function CartPage() {
                       !isDeliveryAvailable ? "text-gray-400" : ""
                     }`}
                   >
-                    Dostawa pod wskazany adres (+10.00 zł)
-                    {!isDeliveryAvailable && (
+                    Dostawa pod wskazany adres (+{deliveryPrice.toFixed(2)} zł)
+                    {!isDeliveryAvailable && allowDelivery && (
                       <span className="block text-sm text-red-500 mt-1">
                         Wymagana minimalna wartość zamówienia:{" "}
-                        {MIN_ORDER_VALUE_FOR_DELIVERY.toFixed(2)} zł
+                        {minOrderValueForDelivery.toFixed(2)} zł
+                      </span>
+                    )}
+                    {!allowDelivery && (
+                      <span className="block text-sm text-red-500 mt-1">
+                        Dostawy są aktualnie wyłączone.
                       </span>
                     )}
                   </label>
@@ -362,12 +369,23 @@ export default function CartPage() {
                     id="pickup"
                     name="deliveryType"
                     value="pickup"
-                    checked={deliveryType === "pickup"}
+                    checked={deliveryType === "pickup" && allowPickup}
                     onChange={() => setDeliveryType("pickup")}
+                    disabled={!allowPickup}
                     className="h-4 w-4 text-red-600 focus:ring-red-500"
                   />
-                  <label htmlFor="pickup" className="font-medium">
+                  <label
+                    htmlFor="pickup"
+                    className={`font-medium ${
+                      !allowPickup ? "text-gray-400" : ""
+                    }`}
+                  >
                     Odbiór osobisty w restauracji (0.00 zł)
+                    {!allowPickup && (
+                      <span className="block text-sm text-red-500 mt-1">
+                        Odbiór osobisty jest aktualnie niedostępny
+                      </span>
+                    )}
                   </label>
                 </div>
               </div>

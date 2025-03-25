@@ -6,11 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Product } from "@/data/interfaces";
 import { useCart } from "@/contexts/cart-context";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { Product } from "@/types/interfaces";
 
 interface VariantModalProps {
   isOpen: boolean;
