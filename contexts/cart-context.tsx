@@ -89,6 +89,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addProductToCart = useCallback((product: CartProduct) => {
     NNSdk.addProductToCart(product);
     setProducts(NNSdk.getProductsFromCart());
+    setItems(NNSdk.getItemsFromCart());
   }, []);
 
   // const addMealToCart = useCallback((meal: CartMeal) => {

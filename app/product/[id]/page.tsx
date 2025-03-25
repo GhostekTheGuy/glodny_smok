@@ -200,7 +200,9 @@ export default function ProductPage() {
       <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-50">
         <div className="flex flex-col items-center">
           <Loader2 className="w-12 h-12 text-red-600 animate-spin mb-4" />
-          <p className="text-lg font-medium text-gray-700">Ładowanie produktu...</p>
+          <p className="text-lg font-medium text-gray-700">
+            Ładowanie produktu...
+          </p>
         </div>
       </div>
     );

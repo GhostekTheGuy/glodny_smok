@@ -1,11 +1,7 @@
-/*
-	Installed from github/BarSwi/NomNomFrontSDK
-*/
-
 export enum OrderRequestGroupKey {
   Ingredients = "ingredients",
   Cutlery = "cutlery",
-  Products = "products",
+  crossSaleItems = "crossSaleItems",
 }
 
 export enum ItemType {
