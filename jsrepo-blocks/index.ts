@@ -9,8 +9,8 @@ export { NomNomSDK } from "./NomNomSDK";
 // async function main() {
 //   const sdk = new NomNomSDK("http://localhost:8000/api");
 //   // const sdk = new NomNomSDK();
-//   const reponse = await sdk.getStoreSettingsAndStatus(
-//     "6c90ed83-a3f4-4836-a22a-40099491b047"
+//   const reponse = await sdk.getMenusTimestamp(
+//     "90826388-12d7-4784-b337-bd47df6cdb65"
 //   );
 
 //   console.log(JSON.stringify(reponse));

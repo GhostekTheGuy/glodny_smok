@@ -185,6 +185,8 @@ export interface UnpopulatedMenu {
 // Root structure
 export type MenuResponse = {
   menus: UnpopulatedMenu[];
+  lastUpdate: number;
+  validUntill: number;
 };
 //TODO: Change CartItem structure into CartProduct. CartMeal should be a combination of CartProducts?
 export interface CartItem {

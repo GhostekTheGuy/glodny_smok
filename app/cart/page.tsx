@@ -133,7 +133,7 @@ export default function CartPage() {
       }
       return;
     }
-
+    router.push("/order-success");
     items.forEach((item) => removeFromCart(item.cartItemId));
     setOrderFormData({
       name: "",
@@ -144,8 +144,6 @@ export default function CartPage() {
       streetNumber: "",
       notes: "",
     });
-
-    router.push("/order-success");
   };
 
   const handleEditItem = (itemId: string) => {

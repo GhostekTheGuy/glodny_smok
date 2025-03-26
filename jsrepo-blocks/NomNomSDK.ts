@@ -85,10 +85,34 @@ export class NomNomSDK extends Utils {
   async getCurrentMenus(restaurantId: string): Promise<PopulatedMenu[]> {
     if (this.fetchedMenus?.length > 0) return this.fetchedMenus;
     try {
-      const response: AxiosResponse<MenuResponse> = await this.client.get(
-        `/menus/current?store=${restaurantId}`
-      );
-      this.fetchedMenus = this.populateProductsDetails(response.data.menus);
+      const storedMenusData = localStorage.getItem("currentMenus");
+      const menusData = storedMenusData ? JSON.parse(storedMenusData) : null;
+
+      const now = Date.now();
+      const timestamp = await this.getMenusTimestamp(restaurantId);
+
+      const isStale =
+        !menusData ||
+        menusData.validUntill <= now ||
+        menusData.timestamp <= timestamp;
+
+      if (isStale) {
+        const { data }: AxiosResponse<MenuResponse> = await this.client.get(
+          `/menus/current?store=${restaurantId}`
+        );
+
+        const updatedMenus = {
+          menus: data.menus,
+          timestamp: now,
+          validUntill: data.validUntill,
+        };
+
+        localStorage.setItem("currentMenus", JSON.stringify(updatedMenus));
+        this.fetchedMenus = this.populateProductsDetails(data.menus);
+      } else {
+        this.fetchedMenus = this.populateProductsDetails(menusData.menus);
+      }
+
       this.productsMap = this.createProductsHashMap(this.fetchedMenus);
       return this.fetchedMenus;
     } catch (error) {
@@ -329,9 +353,9 @@ export class NomNomSDK extends Utils {
           paymentMethod,
         }
       );
+
       return response;
     } catch (error: any) {
-      console.log("TEST", error.response?.data?.key);
       throwApiError(error.response?.data?.key, error.response?.data?.message);
     }
   }
@@ -348,6 +372,14 @@ export class NomNomSDK extends Utils {
     return response.data;
   }
 
+  async getMenusTimestamp(storeId: string) {
+    const response: AxiosResponse<any> = await this.client.get(
+      `/menus/timestamp?store=${storeId}`
+    );
+
+    console.log(response);
+    return response.data?.timestamp;
+  }
   /**
    * Error handler for Axios requests.
    * @param error - The error object.
