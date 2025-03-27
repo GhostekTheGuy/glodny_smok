@@ -1,13 +1,11 @@
 import { NNSdk } from "@/lib/sdk";
 
-export const storeId = "90826388-12d7-4784-b337-bd47df6cdb65";
+export const storeId = "5693ff75-106d-41fb-aa53-a8b52712e9da";
 export const menu = await (async () => {
-  return await NNSdk.getCurrentMenus("6c90ed83-a3f4-4836-a22a-40099491b047");
+  return await NNSdk.getCurrentMenus(storeId);
 })();
 export const storeInformatons = await (async () => {
-  return (await NNSdk.getStoreSettingsAndStatus(
-    "6c90ed83-a3f4-4836-a22a-40099491b047"
-  )) as any;
+  return (await NNSdk.getStoreSettingsAndStatus(storeId)) as any;
 })();
 // export const localMenuData = [
 //   {

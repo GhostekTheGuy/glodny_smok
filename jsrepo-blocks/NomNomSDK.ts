@@ -30,7 +30,7 @@ import { ItemType } from "./types/enums";
 export class NomNomSDK extends Utils {
   private client: AxiosInstance;
   private fetchedMenus: PopulatedMenu[] = [];
-  private fetchedSettings = {};
+  private fetchedSettings = null;
   private productsMap: Map<string, PopulatedProduct> = new Map();
   private localStorageKey: string = "currentCart";
   constructor(baseURL: string = "http://localhost:8000/api") {
@@ -44,13 +44,13 @@ export class NomNomSDK extends Utils {
   }
 
   async getStoreSettingsAndStatus(restaurantId: string) {
-    if (Object.keys(this.fetchedSettings)?.length > 0)
-      return this.fetchedSettings;
+    if (this.fetchedSettings) return this.fetchedSettings;
     try {
       const response: AxiosResponse<MenuResponse> = await this.client.get(
         `/store-settings-and-status?store=${restaurantId}`
       );
-      this.fetchedSettings = response.data;
+      //@ts-ignore
+      this.fetchedSettings = response.data?.store;
       return this.fetchedSettings;
     } catch (error) {
       this.handleError(error);
