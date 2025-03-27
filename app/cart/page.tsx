@@ -63,6 +63,7 @@ export default function CartPage() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [addressError, setAddressError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Minimalna wartość zamówienia dla dostawy (w zł)
   const isDeliveryAvailable =
@@ -85,7 +86,12 @@ export default function CartPage() {
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAddressError(""); // Reset błędu przy każdym submicie
+    setAddressError("");
+    
+    // Zabezpieczenie przed wielokrotnym kliknięciem
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
 
     // Sprawdź czy adres jest wymagany i podany
     if (
@@ -95,6 +101,7 @@ export default function CartPage() {
         !orderFormData.streetNumber)
     ) {
       alert("Proszę podać adres dostawy");
+      setIsSubmitting(false);
       return;
     }
 
@@ -103,7 +110,7 @@ export default function CartPage() {
       : `+48${orderFormData.phone.trim()}`;
 
     try {
-      const res = await NNSdk.placeOrder(
+      await NNSdk.placeOrder(
         storeId,
         {
           city: orderFormData.city,
@@ -118,32 +125,27 @@ export default function CartPage() {
         },
         selectedPaymentMethod.value
       );
-      const paymentUrl = res.data.paymentDetails?.paymentUrl;
-      if (paymentUrl) {
-        window.open(paymentUrl, "_blank");
-      }
+
+      // Sukces - czyścimy koszyk i formularz
+      items.forEach((item) => removeFromCart(item.cartItemId));
+      setOrderFormData({
+        name: "",
+        email: "",
+        phone: "",
+        city: "",
+        street: "",
+        streetNumber: "",
+        notes: "",
+      });
     } catch (error) {
-      if (
-        error instanceof SdkError &&
-        error.key === SdkErrorKey.DELIVERY_OUT_OF_RANGE
-      ) {
-        setAddressError(
-          "Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego."
-        );
+      if (error instanceof SdkError && error.key === "DELIVERY_ADDRESS_OUT_OF_RANGE") {
+        setAddressError("Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego.");
+      } else {
+        alert(error.message);
       }
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-    router.push("/order-success");
-    items.forEach((item) => removeFromCart(item.cartItemId));
-    setOrderFormData({
-      name: "",
-      email: "",
-      phone: "",
-      city: "",
-      street: "",
-      streetNumber: "",
-      notes: "",
-    });
   };
 
   const handleEditItem = (itemId: string) => {
@@ -571,6 +573,7 @@ export default function CartPage() {
                   type="submit"
                   className="w-full bg-red-600 hover:bg-red-700"
                   disabled={
+                    isSubmitting ||
                     !selectedPaymentMethod ||
                     (deliveryType === "delivery" &&
                       (!orderFormData.city ||
@@ -578,7 +581,14 @@ export default function CartPage() {
                         !orderFormData.streetNumber))
                   }
                 >
-                  Złóż zamówienie
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Przetwarzanie...
+                    </span>
+                  ) : (
+                    "Złóż zamówienie"
+                  )}
                 </Button>
               </form>
             </div>
