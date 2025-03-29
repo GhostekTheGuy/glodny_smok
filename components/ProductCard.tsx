@@ -174,13 +174,13 @@ export function ProductCard({ product }: ProductCardProps) {
           <motion.div layout className="flex flex-col flex-1">
             <motion.h3
               layout
-              className="font-bold text-gray-900 text-lg mb-2 line-clamp-2"
+              className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 min-h-[3.5rem]"
             >
               {product.name}
             </motion.h3>
             <motion.p
               layout
-              className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3"
+              className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3 min-h-[4.5rem]"
             >
               {product.description}
             </motion.p>
