@@ -27,19 +27,14 @@ import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { NNSdk } from "@/lib/sdk";
 import { storeId, storeInformatons } from "@/data/menu-data";
 import { SdkError, SdkErrorKey } from "@/jsrepo-blocks/errors";
+import { useStore } from "@/contexts/StoreContext";
 
 export default function CartPage() {
-  //TODO: Move those to context
-  const minOrderValueForDelivery =
-    storeInformatons.storeSettings.deliverySettings.deliveryMinPriceOrder;
-  const deliveryPrice =
-    storeInformatons.storeSettings.deliverySettings.deliveryPrice;
-  const allowDelivery =
-    storeInformatons.storeSettings.allowInStore &&
-    storeInformatons.storeStatus.allowInStore;
-  const allowPickup =
-    storeInformatons.storeSettings.allowPickup &&
-    storeInformatons.storeStatus.allowPickup;
+  const { store } = useStore();
+  const minOrderValueForDelivery = store.storeSettings.deliverySettings.deliveryMinPriceOrder;
+  const deliveryPrice = store.storeSettings.deliverySettings.deliveryPrice;
+  const allowDelivery = store.storeSettings.allowDelivery && store.storeStatus.allowDelivery;
+  const allowPickup = store.storeSettings.allowPickup && store.storeStatus.allowPickup;
   const router = useRouter();
   const {
     items,

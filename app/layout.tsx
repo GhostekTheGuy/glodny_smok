@@ -3,6 +3,9 @@ import "@/app/globals.css"
 import { Poppins, Qwigley } from "next/font/google"
 import type React from "react"
 import { Toaster } from "@/components/ui/toaster"
+import { StoreProvider } from '@/contexts/StoreContext'
+import { NNSdk } from '@/lib/sdk'
+import { storeId } from "@/data/store-data"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -16,15 +19,21 @@ const qwigley = Qwigley({
   variable: "--font-qwigley",
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const storeData = await NNSdk.getStoreSettingsAndStatus(storeId)
+
   return (
-    <html lang="en" className={`scroll-smooth ${poppins.variable} ${qwigley.variable}`}>
+    <html lang="pl" className={`scroll-smooth ${poppins.variable} ${qwigley.variable}`}>
       <body className="min-h-screen bg-white font-poppins">
-        <CartProvider>{children}</CartProvider>
+        <StoreProvider initialData={storeData}>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </StoreProvider>
         <Toaster />
       </body>
     </html>
