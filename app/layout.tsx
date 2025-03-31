@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { StoreProvider } from '@/contexts/StoreContext'
 import { NNSdk } from '@/lib/sdk'
 import { storeId } from "@/data/store-data"
+import { Footer } from "@/components/Footer"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default async function RootLayout({
         <StoreProvider initialData={storeData}>
           <CartProvider>
             {children}
+            <Footer />
           </CartProvider>
         </StoreProvider>
         <Toaster />
