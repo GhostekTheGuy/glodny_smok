@@ -245,5 +245,4 @@ export type DeliveryDetails = {
   city: string;
   streetName: string;
   streetNumber: string;
-  method: string;
 };

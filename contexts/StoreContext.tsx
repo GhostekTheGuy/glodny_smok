@@ -1,4 +1,5 @@
-import { createContext, useContext, ReactNode } from 'react';
+"use client";
+import { createContext, useContext, ReactNode } from "react";
 
 interface DeliverySettings {
   deliveryMinPriceOrder: number;
@@ -35,7 +36,7 @@ interface StoreAddress {
   geocoding: string;
 }
 
-interface StoreData {
+export interface StoreData {
   id: string;
   name: string;
   type: string;
@@ -52,7 +53,13 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-export function StoreProvider({ children, initialData }: { children: ReactNode; initialData: StoreData }) {
+export function StoreProvider({
+  children,
+  initialData,
+}: {
+  children: ReactNode;
+  initialData: StoreData;
+}) {
   return (
     <StoreContext.Provider value={{ store: initialData }}>
       {children}
@@ -63,7 +70,7 @@ export function StoreProvider({ children, initialData }: { children: ReactNode; 
 export function useStore() {
   const context = useContext(StoreContext);
   if (context === undefined) {
-    throw new Error('useStore must be used within a StoreProvider');
+    throw new Error("useStore must be used within a StoreProvider");
   }
   return context;
-} 
+}

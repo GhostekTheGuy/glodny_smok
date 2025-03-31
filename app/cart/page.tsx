@@ -31,10 +31,14 @@ import { useStore } from "@/contexts/StoreContext";
 
 export default function CartPage() {
   const { store } = useStore();
-  const minOrderValueForDelivery = store.storeSettings.deliverySettings.deliveryMinPriceOrder;
-  const deliveryPrice = store.storeSettings.deliverySettings.deliveryPrice;
-  const allowDelivery = store.storeSettings.allowDelivery && store.storeStatus.allowDelivery;
-  const allowPickup = store.storeSettings.allowPickup && store.storeStatus.allowPickup;
+  if (!store) return;
+  const minOrderValueForDelivery =
+    store?.storeSettings.deliverySettings.deliveryMinPriceOrder;
+  const deliveryPrice = store?.storeSettings.deliverySettings.deliveryPrice;
+  const allowDelivery =
+    store?.storeSettings.allowDelivery && store?.storeStatus.allowDelivery;
+  const allowPickup =
+    store?.storeSettings.allowPickup && store?.storeStatus.allowPickup;
   const router = useRouter();
   const {
     items,
@@ -82,10 +86,10 @@ export default function CartPage() {
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddressError("");
-    
+
     // Zabezpieczenie przed wielokrotnym kliknięciem
     if (isSubmitting) return;
-    
+
     setIsSubmitting(true);
 
     // Sprawdź czy adres jest wymagany i podany
@@ -108,17 +112,17 @@ export default function CartPage() {
       await NNSdk.placeOrder(
         storeId,
         {
-          city: orderFormData.city,
-          streetName: orderFormData.street,
-          streetNumber: orderFormData.streetNumber,
-          method: deliveryType.toUpperCase(),
-        },
-        {
           firstName: orderFormData.name,
           email: orderFormData.email,
           phoneNumber: formattedPhoneNumber,
         },
-        selectedPaymentMethod.value
+        deliveryType.toUpperCase(),
+        selectedPaymentMethod.value,
+        {
+          city: orderFormData.city,
+          streetName: orderFormData.street,
+          streetNumber: orderFormData.streetNumber,
+        }
       );
 
       // Sukces - czyścimy koszyk i formularz
@@ -133,8 +137,13 @@ export default function CartPage() {
         notes: "",
       });
     } catch (error) {
-      if (error instanceof SdkError && error.key === "DELIVERY_ADDRESS_OUT_OF_RANGE") {
-        setAddressError("Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego.");
+      if (
+        error instanceof SdkError &&
+        error.key === SdkErrorKey.DELIVERY_OUT_OF_RANGE
+      ) {
+        setAddressError(
+          "Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego."
+        );
       } else {
         alert(error.message);
       }

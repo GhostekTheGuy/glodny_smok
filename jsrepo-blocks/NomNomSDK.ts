@@ -30,7 +30,7 @@ import { ItemType } from "./types/enums";
 export class NomNomSDK extends Utils {
   private client: AxiosInstance;
   private fetchedMenus: PopulatedMenu[] = [];
-  private fetchedSettings = null;
+  private fetchedStore: any = null;
   private productsMap: Map<string, PopulatedProduct> = new Map();
   private localStorageKey: string = "currentCart";
   constructor(baseURL: string = "http://localhost:8000/api") {
@@ -43,15 +43,15 @@ export class NomNomSDK extends Utils {
     });
   }
 
-  async getStoreSettingsAndStatus(restaurantId: string) {
-    if (this.fetchedSettings) return this.fetchedSettings;
+  async getStore(restaurantId: string): Promise<any> {
+    if (this.fetchedStore) return this.fetchedStore;
     try {
-      const response: AxiosResponse<MenuResponse> = await this.client.get(
+      const response: AxiosResponse<any> = await this.client.get(
         `/store-settings-and-status?store=${restaurantId}`
       );
-      //@ts-ignore
-      this.fetchedSettings = response.data?.store;
-      return this.fetchedSettings;
+      this.fetchedStore = response.data;
+      console.log(this.fetchedStore);
+      return this.fetchedStore;
     } catch (error) {
       this.handleError(error);
     }
@@ -83,6 +83,7 @@ export class NomNomSDK extends Utils {
    *   });
    */
   async getCurrentMenus(restaurantId: string): Promise<PopulatedMenu[]> {
+    if (typeof window === "undefined") return [];
     if (this.fetchedMenus?.length > 0) return this.fetchedMenus;
     try {
       const storedMenusData = localStorage.getItem("currentMenus");
@@ -90,7 +91,6 @@ export class NomNomSDK extends Utils {
 
       const now = Date.now();
       const timestamp = await this.getMenusTimestamp(restaurantId);
-
       const isStale =
         !menusData ||
         menusData.validUntill <= now ||
@@ -103,7 +103,7 @@ export class NomNomSDK extends Utils {
 
         const updatedMenus = {
           menus: data.menus,
-          timestamp: now,
+          timestamp,
           validUntill: data.validUntill,
         };
 
@@ -320,9 +320,10 @@ export class NomNomSDK extends Utils {
 
   async placeOrder(
     restaurandId: string,
-    deliveryDetails: DeliveryDetails,
     customerDetails: CustomerDetails,
-    paymentMethod: string
+    paymentMethod: string,
+    deliveryMethod: string,
+    deliveryDetails?: DeliveryDetails
   ) {
     //TODO: Compare timestamps and perform additional frontend validation.
     if (!this.fetchedMenus)
@@ -348,7 +349,9 @@ export class NomNomSDK extends Utils {
         {
           ...requestData,
           store: restaurandId,
-          deliveryDetails,
+          deliveryMethod,
+          deliveryDetails:
+            deliveryMethod != "DELIVERY" ? null : deliveryDetails,
           customerDetails,
           paymentMethod,
         }
