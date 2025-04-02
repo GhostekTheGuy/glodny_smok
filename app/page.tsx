@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CartPopup } from "@/components/CartPopup"
+import { StoreProvider } from "@/components/StoreProvider"
 
 export default function Home() {
   const { totalItems } = useCart()
@@ -23,7 +24,7 @@ export default function Home() {
   }, [totalItems])
 
   return (
-    <>
+    <StoreProvider>
       <Head>
         <title>Nazwa Restauracji - Strona Główna</title>
         <meta name="description" content="Poznaj naszą restaurację i sprawdź nasze menu!" />
@@ -66,7 +67,7 @@ export default function Home() {
           )}
         </AnimatePresence>
       </main>
-    </>
+    </StoreProvider>
   )
 }
 
