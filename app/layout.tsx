@@ -10,10 +10,10 @@ import {
 } from "next/font/google";
 import type React from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { StoreProvider } from "@/contexts/storeContext";
 import { NNSdk } from "@/lib/sdk";
 import { storeId } from "@/data/store-data";
 import { Footer } from "@/components/Footer";
+import { StoreProvider } from "@/contexts/storeContext";
 
 const poppins = Poppins({
   subsets: ["latin"],

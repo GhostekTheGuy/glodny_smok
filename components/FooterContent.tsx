@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useStore } from "@/contexts/storeContext";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { useStore } from "@/contexts/storeContext";
 
 export function FooterContent() {
   const { store } = useStore();
   if (!store) return null;
   return (
-    <footer className="bg-gray-100 py-12 mt-auto fixed bottom-0 left-0 w-full">
+    <footer className="bg-gray-100 py-12 mt-auto">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
         <div className="flex flex-col items-start">
           <Image
