@@ -1,6 +1,11 @@
 module.exports = {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   theme: {
     container: {
       center: true,
@@ -13,6 +18,10 @@ module.exports = {
       fontFamily: {
         poppins: ["var(--font-poppins)"],
         qwigley: ["var(--font-qwigley)", "cursive"],
+        italiana: ["var(--font-italiana)"],
+        alice: ["var(--font-alice)"],
+        quattrocento: ["var(--font-quattrocento)"],
+        merienda: ["var(--font-merienda)"],
         serif: ["Georgia", "Cambria", "serif"],
       },
       colors: {
@@ -72,5 +81,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
-
+};

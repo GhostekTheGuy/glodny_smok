@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { CartItemCutlery, useCart } from "@/contexts/cart-context";
-import { menu } from "@/data/menu-data";
+import { menu } from "@/data/store-data";
 import {
   motion,
   AnimatePresence,
@@ -37,6 +37,7 @@ import {
   Product,
 } from "@/types/interfaces";
 import { defaultConfig } from "next/dist/server/config-shared";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface SelectedBundle {
   ingredientId: string;
@@ -62,11 +63,15 @@ export default function ProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
-
+  const [product, setProduct] = useState<Product | null>(null);
   const { addProductToCart, updateCartItem } = useCart();
   const [selectedIngredients, setSelectedIngredients] = useState<
     Record<string, CartSelectedIngredients>
   >({});
+  const [groupSelections, setGroupSelections] = useState<{
+    [key: string]: number;
+  }>({});
+
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedCutlery, setSelectedCutlery] = useState<
     Record<string, CartItemCutlery>
@@ -97,11 +102,18 @@ export default function ProductPage() {
     });
     return product;
   }
-  const product: Product = isEditing
-    ? findProductById(dataToEdit?.productId)
-    : findProductById(params.id as string);
   useEffect(() => {
-    if (!product) return;
+    const productId = isEditing ? dataToEdit?.productId : (params.id as string);
+    const fetchedProduct = findProductById(productId);
+
+    if (!fetchedProduct) {
+      router.push("/#menu");
+    } else {
+      setProduct(fetchedProduct);
+    }
+    if (!product) {
+      return;
+    }
     document.body.style.opacity = "1";
     document.body.style.transition = "opacity 0.5s";
     setIsVisible(true);
@@ -112,30 +124,44 @@ export default function ProductPage() {
 
     // Initialize ingredient selections with default counts
     if (product.ingredientSelectionGroups) {
+      const initialGroupSelections: Record<string, number> = {};
       const initialIngredients: Record<string, CartSelectedIngredients> = {};
+
       product.ingredientSelectionGroups.forEach((group) => {
+        let groupTotal = 0;
+
         group.ingredientSelectionOptions.forEach((specifiedSelection) => {
-          initialIngredients[specifiedSelection.details.id] = {
-            count: specifiedSelection.defaultCount,
+          const defaultCount = specifiedSelection.defaultCount;
+          const ingredientId = specifiedSelection.details.id;
+
+          let editedCount = defaultCount;
+          if (isEditing && dataToEdit) {
+            const editedIngredient = dataToEdit.selectedIngredients.find(
+              (ing) => ing.id === ingredientId
+            );
+            if (editedIngredient) {
+              editedCount = editedIngredient.count;
+            }
+          }
+
+          initialIngredients[ingredientId] = {
+            count: editedCount,
             name: specifiedSelection.details.name,
-            defaultCount: specifiedSelection.defaultCount,
-            id: specifiedSelection.details.id,
+            defaultCount: defaultCount,
+            id: ingredientId,
             groupId: group.id,
             price: specifiedSelection.details.price,
             uom: specifiedSelection.details.uom,
             value: specifiedSelection.details.value,
           };
+
+          groupTotal += editedCount;
         });
+
+        initialGroupSelections[group.id] = groupTotal;
       });
 
-      if (isEditing && dataToEdit) {
-        dataToEdit.selectedIngredients.forEach((ingredient) => {
-          initialIngredients[ingredient.id] = {
-            ...ingredient,
-            uom: ingredient.uom,
-          };
-        });
-      }
+      setGroupSelections(initialGroupSelections);
       setSelectedIngredients(initialIngredients);
     }
 
@@ -191,10 +217,6 @@ export default function ProductPage() {
   if (isEditing && !dataToEdit) {
     router.push("/");
   }
-  if (!product) {
-    return <div className="container mx-auto px-4 py-8">Product not found</div>;
-  }
-
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-50">
@@ -212,19 +234,34 @@ export default function ProductPage() {
     count: number,
     groupId: string
   ) => {
-    setSelectedIngredients((prev) => ({
-      ...prev,
-      [ingredient.details.id]: {
-        count: Math.min(Math.max(0, count), ingredient.maxCount),
-        groupId,
-        defaultCount: ingredient.defaultCount,
-        name: ingredient.details.name,
-        price: ingredient.details.price,
-        id: ingredient.details.id,
-        uom: ingredient.details.uom,
-        value: ingredient.details.value,
-      },
-    }));
+    setSelectedIngredients((prev) => {
+      const updatedCount = Math.max(count, 0);
+      const currentCount = prev[ingredient.details.id]?.count || 0;
+
+     
+      const updatedIngredients = {
+        ...prev,
+        [ingredient.details.id]: {
+          count: Math.min(Math.max(0, updatedCount), ingredient.maxCount),
+          groupId,
+          defaultCount: ingredient.defaultCount,
+          name: ingredient.details.name,
+          price: ingredient.details.price,
+          id: ingredient.details.id,
+          uom: ingredient.details.uom,
+          value: ingredient.details.value,
+        },
+      };
+
+   
+      const updatedGroupSelections = { ...groupSelections };
+      updatedGroupSelections[groupId] =
+        (updatedGroupSelections[groupId] || 0) + (updatedCount - currentCount);
+
+      setGroupSelections(updatedGroupSelections);
+
+      return updatedIngredients;
+    });
   };
 
   const handleCutleryChange = (
@@ -445,7 +482,7 @@ export default function ProductPage() {
                                         </p>
                                         <p className="text-sm text-gray-500">
                                           {selection.details.price} zł za porcję
-                                          {selection.details.value &&
+                                          {selection.details.uom !== "--" &&
                                             selection.details.uom && (
                                               <span className="ml-1">
                                                 ({selection.details.value}{" "}
@@ -470,7 +507,7 @@ export default function ProductPage() {
                                           disabled={
                                             (selectedIngredients[
                                               selection.details.id
-                                            ]?.count || 0) <= 0
+                                            ]?.count || 0) <= group.minCount
                                           }
                                         >
                                           <Minus className="h-4 w-4" />
@@ -500,7 +537,10 @@ export default function ProductPage() {
                                           disabled={
                                             (selectedIngredients[
                                               selection.details.id
-                                            ].count || 0) >= selection.maxCount
+                                            ].count || 0) >=
+                                              selection.maxCount ||
+                                            groupSelections[group.id] >=
+                                              group.maxCount
                                           }
                                         >
                                           <Plus className="h-4 w-4" />
@@ -518,7 +558,7 @@ export default function ProductPage() {
                   )}
 
                 {/* Cutlery */}
-                {product.cutlerySelection && (
+                {product.cutlerySelection.length > 0 && (
                   <AccordionItem
                     value="cutlery"
                     className="border border-gray-100 rounded-lg bg-gray-50/50"

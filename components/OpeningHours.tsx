@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-
+import { useState } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+// Force update
 const weekHours = [
-  { day: "Poniedziałek", hours: "11:00-23:00" },
-  { day: "Wtorek", hours: "11:00-23:00" },
-  { day: "Środa", hours: "11:00-23:00" },
-  { day: "Czwartek", hours: "11:00-23:00" },
-  { day: "Piątek", hours: "11:00-23:00" },
-  { day: "Sobota", hours: "11:00-23:00" },
-  { day: "Niedziela", hours: "11:00-23:00" },
-]
+  { day: "Poniedziałek", hours: "12:00-21:00" },
+  { day: "Wtorek", hours: "12:00-21:00" },
+  { day: "Środa", hours: "12:00-21:00" },
+  { day: "Czwartek", hours: "12:00-21:00" },
+  { day: "Piątek", hours: "12:00-23:00" },
+  { day: "Sobota", hours: "12:00-23:00" },
+  { day: "Niedziela", hours: "12:00-21:00" },
+];
 
 const getCurrentDayHours = () => {
-  const today = new Date().getDay()
+  const today = new Date().getDay();
   // Convert Sunday from 0 to 6 to match our array
-  const adjustedDay = today === 0 ? 6 : today - 1
-  return weekHours[adjustedDay].hours
-}
+  const adjustedDay = today === 0 ? 6 : today - 1;
+  return weekHours[adjustedDay].hours;
+};
 
 export function OpeningHours() {
-  const [isHoursOpen, setIsHoursOpen] = useState(false)
+  const [isHoursOpen, setIsHoursOpen] = useState(false);
 
   return (
     <div className="relative -mt-32">
@@ -41,8 +41,8 @@ export function OpeningHours() {
             {/* Logo */}
             <div className="w-56">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"
-                alt="Głodny Smok Logo"
+                src="/logo.jpg"
+                alt="Logo"
                 width={224}
                 height={100}
                 className="h-auto w-full"
@@ -55,7 +55,9 @@ export function OpeningHours() {
 
             {/* Godziny otwarcia */}
             <div className="flex flex-col items-center md:items-start">
-              <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">Godziny otwarcia</h2>
+              <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">
+                Godziny otwarcia
+              </h2>
               <div className="relative">
                 <button
                   onClick={() => setIsHoursOpen(!isHoursOpen)}
@@ -94,7 +96,8 @@ export function OpeningHours() {
                             transition: { duration: 0.2 },
                           }}
                         >
-                          <span className="font-medium">{item.day}:</span> {item.hours}
+                          <span className="font-medium">{item.day}:</span>{" "}
+                          {item.hours}
                         </motion.div>
                       ))}
                     </motion.div>
@@ -108,13 +111,14 @@ export function OpeningHours() {
 
             {/* Kontakt */}
             <div className="flex flex-col items-center md:items-start">
-              <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">Kontakt</h2>
-              <span className="text-black text-xl">+48 793 778 889</span>
+              <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">
+                Kontakt
+              </h2>
+              <span className="text-black text-xl">+48 576 622 444</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

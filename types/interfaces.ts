@@ -22,6 +22,7 @@ export interface IngredientSelectionGroup {
   id: string;
   name: string;
   maxCount: number;
+  minCount: number;
   partable: boolean;
   ingredientSelectionOptions: IngredientSelectionOption[];
 }

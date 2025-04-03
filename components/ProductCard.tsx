@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CartItemCutlery, useCart } from "@/contexts/cart-context";
 import type React from "react";
-import { NomNomSDK } from "@/jsrepo-blocks";
 import { NNSdk } from "@/lib/sdk";
 import { useState } from "react";
 import { VariantModal } from "@/components/VariantModal";
@@ -174,13 +173,13 @@ export function ProductCard({ product }: ProductCardProps) {
           <motion.div layout className="flex flex-col flex-1">
             <motion.h3
               layout
-              className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 min-h-[3.5rem]"
+              className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 overflow-hidden min-h-[2.5rem]"
             >
               {product.name}
             </motion.h3>
             <motion.p
               layout
-              className="text-sm text-gray-500 mb-4 flex-1 line-clamp-3 min-h-[4.5rem]"
+              className="text-sm text-gray-500 mb-4 line-clamp-3 overflow-hidden min-h-[3.5rem]"
             >
               {product.description}
             </motion.p>

@@ -9,34 +9,25 @@ interface ProductGridProps {
   menu: Menu[];
   selectedCategory: string;
   sortOrder: string;
+  categoryMap: Map<string, Product[]>;
 }
 
 export function ProductGrid({
   menu,
   selectedCategory,
   sortOrder,
+  categoryMap,
 }: ProductGridProps) {
   const filteredAndSortedProducts = useMemo(() => {
-    let result: Product[] = [];
-    if (menu.length == 0) return;
-    if (selectedCategory === "Wszystkie") {
-      result = menu[0].products;
-    } else if (selectedCategory === "Inne") {
-      // Filtruj produkty bez kategorii lub z pustą tablicą kategorii
-      result = menu[0].products.filter((product) => 
-        !product.categories || product.categories.length === 0
-      );
-    } else {
-      result = menu[0].products.filter((product) =>
-        product.categories?.some(
-          (category) => category.name === selectedCategory
-        )
-      );
-    }
+    if (!categoryMap || categoryMap.size === 0) return [];
+    let resultMap = new Map<string, Product[]>();
 
-    result = result.filter((product) => {
-      return product.standalone === true;
-    });
+    if (selectedCategory === "Wszystkie") {
+      resultMap = new Map(categoryMap);
+    } else {
+      const selectedProducts = categoryMap.get(selectedCategory) || [];
+      resultMap.set(selectedCategory, selectedProducts);
+    }
 
     // First, sort products with notes to the beginning
     // result.sort((a, b) => {
@@ -46,26 +37,28 @@ export function ProductGrid({
     // })
 
     // Then apply the user-selected sorting
-    switch (sortOrder) {
-      case "name-asc":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name-desc":
-        result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "price-asc":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      default:
-        // If no specific sort order is selected, keep the notes-first sorting
-        break;
+    for (const [category, products] of resultMap) {
+      products.sort((a, b) => {
+        switch (sortOrder) {
+          case "name-asc":
+            return a.name.localeCompare(b.name);
+          case "name-desc":
+            return b.name.localeCompare(a.name);
+          case "price-asc":
+            return a.price - b.price;
+          case "price-desc":
+            return b.price - a.price;
+          default:
+            return 0;
+        }
+      });
     }
 
-    return result;
-  }, [menu, selectedCategory, sortOrder]);
+    return Array.from(resultMap.entries()).map(([categoryName, products]) => ({
+      categoryName,
+      products,
+    }));
+  }, [selectedCategory, sortOrder, categoryMap]);
 
   // Calculate minimum grid height based on the number of products
   const minGridHeight = Math.max(
@@ -74,27 +67,34 @@ export function ProductGrid({
   );
 
   return (
-    <motion.div
-      layout
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      style={{ minHeight: minGridHeight }}
-    >
-      <AnimatePresence>
-        {filteredAndSortedProducts?.map((product) => (
+    <div>
+      {filteredAndSortedProducts.map(({ categoryName, products }) => (
+        <div key={categoryName} className="mb-6">
+          <h2 className="text-3xl font-bold mb-2">{categoryName}</h2>
           <motion.div
-            key={product.id}
             layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.2 }}
-            className={product.oos ? "opacity-75" : ""}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            style={{ gridTemplateRows: "auto" }}
           >
-            <ProductCard product={product} />
+            <AnimatePresence>
+              {products.map((product) => (
+                <motion.div
+                  key={product.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  className={product.oos ? "opacity-75" : ""}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </motion.div>
-        ))}
-      </AnimatePresence>
-    </motion.div>
+        </div>
+      ))}
+    </div>
   );
 }
 

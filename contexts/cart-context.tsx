@@ -8,7 +8,6 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import menu from "@/data/scheme";
 
 import { NNSdk } from "@/lib/sdk";
 import { CartItemSubItem, CartSelectedIngredients } from "@/types/interfaces";

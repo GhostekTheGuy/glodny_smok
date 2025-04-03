@@ -1,19 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useStore } from "@/contexts/StoreContext";
+import { useStore } from "@/contexts/storeContext";
+import { useEffect, useState } from "react";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export function FooterContent() {
   const { store } = useStore();
-  
   if (!store) return null;
-
   return (
     <footer className="bg-gray-100 py-12 mt-auto">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
         <div className="flex flex-col items-start">
           <Image
-            src={store.avatar || "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"}
+            src={store.avatar || "/logo.jpg"}
             alt="Logo"
             width={160}
             height={80}
@@ -23,19 +23,19 @@ export function FooterContent() {
         <div className="flex flex-col items-start">
           <h3 className="text-lg font-semibold text-black">Godziny zamówień</h3>
           <p className="text-black">
-            {store.storeSettings.defaultReadyTime && (
-              <>
-                Pon-Pt 11:00-22:00
-                <br />
-                Pt-Sob 11:00-23:00
-                <br />
-                Nd 11:00-22:00
-              </>
-            )}
+            <>
+              Pon-Pt 11:00-22:00
+              <br />
+              Pt-Sob 11:00-23:00
+              <br />
+              Nd 11:00-22:00
+            </>
           </p>
         </div>
         <div className="flex flex-col items-start">
-          <h3 className="text-lg font-semibold text-black">Nasza lokalizacja</h3>
+          <h3 className="text-lg font-semibold text-black">
+            Nasza lokalizacja
+          </h3>
           <p className="text-black">
             {store.name}
             <br />
@@ -43,9 +43,9 @@ export function FooterContent() {
             <br />
             ul. {store.address.streetName} {store.address.streetNumber}
             <br />
-            tel: +48 793 778 899
+            tel: +48 576 622 444
             <br />
-            bzagalski@wp.pl
+            sztossiedlce@gmail.com
           </p>
         </div>
       </div>
@@ -55,4 +55,4 @@ export function FooterContent() {
       </div>
     </footer>
   );
-} 
+}

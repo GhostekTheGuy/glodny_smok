@@ -1,50 +1,50 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Menu } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isVisible, setIsVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== "undefined") {
-        const heroSection = document.getElementById("hero")
+        const heroSection = document.getElementById("hero");
         if (heroSection) {
-          const heroBottom = heroSection.offsetTop + heroSection.offsetHeight
+          const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
           if (window.scrollY > heroBottom) {
-            setIsVisible(false)
+            setIsVisible(false);
           } else if (window.scrollY <= heroBottom) {
-            setIsVisible(true)
+            setIsVisible(true);
           }
         }
-        setLastScrollY(window.scrollY)
+        setLastScrollY(window.scrollY);
       }
-    }
+    };
 
     if (typeof window !== "undefined") {
-      window.addEventListener("scroll", controlNavbar)
+      window.addEventListener("scroll", controlNavbar);
 
       // cleanup function
       return () => {
-        window.removeEventListener("scroll", controlNavbar)
-      }
+        window.removeEventListener("scroll", controlNavbar);
+      };
     }
-  }, [])
+  }, []);
 
   const scrollToSection = (id: string) => {
-    setIsOpen(false)
-    const element = document.getElementById(id)
+    setIsOpen(false);
+    const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
+      element.scrollIntoView({ behavior: "smooth" });
     }
-  }
+  };
 
   return (
     <AnimatePresence>
@@ -61,8 +61,8 @@ export function Navbar() {
               {/* Logo */}
               <div className="flex-shrink-0">
                 <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-wt0Uvyl9RbKC1Z4YQtVFtSWcFv2xkI.png"
-                  alt="Głodny Smok Logo"
+                  src="/logo.jpg"
+                  alt="Logo"
                   width={147}
                   height={66}
                   className="h-[66px] w-auto"
@@ -72,14 +72,20 @@ export function Navbar() {
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-12">
                 <div className="flex items-center gap-12 text-white">
-                  <button onClick={() => scrollToSection("about")} className="hover:text-gray-300 transition-colors">
+                  <button
+                    onClick={() => scrollToSection("about")}
+                    className="hover:text-gray-300 transition-colors"
+                  >
                     O NAS
                   </button>
-                  <button onClick={() => scrollToSection("menu")} className="hover:text-gray-300 transition-colors">
+                  <button
+                    onClick={() => scrollToSection("menu")}
+                    className="hover:text-gray-300 transition-colors"
+                  >
                     MENU
                   </button>
                   <a
-                    href="https://www.facebook.com"
+                    href="https://www.facebook.com/profile.php?id=61568420429841"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-gray-300 transition-colors"
@@ -98,17 +104,26 @@ export function Navbar() {
                       <Menu className="h-6 w-6" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-[300px] sm:w-[400px] text-white">
+                  <SheetContent
+                    side="right"
+                    className="w-[300px] sm:w-[400px] text-white"
+                  >
                     <nav className="flex flex-col gap-4 h-full">
-                      <button onClick={() => scrollToSection("about")} className="block px-2 py-1 text-lg">
+                      <button
+                        onClick={() => scrollToSection("about")}
+                        className="block px-2 py-1 text-lg"
+                      >
                         O NAS
                       </button>
-                      <button onClick={() => scrollToSection("menu")} className="block px-2 py-1 text-lg">
+                      <button
+                        onClick={() => scrollToSection("menu")}
+                        className="block px-2 py-1 text-lg"
+                      >
                         MENU
                       </button>
                       <div className="flex-grow flex items-center justify-center">
                         <a
-                          href="https://www.facebook.com"
+                          href="https://www.facebook.com/profile.php?id=61568420429841"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block px-2 py-1 text-lg"
@@ -126,6 +141,5 @@ export function Navbar() {
         </motion.nav>
       )}
     </AnimatePresence>
-  )
+  );
 }
-

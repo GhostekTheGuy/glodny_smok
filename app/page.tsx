@@ -1,33 +1,35 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Head from "next/head"
-import { Navbar } from "@/components/Navbar"
-import { Hero } from "@/components/Hero"
-import { OpeningHours } from "@/components/OpeningHours"
-import { AboutUs } from "@/components/AboutUs"
-import RestaurantMenu from "@/components/restaurant-menu"
-import { Footer } from "@/components/Footer"
-import { useCart } from "@/contexts/cart-context"
-import { Button } from "@/components/ui/button"
-import { ShoppingCart } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { CartPopup } from "@/components/CartPopup"
-import { StoreProvider } from "@/components/StoreProvider"
-
+import { useEffect, useState } from "react";
+import Head from "next/head";
+import { Navbar } from "@/components/Navbar";
+import { Hero } from "@/components/Hero";
+import { OpeningHours } from "@/components/OpeningHours";
+import { AboutUs } from "@/components/AboutUs";
+import RestaurantMenu from "@/components/restaurant-menu";
+import { Footer } from "@/components/Footer";
+import { useCart } from "@/contexts/cart-context";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CartPopup } from "@/components/CartPopup";
+import { StoreProvider } from "@/components/StoreProvider";
 export default function Home() {
-  const { totalItems } = useCart()
-  const [showCartButton, setShowCartButton] = useState(false)
+  const { totalItems } = useCart();
+  const [showCartButton, setShowCartButton] = useState(false);
 
   useEffect(() => {
-    setShowCartButton(totalItems > 0)
-  }, [totalItems])
+    setShowCartButton(totalItems > 0);
+  }, [totalItems]);
 
   return (
     <StoreProvider>
       <Head>
-        <title>Nazwa Restauracji - Strona Główna</title>
-        <meta name="description" content="Poznaj naszą restaurację i sprawdź nasze menu!" />
+        <title>Sztos Siedlce - Strona Główna</title>
+        <meta
+          name="description"
+          content="Poznaj naszą restaurację i sprawdź nasze menu!"
+        />
       </Head>
       <main className="relative min-h-screen">
         <Navbar />
@@ -37,7 +39,6 @@ export default function Home() {
         <section id="menu" className="relative z-10">
           <RestaurantMenu />
         </section>
-        <Footer />
 
         {/* Global Cart Button */}
         <AnimatePresence>
@@ -68,6 +69,5 @@ export default function Home() {
         </AnimatePresence>
       </main>
     </StoreProvider>
-  )
+  );
 }
-

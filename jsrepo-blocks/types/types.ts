@@ -25,6 +25,7 @@ export interface BaseIngredientSelectionGroup {
   id: string;
   name: string;
   maxCount: number;
+  minCount: number;
   partable: boolean;
   ingredientSelectionOptions: BaseIngredientSelectionOption[];
 }
@@ -138,6 +139,7 @@ export interface UnpopulatedProduct extends Product {
 }
 
 export interface PopulatedProduct extends Product {
+  categoryName: string;
   variants: PopulatedVariant[];
   crossSaleGroups: PopulatedCrossSaleGroup[];
 }
@@ -236,7 +238,7 @@ export type CartStorage = {
 };
 
 export type CustomerDetails = {
-  firstName: string;
+  fullName: string;
   email: string;
   phoneNumber: string;
 };

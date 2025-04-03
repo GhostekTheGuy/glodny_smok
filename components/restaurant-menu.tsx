@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { MenuHeader } from "./MenuHeader";
 import { ProductGrid } from "./ProductGrid";
-import { menu } from "@/data/menu-data";
+import { menu } from "@/data/store-data";
 import { CategoryDisplay } from "./CategoryDisplay";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import Image from "next/image";
+import { Product } from "@/types/interfaces";
 
 export default function RestaurantMenu() {
   const [selectedCategory, setSelectedCategory] = useState("Wszystkie");
@@ -40,7 +41,32 @@ export default function RestaurantMenu() {
       )
     ),
   ];
+  const categoryHashMap = useMemo(() => {
+    const map = new Map<string, Product[]>();
 
+    if (menu.length === 0) return map;
+
+    for (const product of menu[0].products) {
+      if (product.categories?.length > 0 && product.standalone) {
+        for (const category of product.categories) {
+          if (!map.has(category.name)) {
+            map.set(category.name, []);
+          }
+          map.get(category.name)!.push(product);
+        }
+      } else {
+        if (!map.has("Inne")) {
+          map.set("Inne", []);
+        }
+        map.get("Inne")!.push(product);
+      }
+    }
+
+    return map;
+  }, [menu]);
+
+  console.log(categoryHashMap);
+  console.log(categories);
   useEffect(() => {
     const animateArrow = async () => {
       await controls.start({
@@ -178,6 +204,7 @@ export default function RestaurantMenu() {
             menu={menu}
             selectedCategory={selectedCategory}
             sortOrder={sortOrder}
+            categoryMap={categoryHashMap}
           />
           {/* Cart Button */}
           <AnimatePresence>

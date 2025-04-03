@@ -68,7 +68,7 @@ export class Utils {
     return menus as any as PopulatedMenu[];
   }
   protected createProductsHashMap<
-    T extends UnpopulatedProduct | PopulatedProduct,
+    T extends UnpopulatedProduct | PopulatedProduct
   >(menus: { products?: T[] }[]): Map<string, T> {
     const hashMap = new Map<string, T>();
 
@@ -83,7 +83,7 @@ export class Utils {
 
   protected areProductsEqual(
     firstProduct: CartProduct,
-    secondProduct: CartProduct,
+    secondProduct: CartProduct
   ) {
     return (
       firstProduct.productId === secondProduct.productId &&
@@ -98,7 +98,7 @@ export class Utils {
 
   protected transformCartProduct(cartProduct: CartProduct) {
     const cutleryOptions = cartProduct.selectedCutlery.map(
-      ({ name, defaultCount, price, ...rest }) => rest,
+      ({ name, defaultCount, price, ...rest }) => rest
     );
 
     return {
@@ -106,11 +106,11 @@ export class Utils {
       count: cartProduct.quantity,
       ingredientGroups: this.groupItems(
         cartProduct.selectedIngredients,
-        OrderRequestGroupKey.Ingredients,
+        OrderRequestGroupKey.Ingredients
       ),
       crossSaleGroups: this.groupItems(
         cartProduct.crossSaleItems,
-        OrderRequestGroupKey.crossSaleItems,
+        OrderRequestGroupKey.crossSaleItems
       ),
       cutleryOptions,
     };
@@ -118,7 +118,7 @@ export class Utils {
 
   private groupItems<T extends CartItemSubItem>(
     items: T[] | undefined,
-    key: OrderRequestGroupKey,
+    key: OrderRequestGroupKey
   ) {
     if (!items || items.length === 0) return [];
 
@@ -138,7 +138,9 @@ export class Utils {
       (groups[item.groupId][key] as any[]).push({
         id: item.id,
         count: item.count,
-        ...(key === OrderRequestGroupKey.Ingredients ? { part: 1 } : {}),
+        ...(key === OrderRequestGroupKey.Ingredients
+          ? { parts: [1, 2, 3, 4] }
+          : {}),
       });
     }
 
@@ -150,11 +152,11 @@ export const sanitizeCartProduct = (cartProduct: CartProduct): CartProduct => {
   return {
     ...cartProduct,
     selectedIngredients: cartProduct.selectedIngredients.filter(
-      (ingredient) => ingredient.defaultCount !== ingredient.count,
+      (ingredient) => ingredient.defaultCount !== ingredient.count
     ),
     crossSaleItems: cartProduct.crossSaleItems.filter((csi) => csi.count > 0),
     selectedCutlery: cartProduct.selectedCutlery.filter(
-      (cutlery) => cutlery.defaultCount !== cutlery.count,
+      (cutlery) => cutlery.defaultCount !== cutlery.count
     ),
   };
 };

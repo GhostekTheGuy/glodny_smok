@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ProductCard } from "./ProductCard";
+import { useStore } from "@/contexts/storeContext";
 
 interface Product {
   id: number;
@@ -23,6 +24,8 @@ export function RecommendationsSlider({
 }: RecommendationsSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  const storeContext = useStore();
+  if (!storeContext) return;
   useEffect(() => {
     const slider = sliderRef.current;
     if (slider) {
@@ -45,7 +48,7 @@ export function RecommendationsSlider({
   return (
     <div className="mb-12 -mx-4 sm:-mx-6 lg:-mx-8">
       <h2 className="text-3xl font-bold mb-6 px-4 sm:px-6 lg:px-8">
-        GŁODNY SMOK POLECA
+        {storeContext.store.name} POLECA
       </h2>
       <div
         ref={sliderRef}

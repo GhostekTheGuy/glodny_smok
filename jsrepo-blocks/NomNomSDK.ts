@@ -322,7 +322,7 @@ export class NomNomSDK extends Utils {
     restaurandId: string,
     customerDetails: CustomerDetails,
     paymentMethod: string,
-    deliveryMethod: string,
+    orderType: string,
     deliveryDetails?: DeliveryDetails
   ) {
     //TODO: Compare timestamps and perform additional frontend validation.
@@ -349,9 +349,8 @@ export class NomNomSDK extends Utils {
         {
           ...requestData,
           store: restaurandId,
-          deliveryMethod,
-          deliveryDetails:
-            deliveryMethod != "DELIVERY" ? null : deliveryDetails,
+          orderType,
+          deliveryDetails: orderType != "DELIVERY" ? null : deliveryDetails,
           customerDetails,
           paymentMethod,
         }

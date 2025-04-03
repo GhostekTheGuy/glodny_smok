@@ -25,20 +25,20 @@ import Link from "next/link";
 import { CartProductDetails } from "@/components/CartProductDetails";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { NNSdk } from "@/lib/sdk";
-import { storeId, storeInformatons } from "@/data/menu-data";
+import { storeId, store } from "@/data/store-data";
 import { SdkError, SdkErrorKey } from "@/jsrepo-blocks/errors";
-import { useStore } from "@/contexts/StoreContext";
+import { useStore } from "@/contexts/storeContext";
 
 export default function CartPage() {
+  //TODO: Move those to context
   const { store } = useStore();
-  if (!store) return;
   const minOrderValueForDelivery =
-    store?.storeSettings.deliverySettings.deliveryMinPriceOrder;
-  const deliveryPrice = store?.storeSettings.deliverySettings.deliveryPrice;
+    store.storeSettings.deliverySettings.deliveryMinPriceOrder;
+  const deliveryPrice = store.storeSettings.deliverySettings.deliveryPrice;
   const allowDelivery =
-    store?.storeSettings.allowDelivery && store?.storeStatus.allowDelivery;
+    store.storeSettings.allowDelivery && store.storeStatus.allowDelivery;
   const allowPickup =
-    store?.storeSettings.allowPickup && store?.storeStatus.allowPickup;
+    store.storeSettings.allowPickup && store.storeStatus.allowPickup;
   const router = useRouter();
   const {
     items,
@@ -63,10 +63,10 @@ export default function CartPage() {
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [addressError, setAddressError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   // Minimalna wartość zamówienia dla dostawy (w zł)
   const isDeliveryAvailable =
-    totalPrice >= minOrderValueForDelivery && allowDelivery;
+    totalPrice >= store.storeSettings.deliverySettings.deliveryMinPriceOrder &&
+    allowDelivery;
 
   // Zmiana typu dostawy na odbiór osobisty jeśli wartość zamówienia jest poniżej minimum
   useEffect(() => {
@@ -79,17 +79,15 @@ export default function CartPage() {
   // const amountInSmallestUnit = Math.round(totalPrice * 100);
 
   // Obliczenie kosztów dostawy
-  const deliveryCost = deliveryType === "delivery" ? 10.0 : 0.0;
+  const deliveryCost = deliveryType === "delivery" ? deliveryPrice : 0.0;
   // Całkowita kwota z dostawą
   const totalWithDelivery = totalPrice + deliveryCost;
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAddressError("");
+    setAddressError(""); // Reset błędu przy każdym submicie
 
-    // Zabezpieczenie przed wielokrotnym kliknięciem
     if (isSubmitting) return;
-
     setIsSubmitting(true);
 
     // Sprawdź czy adres jest wymagany i podany
@@ -109,33 +107,25 @@ export default function CartPage() {
       : `+48${orderFormData.phone.trim()}`;
 
     try {
-      await NNSdk.placeOrder(
+      const res = await NNSdk.placeOrder(
         storeId,
         {
-          firstName: orderFormData.name,
+          fullName: orderFormData.name,
           email: orderFormData.email,
           phoneNumber: formattedPhoneNumber,
         },
-        deliveryType.toUpperCase(),
         selectedPaymentMethod.value,
+        deliveryType.toLocaleUpperCase(),
         {
           city: orderFormData.city,
           streetName: orderFormData.street,
           streetNumber: orderFormData.streetNumber,
         }
       );
-
-      // Sukces - czyścimy koszyk i formularz
-      items.forEach((item) => removeFromCart(item.cartItemId));
-      setOrderFormData({
-        name: "",
-        email: "",
-        phone: "",
-        city: "",
-        street: "",
-        streetNumber: "",
-        notes: "",
-      });
+      const paymentUrl = res.data.paymentDetails?.paymentUrl;
+      if (paymentUrl) {
+        window.open(paymentUrl, "_blank");
+      }
     } catch (error) {
       if (
         error instanceof SdkError &&
@@ -147,9 +137,21 @@ export default function CartPage() {
       } else {
         alert(error.message);
       }
+      return;
     } finally {
       setIsSubmitting(false);
     }
+    router.push("/order-success");
+    items.forEach((item) => removeFromCart(item.cartItemId));
+    setOrderFormData({
+      name: "",
+      email: "",
+      phone: "",
+      city: "",
+      street: "",
+      streetNumber: "",
+      notes: "",
+    });
   };
 
   const handleEditItem = (itemId: string) => {
@@ -353,11 +355,18 @@ export default function CartPage() {
                       !isDeliveryAvailable ? "text-gray-400" : ""
                     }`}
                   >
-                    Dostawa pod wskazany adres (+{deliveryPrice.toFixed(2)} zł)
+                    Dostawa pod wskazany adres (+
+                    {store.storeSettings.deliverySettings.deliveryPrice.toFixed(
+                      2
+                    )}{" "}
+                    zł)
                     {!isDeliveryAvailable && allowDelivery && (
                       <span className="block text-sm text-red-500 mt-1">
                         Wymagana minimalna wartość zamówienia:{" "}
-                        {minOrderValueForDelivery.toFixed(2)} zł
+                        {store.storeSettings.deliverySettings.deliveryMinPriceOrder.toFixed(
+                          2
+                        )}{" "}
+                        zł
                       </span>
                     )}
                     {!allowDelivery && (
@@ -488,7 +497,7 @@ export default function CartPage() {
 
               <form onSubmit={handleOrderSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Imię</Label>
+                  <Label htmlFor="name">Imię i nazwisko</Label>
                   <Input
                     id="name"
                     value={orderFormData.name}

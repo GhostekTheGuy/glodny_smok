@@ -15,7 +15,7 @@ import { CartProductDetails } from "./CartProductDetails";
 import { NNSdk } from "@/lib/sdk";
 import { CartItemSubItem, CartProduct } from "@/jsrepo-blocks/types/types";
 import { Quando } from "next/font/google";
-import { storeInformatons } from "@/data/menu-data";
+import { useStore } from "@/contexts/storeContext";
 
 export function CartPopup({
   children,
@@ -27,10 +27,6 @@ export function CartPopup({
   isMenuPage?: boolean;
 }) {
   //TODO: Move those to context
-  const MIN_ORDER_VALUE_FOR_DELIVERY =
-    storeInformatons.storeSettings.deliverySettings.deliveryMinPriceOrder;
-  const DELIVERY_PRICE =
-    storeInformatons.storeSettings.deliverySettings.deliveryPrice;
 
   const router = useRouter();
   const {
@@ -42,6 +38,7 @@ export function CartPopup({
     totalItems,
     totalPrice,
   } = useCart();
+  const { store } = useStore();
   const [isOpen, setIsOpen] = useState(false);
   const handleEditItem = (itemId: string) => {
     setIsOpen(false);
@@ -218,13 +215,20 @@ export function CartPopup({
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Dostawa</span>
                 <span className="text-gray-900">
-                  od {DELIVERY_PRICE.toFixed(2)} zł
+                  od{" "}
+                  {store.storeSettings.deliverySettings.deliveryPrice.toFixed(
+                    2
+                  )}{" "}
+                  zł
                 </span>
               </div>
               <div className="flex justify-between text-sm text-gray-500 text-xs italic">
                 <span>
                   Min. wartość zamówienia dla dostawy:{" "}
-                  {MIN_ORDER_VALUE_FOR_DELIVERY.toFixed(2)}zł
+                  {store.storeSettings.deliverySettings.deliveryMinPriceOrder.toFixed(
+                    2
+                  )}
+                  zł
                 </span>
               </div>
               <Separator className="my-2" />
