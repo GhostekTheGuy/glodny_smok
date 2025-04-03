@@ -9,7 +9,7 @@ export function FooterContent() {
   const { store } = useStore();
   if (!store) return null;
   return (
-    <footer className="bg-gray-100 py-12 mt-auto">
+    <footer className="bg-gray-100 py-12 mt-auto fixed bottom-0 left-0 w-full">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
         <div className="flex flex-col items-start">
           <Image
