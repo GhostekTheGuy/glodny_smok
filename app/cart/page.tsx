@@ -25,7 +25,7 @@ import Link from "next/link";
 import { CartProductDetails } from "@/components/CartProductDetails";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { NNSdk } from "@/lib/sdk";
-import { storeId, store } from "@/data/store-data";
+import { storeId } from "@/data/store-data";
 import { SdkError, SdkErrorKey } from "@/jsrepo-blocks/errors";
 import { useStore } from "@/contexts/storeContext";
 
