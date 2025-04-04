@@ -28,6 +28,8 @@ import { NNSdk } from "@/lib/sdk";
 import { storeId } from "@/data/store-data";
 import { SdkError, SdkErrorKey } from "@/jsrepo-blocks/errors";
 import { useStore } from "@/contexts/storeContext";
+import { ErrorModal } from "@/components/ErrorModal";
+import { ErrorAlert } from "@/components/ErrorAlert";
 
 export default function CartPage() {
   //TODO: Move those to context
@@ -63,6 +65,9 @@ export default function CartPage() {
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [addressError, setAddressError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<{ key: string; message: string } | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [isFirstError, setIsFirstError] = useState(true);
   // Minimalna wartość zamówienia dla dostawy (w zł)
   const isDeliveryAvailable =
     totalPrice >= store.storeSettings.deliverySettings.deliveryMinPriceOrder &&
@@ -86,6 +91,7 @@ export default function CartPage() {
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddressError(""); // Reset błędu przy każdym submicie
+    setError(null); // Reset błędu przy każdym submicie
 
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -97,7 +103,10 @@ export default function CartPage() {
         !orderFormData.street ||
         !orderFormData.streetNumber)
     ) {
-      alert("Proszę podać adres dostawy");
+      setError({
+        key: "MISSING_ADDRESS",
+        message: "Proszę podać adres dostawy"
+      });
       setIsSubmitting(false);
       return;
     }
@@ -135,7 +144,10 @@ export default function CartPage() {
           "Ten adres znajduje się poza obszarem dostawy. Proszę wybrać inny adres lub opcję odbioru osobistego."
         );
       } else {
-        alert(error.message);
+        setError({
+          key: error.key || "UNKNOWN_ERROR",
+          message: error.message || "Wystąpił nieoczekiwany błąd"
+        });
       }
       return;
     } finally {
@@ -165,6 +177,16 @@ export default function CartPage() {
   const handlePaymentMethodSelect = (method) => {
     setSelectedPaymentMethod(method);
     // dodatkowe operacje po wybraniu metody płatności
+  };
+
+  const handleModalClose = () => {
+    setError(null);
+    setShowAlert(true);
+    setIsFirstError(false);
+  };
+
+  const handleAlertClose = () => {
+    setShowAlert(false);
   };
 
   if (items.length === 0) {
@@ -612,6 +634,17 @@ export default function CartPage() {
           isOpen={isPaymentModalOpen}
           onClose={() => setIsPaymentModalOpen(false)}
           onMethodSelect={handlePaymentMethodSelect}
+        />
+        {isFirstError && (
+          <ErrorModal
+            isOpen={!!error}
+            onClose={handleModalClose}
+            error={error}
+          />
+        )}
+        <ErrorAlert
+          error={showAlert ? error : null}
+          onClose={handleAlertClose}
         />
       </div>
     </div>
