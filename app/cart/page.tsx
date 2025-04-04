@@ -92,6 +92,7 @@ export default function CartPage() {
     e.preventDefault();
     setAddressError(""); // Reset błędu przy każdym submicie
     setError(null); // Reset błędu przy każdym submicie
+    setShowAlert(false); // Reset alertu przy każdym submicie
 
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -180,9 +181,7 @@ export default function CartPage() {
   };
 
   const handleModalClose = () => {
-    setError(null);
     setShowAlert(true);
-    setIsFirstError(false);
   };
 
   const handleAlertClose = () => {
@@ -635,13 +634,11 @@ export default function CartPage() {
           onClose={() => setIsPaymentModalOpen(false)}
           onMethodSelect={handlePaymentMethodSelect}
         />
-        {isFirstError && (
-          <ErrorModal
-            isOpen={!!error}
-            onClose={handleModalClose}
-            error={error}
-          />
-        )}
+        <ErrorModal
+          isOpen={!!error}
+          onClose={handleModalClose}
+          error={error}
+        />
         <ErrorAlert
           error={showAlert ? error : null}
           onClose={handleAlertClose}
