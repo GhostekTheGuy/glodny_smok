@@ -65,9 +65,12 @@ export default function CartPage() {
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [addressError, setAddressError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<{ key: string; message: string } | null>(null);
+  const [error, setError] = useState<{ key: string; message: string } | null>(
+    null
+  );
   const [showAlert, setShowAlert] = useState(false);
   const [isFirstError, setIsFirstError] = useState(true);
+
   // Minimalna wartość zamówienia dla dostawy (w zł)
   const isDeliveryAvailable =
     totalPrice >= store.storeSettings.deliverySettings.deliveryMinPriceOrder &&
@@ -105,7 +108,7 @@ export default function CartPage() {
     ) {
       setError({
         key: "MISSING_ADDRESS",
-        message: "Proszę podać adres dostawy"
+        message: "Proszę podać adres dostawy",
       });
       setIsSubmitting(false);
       return;
@@ -146,7 +149,7 @@ export default function CartPage() {
       } else {
         setError({
           key: error.key || "UNKNOWN_ERROR",
-          message: error.message || "Wystąpił nieoczekiwany błąd"
+          message: error.message || "Wystąpił nieoczekiwany błąd",
         });
       }
       return;

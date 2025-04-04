@@ -358,7 +358,12 @@ export class NomNomSDK extends Utils {
 
       return response;
     } catch (error: any) {
-      throwApiError(error.response?.data?.key, error.response?.data?.message);
+      const errorResponse = error.response?.data;
+      throwApiError(
+        errorResponse?.key,
+        errorResponse?.message,
+        errorResponse?.additionalData
+      );
     }
   }
 

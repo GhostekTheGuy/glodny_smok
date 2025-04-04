@@ -2,7 +2,8 @@
 	Installed from github/BarSwi/NomNomFrontSDK
 */
 
-import { SdkError, SdkErrorKey } from "./errors";
+import { group } from "console";
+import { OrderError, SdkError, SdkErrorKey } from "./errors";
 import { OrderRequestGroupKey } from "./types/enums";
 import {
   CartItem,
@@ -103,6 +104,7 @@ export class Utils {
 
     return {
       id: cartProduct.productId,
+      name: cartProduct.name,
       count: cartProduct.quantity,
       ingredientGroups: this.groupItems(
         cartProduct.selectedIngredients,
@@ -161,21 +163,46 @@ export const sanitizeCartProduct = (cartProduct: CartProduct): CartProduct => {
   };
 };
 
-export const throwApiError = (key: string, message: string) => {
-  if (key === SdkErrorKey.DELIVERY_OUT_OF_RANGE) {
-    throw new SdkError(key, message);
-  } else {
-    throw new SdkError(SdkErrorKey.UNKNOWN_ERROR, "");
+export const throwApiError = (
+  key: SdkErrorKey,
+  errorMessage: string,
+  additionalData?: OrderError
+) => {
+  let formattedMessage = errorMessage;
+
+  if (!additionalData) {
+    throw new SdkError(key, formattedMessage);
   }
+
+  const { productName, groupName, groupItemName } = additionalData;
+
+  formattedMessage += groupItemName
+    ? createItemErrorMessage(productName!, groupName!, groupItemName)
+    : groupName
+    ? createGroupErrorMessage(productName!, groupName)
+    : productName
+    ? createProductErrorMessage(productName)
+    : "";
+
+  throw new SdkError(key, formattedMessage);
 };
-// export const sanitizeCartItem = (cartItem: cartItem): CartProduct => {
-//   return {
-//     ...cartProduct,
-//     selectedIngredients: cartProduct.selectedIngredients.filter(
-//       (ingredient) => ingredient.defaultCount !== ingredient.count
-//     ),
-//     selectedCutlery: cartProduct.selectedCutlery.filter(
-//       (cutlery) => cutlery.defaultCount !== cutlery.count
-//     ),
-//   };
-// };
+
+//#region createProductErrorMessage
+const createProductErrorMessage = (productName: string) => {
+  return ` Produkt: ${productName}`;
+};
+//#endregion
+//#region createGroupErrorMessage
+const createGroupErrorMessage = (productName: string, groupName: string) => {
+  return createProductErrorMessage(productName) + ` Kategoria: ${groupName}`;
+};
+//#endregion
+//#region createItemErrorMessage
+const createItemErrorMessage = (
+  productName: string,
+  groupName: string,
+  itemName: string
+) => {
+  return createGroupErrorMessage(productName, groupName) + ` ${itemName}`;
+};
+//#endregion
