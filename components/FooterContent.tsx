@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { useStore } from "@/contexts/storeContext";
+import Link from "next/link";
 
 export function FooterContent() {
   const { store } = useStore();
@@ -50,7 +51,15 @@ export function FooterContent() {
         </div>
       </div>
       <div className="container mx-auto mt-8 border-t pt-4 flex justify-between items-center text-sm text-black">
-        <span>Copyright © 2025 {store.name}</span>
+        <div className="flex gap-4">
+          <span>Copyright © 2025 {store.name}</span>
+          <Link href="/polityka-prywatnosci" className="hover:underline">
+            Polityka Prywatności
+          </Link>
+          <Link href="/regulamin" className="hover:underline">
+            Regulamin
+          </Link>
+        </div>
         <span>Designed by Hubert Kolejko</span>
       </div>
     </footer>

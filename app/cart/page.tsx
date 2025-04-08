@@ -30,6 +30,7 @@ import { SdkError, SdkErrorKey } from "@/jsrepo-blocks/errors";
 import { useStore } from "@/contexts/storeContext";
 import { ErrorModal } from "@/components/ErrorModal";
 import { ErrorAlert } from "@/components/ErrorAlert";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function CartPage() {
   //TODO: Move those to context
@@ -58,7 +59,9 @@ export default function CartPage() {
     city: "",
     street: "",
     streetNumber: "",
+    postcode: "",
     notes: "",
+    privacyAccepted: false,
   });
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -166,7 +169,9 @@ export default function CartPage() {
       city: "",
       street: "",
       streetNumber: "",
+      postcode: "",
       notes: "",
+      privacyAccepted: false,
     });
   };
 
@@ -228,17 +233,9 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        <Link
-          href="/#menu"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-8"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Powrót do menu
-        </Link>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="md:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6 h-full flex flex-col">
               <div className="flex items-center gap-2 mb-6">
                 <ShoppingBag className="h-6 w-6" />
@@ -478,6 +475,22 @@ export default function CartPage() {
                       }`}
                     />
                   </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Kod pocztowy"
+                      value={orderFormData.postcode}
+                      onChange={(e) =>
+                        setOrderFormData({
+                          ...orderFormData,
+                          postcode: e.target.value,
+                        })
+                      }
+                      className={`w-full p-2 border rounded ${
+                        addressError ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                  </div>
 
                   {addressError && (
                     <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
@@ -606,16 +619,42 @@ export default function CartPage() {
                     </Button>
                   )}
                 </div>
+                <div className="mt-4 flex items-start gap-2">
+                  <Checkbox
+                    id="privacy"
+                    checked={orderFormData.privacyAccepted}
+                    onCheckedChange={(checked) =>
+                      setOrderFormData({
+                        ...orderFormData,
+                        privacyAccepted: checked as boolean,
+                      })
+                    }
+                    className="mt-1"
+                  />
+                  <label htmlFor="privacy" className="text-sm text-gray-600">
+                    Zapoznałem się z{" "}
+                    <Link href="/polityka-prywatnosci" className="text-red-600 hover:underline" target="_blank">
+                      polityką prywatności
+                    </Link>{" "}
+                    i{" "}
+                    <Link href="/regulamin" className="text-red-600 hover:underline" target="_blank">
+                      regulaminem
+                    </Link>{" "}
+                    oraz akceptuję ich warunki.
+                  </label>
+                </div>
                 <Button
                   type="submit"
-                  className="w-full bg-red-600 hover:bg-red-700"
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
                   disabled={
                     isSubmitting ||
                     !selectedPaymentMethod ||
+                    !orderFormData.privacyAccepted ||
                     (deliveryType === "delivery" &&
                       (!orderFormData.city ||
                         !orderFormData.street ||
-                        !orderFormData.streetNumber))
+                        !orderFormData.streetNumber ||
+                        !orderFormData.postcode))
                   }
                 >
                   {isSubmitting ? (
